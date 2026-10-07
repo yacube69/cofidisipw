@@ -1,0 +1,22 @@
+# OCR / PDF
+pytesseract>=0.3.10
+opencv-python-headless>=4.9
+pymupdf>=1.24
+pdfplumber>=0.11
+
+# Parsing / data model
+rapidfuzz>=3.6
+pydantic>=2.6
+pandas>=2.2
+pyyaml>=6.0
+python-dotenv>=1.0
+
+# LLM provider SDK (AI report CIPW-16, vision baseline CIPW-8)
+anthropic>=0.40
+
+# App
+streamlit>=1.35
+
+# Dev
+pytest>=8.0
+ruff>=0.5

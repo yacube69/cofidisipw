@@ -1,0 +1,18 @@
+# Line codes and label variants for the parser (filled in CIPW-5).
+# Each item: code as printed on the Czech statement (rozvaha / výkaz zisku a ztráty),
+# canonical key used in src/schema.py, and label variants for fuzzy matching.
+version: 1
+
+balance_sheet:
+  - code: "001"
+    key: total_assets
+    labels:
+      - "AKTIVA CELKEM"
+  # TODO(CIPW-5): remaining lines
+
+income_statement:
+  - code: "I."
+    key: revenue_products_services
+    labels:
+      - "Tržby z prodeje výrobků a služeb"
+  # TODO(CIPW-5): remaining lines
