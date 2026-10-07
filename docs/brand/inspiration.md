@@ -1,6 +1,6 @@
 # Inspiration (Mobbin)
 
-Reference screens from Mobbin that shaped the Fides direction, and what we take from each. We borrow patterns, not looks: no colours, logos or layouts are copied.
+Reference screens from Mobbin that shaped the Fides page and app layout, and what we take from each. We borrow patterns, not looks: no colours, logos or layouts are copied.
 
 ## Extraction: PDF next to the data
 

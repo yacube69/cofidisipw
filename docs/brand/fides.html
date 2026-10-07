@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fides</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;1,6..72,400&display=swap">
+<style>
+  /* Layout: one column, hero = text + live split view (statement page | extracted values); then pipeline, trust, sample ratios. */
+  :root {
+    --paper: #fbfaf8;
+    --card: #ffffff;
+    --well: #f1eeeb;
+    --line: #e2ddd8;
+    --ink: #1e1a18;
+    --muted: #5b524d;
+    --red: #d52b1e;
+    --red-ink: #b81f14;
+    --on-red: #ffffff;
+    --yellow: #ffc72c;
+    --yellow-tint: #fff1c7;
+    --ok: #1d6a8a;
+    --warn: #8a5300;
+    --bad: #b81f14;
+    --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+    --font-sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+    --word: #1e1a18;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #151110; --card: #1e1918; --well: #0f0c0b; --line: #352d2a;
+      --ink: #f3eeea; --muted: #b9aea8; --red: #d52b1e; --red-ink: #ff7a6e; --on-red: #ffffff;
+      --yellow: #ffc72c; --yellow-tint: #3d2f0a; --ok: #7cc8ea; --warn: #f2b54a; --bad: #ff8a80;
+      --word: #f3eeea; color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #151110; --card: #1e1918; --well: #0f0c0b; --line: #352d2a;
+    --ink: #f3eeea; --muted: #b9aea8; --red: #d52b1e; --red-ink: #ff7a6e; --on-red: #ffffff;
+    --yellow: #ffc72c; --yellow-tint: #3d2f0a; --ok: #7cc8ea; --warn: #f2b54a; --bad: #ff8a80;
+    --word: #f3eeea; color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body { background: var(--paper); color: var(--ink); font: 400 16px/1.6 var(--font-sans); padding-inline: 20px; padding-block: 0 48px; }
+  .wrap { max-width: 1120px; margin: 0 auto; }
+  a { color: var(--red-ink); }
+  :focus-visible { outline: 2px solid var(--red-ink); outline-offset: 2px; }
+
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-block: 20px; }
+  .logo svg { display: block; height: 40px; width: auto; }
+  .logo .word { fill: var(--word); }
+  nav { display: flex; gap: 20px; flex-wrap: wrap; font-size: 14px; }
+  nav a { color: var(--muted); text-decoration: none; }
+  nav a:hover { color: var(--ink); text-decoration: underline; }
+
+  .eyebrow { font: 500 12px/16px var(--font-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--red-ink); margin: 0; }
+  h1, h2 { font-family: var(--font-display); font-weight: 600; text-wrap: balance; margin: 0; letter-spacing: -0.015em; }
+  h1 { font-size: clamp(40px, 6vw, 68px); line-height: 1.02; }
+  h2 { font-size: clamp(28px, 3.6vw, 40px); line-height: 1.1; }
+  h1 em { font-style: italic; font-weight: 400; color: var(--red-ink); }
+  .lede { font-size: 18px; color: var(--muted); max-width: 58ch; margin: 0; }
+
+  .hero { display: grid; gap: 28px; padding-block: 40px 56px; }
+  .hero-text { display: grid; gap: 18px; max-width: 760px; }
+
+  /* Live split view */
+  .split { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--card); }
+  .pane-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; padding: 12px 16px; border-bottom: 1px solid var(--line); font: 500 12px/16px var(--font-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+  .pdf { background: var(--well); padding: 20px; min-width: 0; overflow-x: auto; }
+  .sheet { background: #fffefb; color: #23201e; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 6px 20px rgba(0,0,0,.08); padding: 22px 20px; min-width: 400px; font-family: "Times New Roman", Times, serif; filter: contrast(0.96); transform: rotate(-0.25deg); }
+  .sheet h3 { font: 700 15px/1.2 "Times New Roman", Times, serif; text-align: center; margin: 0 0 4px; letter-spacing: 0.04em; }
+  .sheet .sub { text-align: center; font-size: 12px; margin: 0 0 14px; color: #4a4542; }
+  .sheet table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .sheet th, .sheet td { border: 1px solid #b9b2ad; padding: 4px 6px; text-align: left; }
+  .sheet th { font-size: 11px; font-weight: 700; background: #f2eee9; }
+  .sheet td.n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .sheet td.code { text-align: center; width: 44px; }
+  .sheet td.v { position: relative; }
+  .sheet td.v::after { content: ""; position: absolute; inset: 1px; border: 1.5px solid rgba(213, 43, 30, 0.35); border-radius: 2px; pointer-events: none; }
+  .sheet td.v.low::after { border-style: dashed; border-color: #d52b1e; }
+  .sheet td.v.hit { background: #ffe9a8; }
+  .sheet td.v.hit::after { border: 2.5px solid #e0a400; inset: -2px; }
+
+  .data { min-width: 0; display: flex; flex-direction: column; }
+  .rows { list-style: none; margin: 0; padding: 0; }
+  .rows button { all: unset; box-sizing: border-box; width: 100%; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 10px 16px; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .rows button:hover { background: var(--well); }
+  .rows button[aria-pressed="true"] { background: var(--yellow-tint); box-shadow: inset 3px 0 0 var(--yellow); }
+  .rows button:focus-visible { outline: 2px solid var(--red-ink); outline-offset: -2px; }
+  .code-l { font: 500 12px/16px var(--font-mono); color: var(--muted); }
+  .name { min-width: 0; font-size: 14px; line-height: 1.35; }
+  .name small { display: block; color: var(--muted); font-size: 12px; }
+  .val { font: 500 15px/1.2 var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+  .meta { grid-column: 2 / 4; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; font: 400 12px/16px var(--font-mono); color: var(--muted); }
+  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px 1px 5px; border: 1px solid currentColor; border-radius: 4px; font: 500 12px/18px var(--font-sans); }
+  .badge svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+  .b-ok { color: var(--ok); } .b-warn { color: var(--warn); } .b-bad { color: var(--bad); }
+  .checks { margin-top: auto; padding: 12px 16px; border-top: 1px solid var(--line); display: grid; gap: 6px; font-size: 13px; background: var(--card); }
+  .checks div { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .sample-note { font-size: 12px; color: var(--muted); margin: 8px 0 0; }
+
+  section.block { padding-block: 56px; border-top: 1px solid var(--line); display: grid; gap: 28px; }
+  .block-head { display: grid; gap: 12px; max-width: 720px; }
+
+  .steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--card); counter-reset: step; }
+  .steps li { padding: 20px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); display: grid; gap: 6px; align-content: start; counter-increment: step; margin: 0 -1px -1px 0; }
+  .steps li::before { content: counter(step, decimal-leading-zero); font: 500 12px/16px var(--font-mono); color: var(--red-ink); }
+  .steps h3 { margin: 0; font: 600 17px/1.3 var(--font-sans); }
+  .steps p { margin: 0; color: var(--muted); font-size: 14px; }
+  .steps code { font: 400 12px/1.4 var(--font-mono); color: var(--ink); background: var(--well); padding: 1px 5px; border-radius: 3px; }
+
+  .trust { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 28px 32px; }
+  .trust div { display: grid; gap: 6px; align-content: start; }
+  .trust h3 { margin: 0; font: 600 17px/1.3 var(--font-sans); display: flex; gap: 10px; align-items: center; }
+  .trust h3 svg { width: 22px; height: 22px; flex: none; fill: none; stroke: var(--red-ink); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .trust p { margin: 0; color: var(--muted); font-size: 15px; max-width: 46ch; }
+
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+  .tile { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; display: grid; gap: 6px; }
+  .tile .lab { font: 500 11px/16px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .tile .num { font: 500 30px/1.1 var(--font-mono); font-variant-numeric: tabular-nums; }
+  .tile .cmp { font-size: 13px; color: var(--muted); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .light { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+  .l-g { background: var(--ok); } .l-a { background: var(--yellow); outline: 1px solid var(--warn); } .l-r { background: var(--red); }
+  .verdict { font: italic 400 22px/1.45 var(--font-display); max-width: 60ch; margin: 0; padding: 20px 24px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; }
+  .verdict mark { background: var(--yellow-tint); color: inherit; padding: 0 2px; border-bottom: 2px solid var(--yellow); }
+  .verdict cite { display: block; margin-top: 10px; font: normal 400 12px/16px var(--font-mono); color: var(--muted); }
+
+  footer { border-top: 1px solid var(--line); padding-block: 28px 0; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; align-items: center; color: var(--muted); font-size: 14px; }
+  footer .logo svg { height: 28px; }
+
+  @media (max-width: 820px) {
+    .split { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .sheet td.v { transition: background-color .2s ease-out; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <a class="logo" href="#top" aria-label="Fides home"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 232 64"  aria-hidden="true">
+  <rect width="64" height="64" rx="14" fill="#D52B1E"/>
+  <path d="M15 13h34v8H23v8h11v8H23v14h-8z" fill="#FFFFFF"/>
+  <g fill="none" stroke="#FFC72C" stroke-width="2.5" stroke-linecap="square">
+    <path d="M38.25 30.5v-3.25h3.75M47 27.25h3.75v3.25M50.75 35.5v3.25H47M42 38.75h-3.75V35.5"/>
+  </g>
+  <rect x="41.5" y="30.5" width="6" height="5" fill="#FFC72C"/>
+  <path transform="translate(82 11)" d="M30.081245991721083 9.449304381413246 28.813179585471083 18.70185510436101 30.081245991721083 27.894704334771454H29.297959057252797L25.630128775069963 20.063057515158583L12.897056465718283 19.359296656366606V18.00190575443097L25.630128775069963 17.204056013875935L29.297959057252797 9.449304381413246ZM34.742271309468286 -4.741504270638991H35.14561895114272L38.28448395230877 9.914528917910449L37.36101657241138 10.186769400069963L29.68243499300373 -1.5405346315298516L34.4819627448694 -0.38924032182836044H10.763504256063433V-2.6865671641791025H30.61306990438433ZM16.623365715368468 -2.6865671641791025V37.69074124008862L21.510995437849814 39.020414893306906V40.0H1.7640526614972014V39.020414893306906L6.651682383978545 37.69074124008862V-0.40715915053637985L1.7640526614972014 -1.6943250058302226V-2.6865671641791025Z M47.149759503264924 5.1319671175373145Q44.91476504197761 5.1319671175373145 43.616371450851204 3.6775148306319956Q42.317977859724806 2.2230625437266767 42.317977859724806 0.33720375174906536Q42.317977859724806 -1.5106838852611943 43.616371450851204 -2.8308078139575557Q44.91476504197761 -4.150931742653917 47.149759503264924 -4.150931742653917Q49.39741101620802 -4.150931742653917 50.64243164062499 -2.8308078139575557Q51.88745226504197 -1.5106838852611943 51.88745226504197 0.33720375174906536Q51.88745226504197 2.2230625437266767 50.64243164062499 3.6775148306319956Q49.39741101620802 5.1319671175373145 47.149759503264924 5.1319671175373145ZM51.89248629897388 8.520119738222949V14.632127448694032V38.1972510494403L55.30046350279851 39.118087540811565V40.0H39.63785309293377V39.118087540811565L43.18505786497201 38.159279894472945V15.941293289412314Q42.85669965601679 15.643738703941231 42.29491112552472 15.168871523729011Q41.73312259503265 14.694004343516792 40.983632739622195 14.036448919951027Q40.23414288421175 13.378893496385263 39.30876974988339 12.558588284165111V11.831419076492537L51.48197112581623 8.520119738222949Z M79.41752273787313 16.13705216592817Q79.41752273787313 13.566076477961754 77.88213601183534 12.01229448460821Q76.34674928579757 10.458512491254666 73.86605097073226 10.458512491254666Q71.63681567747201 10.458512491254666 70.0390965703708 11.823163843866606Q68.44137746326959 13.187815196478546 67.59457752740205 16.069841527227148Q66.74777759153451 18.951867857975746 66.74777759153451 23.54244038596082Q66.74777759153451 27.887039412313435 67.57738383278917 30.568707366487875Q68.40699007404383 33.250375320662314 70.09784518569262 34.473893350629666Q71.7887002973414 35.69741138059702 74.38331207730876 35.69741138059702Q76.31308703066696 35.69741138059702 77.95832701725746 35.053238142782185Q79.60356700384794 34.40906490496735 81.02134262768189 32.90985745102612L81.279248046875 33.68407109958022Q79.51256449685167 35.81613113631063 78.06516586986939 37.189741903276584Q76.61776724288711 38.56335267024254 75.34947309351678 39.33588830748601Q74.08117894414644 40.10842394472948 72.86267399574393 40.41600469333022Q71.6441690473414 40.72358544193097 70.36966024370335 40.72358544193097Q66.48452658582089 40.72358544193097 63.63784052151352 38.90495824102146Q60.79115445720615 37.08633104011194 59.23664732975745 33.81588244082323Q57.68214020230876 30.545433841534518 57.68214020230876 26.196298172224814Q57.68214020230876 22.01360992887127 58.95844088881762 18.758086702716884Q60.23474157532649 15.5025634765625 62.546745095324155 13.263757506413247Q64.85874861532182 11.024951536263995 68.00203638788479 9.867100957614273Q71.14532416044776 8.709250378964551 74.87929833255596 8.709250378964551Q76.72909172399719 8.709250378964551 78.56443618091183 8.956653196420243Q80.39978063782648 9.204056013875935 82.17315528072527 9.728712395055972Q83.94652992362406 10.253368776236009 85.5185933127332 11.089189671758398L79.41752273787313 11.570613120918843V2.5941981984608233Q79.05931378264924 2.356345105527055 78.22982141295475 1.7784296291977633Q77.40032904326026 1.2005141528684717 76.41525441639459 0.5122689773787314Q75.4301797895289 -0.17597619811100884 74.56450814773787 -0.766548726096083V-1.4937179337686572L87.97234141791044 -4.425077979244399H88.36566289645522L88.12495117187498 0.999181946711758V35.93453933943563Q88.3936078882929 36.07925642782183 88.94632313287079 36.362362078766324Q89.49903837744868 36.64546772971082 90.17115660710121 36.979678025886194Q90.84327483675372 37.313888322061565 91.49187084596548 37.64809861823694Q92.14046685517724 37.982308914412314 92.61807879547574 38.224698650303175V38.995328533115675L80.23760020697294 40.9912892811334H79.78457723589085L79.41752273787313 36.12870401410914Z M109.46879154034515 8.709250378964551Q113.03345965485074 8.709250378964551 115.5769877419543 10.127999832381063Q118.12051582905784 11.546749285797574 119.57592099317864 14.252664594507928Q121.03132615729945 16.958579903218283 121.31263992537313 20.824614112056903H101.24767665578358V18.675588123833954H117.21900652985074L113.32117391557836 20.059473749416977Q113.09860876282649 16.544480964319032 112.51461345615672 14.472122420125935Q111.93061814948695 12.399763875932837 110.94495321245336 11.48203471169543Q109.95928827541977 10.564305547458023 108.49732684235074 10.564305547458023Q106.63632666744402 10.564305547458023 105.3163375626749 11.676178434001866Q103.99634845790578 12.788051320545708 103.30513077920942 15.200223552646921Q102.61391310051306 17.612395784748134 102.61391310051306 21.51735402576959Q102.61391310051306 26.26194467117537 103.7795215208139 29.185163355585352Q104.94512994111474 32.108382039995334 107.20757200326493 33.44628997347248Q109.47001406541511 34.78419790694963 112.7691118382696 34.78419790694963Q114.39824583138993 34.78419790694963 115.86642191872667 34.38706491954291Q117.33459800606343 33.989931932136194 118.69101507841651 33.13238069904384Q120.0474321507696 32.27482946595149 121.26033370743937 30.893574728894592L121.90248731926306 31.411788712686565Q119.88719937908115 34.88595171117071 117.86331459159281 36.92333255597015Q115.83942980410447 38.96071340076959 113.61745496152051 39.842149421350285Q111.39548011893656 40.72358544193097 108.73708568971549 40.72358544193097Q104.48943417677239 40.72358544193097 101.21181804600047 38.926688578591424Q97.93420191522854 37.12979171525187 96.08393208517957 33.68023863835121Q94.2336622551306 30.23068556145056 94.2336622551306 25.304359549906717Q94.2336622551306 20.843941304221083 95.98984320341651 17.06829833984375Q97.74602415170243 13.292655375466417 101.15116367624768 11.000952877215484Q104.55630320079291 8.709250378964551 109.46879154034515 8.709250378964551Z M136.97458459654848 8.709250378964551Q139.32086163421175 8.709250378964551 141.12719435051304 9.104115044892724Q142.93352706681435 9.498979710820898 144.81675497026583 10.28870904267724L145.94464093108675 18.56906993353545H145.0066107451026L140.47238368703358 10.445130305503731L143.05388292910447 13.081069263059703Q141.41662852728544 11.526924702658583 139.96982021047108 10.888717423624067Q138.5230118936567 10.250510144589551 136.7472550577192 10.250510144589551Q134.1375830806903 10.250510144589551 132.76803251807368 11.279998323810634Q131.39848195545707 12.309486503031717 131.39848195545707 14.33765923798974Q131.39848195545707 15.460283421758398 131.90773652489503 16.391146076259332Q132.416991094333 17.322008730760263 133.9814105133512 18.225288960471083Q135.5458299323694 19.128569190181903 138.76875765216883 20.21322221898321Q141.16040111940296 21.007488193796643 142.77998538800136 22.033278735715953Q144.3995696565998 23.059069277635263 145.35610898145987 24.30778753935401Q146.31264830631994 25.55650580107276 146.72781399399486 27.041285272854477Q147.14297968166977 28.526064744636194 147.14297968166977 30.268159325443097Q147.14297968166977 33.34446420242537 145.45557351183535 35.70482760756763Q143.76816734200094 38.06519101270989 140.87191981984608 39.394388227320434Q137.97567229769123 40.72358544193097 134.28084990088618 40.72358544193097Q131.54388227320428 40.72358544193097 129.52047392432368 40.27582424790112Q127.49706557544309 39.82806305387127 125.91402314598879 39.021140027402055L124.2631588152985 29.504241487873134H125.34590608966883L130.76944088152985 39.14244876690765L129.06173368994868 37.47175985307836Q129.8758242479011 38.038924032182834 130.78352724900884 38.41205836054104Q131.6912302501166 38.78519268889925 132.66496326958955 38.97289401381763Q133.6386962890625 39.16059533873601 134.60204057835819 39.16059533873601Q137.17278852320428 39.16059533873601 139.00645496880827 37.81588244082323Q140.8401214144123 36.471169542910445 140.8401214144123 33.726578897504666Q140.8401214144123 32.66819284923041 140.47558393336053 31.795239804395987Q140.11104645230876 30.922286759561565 139.2625685051306 30.153811326667444Q138.41409055795242 29.385335893773323 136.96226915957322 28.667965106110074Q135.51044776119403 27.95059431844683 133.3060291802705 27.245880582439366Q130.38519268889925 26.29328759036847 128.59151702425373 25.01961779238573Q126.7978413596082 23.745947994402986 125.9869720003498 22.05352874300373Q125.1761026410914 20.361109491604477 125.1761026410914 18.188447411380597Q125.1761026410914 15.253275857042912 126.74004562150185 13.132671299265393Q128.3039886019123 11.012066741487875 130.97683196565998 9.860658560226213Q133.64967532940764 8.709250378964551 136.97458459654848 8.709250378964551Z" class="word"/>
+</svg></a>
+    <nav aria-label="Sections">
+      <a href="#how">How it works</a>
+      <a href="#trust">Why you can trust it</a>
+      <a href="#output">Output</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-text">
+        <p class="eyebrow">Financial Insight &amp; Data Extraction System</p>
+        <h1>Every number, <em>traced to its page.</em></h1>
+        <p class="lede">Fides reads Czech annual financial statements, digital or scanned, checks that they add up, and turns them into ratios, bankruptcy scores and a short credit assessment. Click any value and see exactly where it came from.</p>
+      </div>
+
+      <div>
+        <div class="split">
+          <div class="pdf">
+            <div class="sheet" aria-label="Scanned balance sheet, sample">
+              <h3>ROZVAHA</h3>
+              <p class="sub">ve zkráceném rozsahu · k 31. 12. 2025 · v celých tisících Kč</p>
+              <table>
+                <thead><tr><th>Ozn.</th><th>AKTIVA / PASIVA</th><th>Řád.</th><th>Běžné období</th><th>Minulé období</th></tr></thead>
+                <tbody>
+                  <tr><td></td><td><b>AKTIVA CELKEM</b></td><td class="code">001</td><td class="n v" data-line="001">48 912</td><td class="n">41 207</td></tr>
+                  <tr><td>B.</td><td>Stálá aktiva</td><td class="code">003</td><td class="n v" data-line="003">26 870</td><td class="n">24 115</td></tr>
+                  <tr><td>C.</td><td>Oběžná aktiva</td><td class="code">037</td><td class="n v low" data-line="037">21 406</td><td class="n">16 640</td></tr>
+                  <tr><td>D.</td><td>Časové rozlišení aktiv</td><td class="code">074</td><td class="n v" data-line="074">636</td><td class="n">452</td></tr>
+                  <tr><td></td><td><b>PASIVA CELKEM</b></td><td class="code">078</td><td class="n v" data-line="078">48 912</td><td class="n">41 207</td></tr>
+                  <tr><td>A.</td><td>Vlastní kapitál</td><td class="code">079</td><td class="n v" data-line="079">19 554</td><td class="n">17 980</td></tr>
+                  <tr><td>B.+C.</td><td>Cizí zdroje</td><td class="code">101</td><td class="n v" data-line="101">28 905</td><td class="n">22 811</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="data">
+            <div class="pane-head"><span>Extracted · balance sheet</span><span>tis. Kč · 2025</span></div>
+            <ul class="rows" id="rows"></ul>
+            <div class="checks" aria-label="Accounting checks">
+              <div><span class="badge b-ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Verified</span> Total assets = total liabilities (48 912)</div>
+              <div><span class="badge b-ok"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Verified</span> Fixed + current + accruals = total assets</div>
+              <div><span class="badge b-warn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg> Review</span> Line 037 read by OCR at 71 % confidence, re-read queued</div>
+            </div>
+          </div>
+        </div>
+        <p class="sample-note">Sample company and figures for illustration. Click a row to highlight its source on the page.</p>
+      </div>
+    </section>
+
+    <section class="block" id="how">
+      <div class="block-head">
+        <p class="eyebrow">How it works</p>
+        <h2>From a PDF in the Sbírka listin to a credit view in one run.</h2>
+        <p class="lede">One deterministic pipeline, run locally with <code style="font-family:var(--font-mono);font-size:15px">python -m src.pipeline</code>. Only the final assessment calls a language model.</p>
+      </div>
+      <ol class="steps">
+        <li><h3>Locate the statements</h3><p>Finds the balance sheet and income statement pages inside a long annual report.</p></li>
+        <li><h3>Read every page</h3><p>Uses the PDF text layer where it exists and Tesseract OCR with Czech language data where the page is a scan. Keeps the position of every word.</p></li>
+        <li><h3>Parse to a schema</h3><p>Matches line codes and Czech labels to a fixed data model, detects columns, units (Kč, tis. Kč) and periods.</p></li>
+        <li><h3>Validate and re-read</h3><p>Checks accounting identities. When a total does not add up, re-reads the suspicious cells with tuned OCR and flags what still fails for a human.</p></li>
+        <li><h3>Analyse</h3><p>Computes liquidity, leverage and profitability ratios, the IN05 index and Altman Z-score, with year-over-year trends and industry traffic lights.</p></li>
+        <li><h3>Write the assessment</h3><p>Generates a short structured report, then checks every number in it against the extracted data and marks anything it cannot confirm.</p></li>
+      </ol>
+    </section>
+
+    <section class="block" id="trust">
+      <div class="block-head">
+        <p class="eyebrow">Why you can trust it</p>
+        <h2>Nothing is a black box. Every value can be checked in one click.</h2>
+      </div>
+      <div class="trust">
+        <div>
+          <h3><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="8" y="9" width="8" height="6" rx="1"/></svg>Bounding box for every value</h3>
+          <p>Each number keeps its page, line code and position. Analysts compare it with the original instead of trusting a table.</p>
+        </div>
+        <div>
+          <h3><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M5 7h14M5 7l-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0z"/></svg>Statements must balance</h3>
+          <p>Assets must equal liabilities and every subtotal must equal its parts. A failed check is shown, never hidden.</p>
+        </div>
+        <div>
+          <h3><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>Humans review the doubtful</h3>
+          <p>Low OCR confidence and failed checks are flagged and editable. Fides supports the analyst's decision; it does not replace it.</p>
+        </div>
+        <div>
+          <h3><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Data stays in-house</h3>
+          <p>Extraction and analysis run locally with open-source OCR. The language model sees only the extracted figures, never the documents.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="block" id="output">
+      <div class="block-head">
+        <p class="eyebrow">Output</p>
+        <h2>Ratios, bankruptcy scores and a short assessment.</h2>
+      </div>
+      <div class="tiles">
+        <div class="tile"><span class="lab">Current ratio</span><span class="num">1,84</span><span class="cmp"><span class="light l-g" aria-hidden="true"></span>Healthy · 2024: 1,62</span></div>
+        <div class="tile"><span class="lab">Debt ratio</span><span class="num">59 %</span><span class="cmp"><span class="light l-a" aria-hidden="true"></span>Watch · 2024: 55 %</span></div>
+        <div class="tile"><span class="lab">IN05 index</span><span class="num">1,92</span><span class="cmp"><span class="light l-g" aria-hidden="true"></span>Above 1,6 · creates value</span></div>
+        <div class="tile"><span class="lab">Altman Z′</span><span class="num">1,41</span><span class="cmp"><span class="light l-a" aria-hidden="true"></span>Grey zone · 1,23–2,9</span></div>
+      </div>
+      <p class="verdict">Low to moderate bankruptcy risk. Liquidity improved year over year, but debt grew faster than equity <mark>(cizí zdroje +27 %)</mark>; the IN05 score and the Altman score disagree, so a manual review of liabilities is recommended.<cite>AI assessment · sample · every highlighted number verified against Rozvaha, ř. 079 and 101</cite></p>
+      <p class="sample-note">Sample figures. Traffic-light thresholds come from industry benchmarks (CZ-NACE).</p>
+    </section>
+  </main>
+
+  <footer>
+    <span class="logo"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 232 64"  aria-hidden="true">
+  <rect width="64" height="64" rx="14" fill="#D52B1E"/>
+  <path d="M15 13h34v8H23v8h11v8H23v14h-8z" fill="#FFFFFF"/>
+  <g fill="none" stroke="#FFC72C" stroke-width="2.5" stroke-linecap="square">
+    <path d="M38.25 30.5v-3.25h3.75M47 27.25h3.75v3.25M50.75 35.5v3.25H47M42 38.75h-3.75V35.5"/>
+  </g>
+  <rect x="41.5" y="30.5" width="6" height="5" fill="#FFC72C"/>
+  <path transform="translate(82 11)" d="M30.081245991721083 9.449304381413246 28.813179585471083 18.70185510436101 30.081245991721083 27.894704334771454H29.297959057252797L25.630128775069963 20.063057515158583L12.897056465718283 19.359296656366606V18.00190575443097L25.630128775069963 17.204056013875935L29.297959057252797 9.449304381413246ZM34.742271309468286 -4.741504270638991H35.14561895114272L38.28448395230877 9.914528917910449L37.36101657241138 10.186769400069963L29.68243499300373 -1.5405346315298516L34.4819627448694 -0.38924032182836044H10.763504256063433V-2.6865671641791025H30.61306990438433ZM16.623365715368468 -2.6865671641791025V37.69074124008862L21.510995437849814 39.020414893306906V40.0H1.7640526614972014V39.020414893306906L6.651682383978545 37.69074124008862V-0.40715915053637985L1.7640526614972014 -1.6943250058302226V-2.6865671641791025Z M47.149759503264924 5.1319671175373145Q44.91476504197761 5.1319671175373145 43.616371450851204 3.6775148306319956Q42.317977859724806 2.2230625437266767 42.317977859724806 0.33720375174906536Q42.317977859724806 -1.5106838852611943 43.616371450851204 -2.8308078139575557Q44.91476504197761 -4.150931742653917 47.149759503264924 -4.150931742653917Q49.39741101620802 -4.150931742653917 50.64243164062499 -2.8308078139575557Q51.88745226504197 -1.5106838852611943 51.88745226504197 0.33720375174906536Q51.88745226504197 2.2230625437266767 50.64243164062499 3.6775148306319956Q49.39741101620802 5.1319671175373145 47.149759503264924 5.1319671175373145ZM51.89248629897388 8.520119738222949V14.632127448694032V38.1972510494403L55.30046350279851 39.118087540811565V40.0H39.63785309293377V39.118087540811565L43.18505786497201 38.159279894472945V15.941293289412314Q42.85669965601679 15.643738703941231 42.29491112552472 15.168871523729011Q41.73312259503265 14.694004343516792 40.983632739622195 14.036448919951027Q40.23414288421175 13.378893496385263 39.30876974988339 12.558588284165111V11.831419076492537L51.48197112581623 8.520119738222949Z M79.41752273787313 16.13705216592817Q79.41752273787313 13.566076477961754 77.88213601183534 12.01229448460821Q76.34674928579757 10.458512491254666 73.86605097073226 10.458512491254666Q71.63681567747201 10.458512491254666 70.0390965703708 11.823163843866606Q68.44137746326959 13.187815196478546 67.59457752740205 16.069841527227148Q66.74777759153451 18.951867857975746 66.74777759153451 23.54244038596082Q66.74777759153451 27.887039412313435 67.57738383278917 30.568707366487875Q68.40699007404383 33.250375320662314 70.09784518569262 34.473893350629666Q71.7887002973414 35.69741138059702 74.38331207730876 35.69741138059702Q76.31308703066696 35.69741138059702 77.95832701725746 35.053238142782185Q79.60356700384794 34.40906490496735 81.02134262768189 32.90985745102612L81.279248046875 33.68407109958022Q79.51256449685167 35.81613113631063 78.06516586986939 37.189741903276584Q76.61776724288711 38.56335267024254 75.34947309351678 39.33588830748601Q74.08117894414644 40.10842394472948 72.86267399574393 40.41600469333022Q71.6441690473414 40.72358544193097 70.36966024370335 40.72358544193097Q66.48452658582089 40.72358544193097 63.63784052151352 38.90495824102146Q60.79115445720615 37.08633104011194 59.23664732975745 33.81588244082323Q57.68214020230876 30.545433841534518 57.68214020230876 26.196298172224814Q57.68214020230876 22.01360992887127 58.95844088881762 18.758086702716884Q60.23474157532649 15.5025634765625 62.546745095324155 13.263757506413247Q64.85874861532182 11.024951536263995 68.00203638788479 9.867100957614273Q71.14532416044776 8.709250378964551 74.87929833255596 8.709250378964551Q76.72909172399719 8.709250378964551 78.56443618091183 8.956653196420243Q80.39978063782648 9.204056013875935 82.17315528072527 9.728712395055972Q83.94652992362406 10.253368776236009 85.5185933127332 11.089189671758398L79.41752273787313 11.570613120918843V2.5941981984608233Q79.05931378264924 2.356345105527055 78.22982141295475 1.7784296291977633Q77.40032904326026 1.2005141528684717 76.41525441639459 0.5122689773787314Q75.4301797895289 -0.17597619811100884 74.56450814773787 -0.766548726096083V-1.4937179337686572L87.97234141791044 -4.425077979244399H88.36566289645522L88.12495117187498 0.999181946711758V35.93453933943563Q88.3936078882929 36.07925642782183 88.94632313287079 36.362362078766324Q89.49903837744868 36.64546772971082 90.17115660710121 36.979678025886194Q90.84327483675372 37.313888322061565 91.49187084596548 37.64809861823694Q92.14046685517724 37.982308914412314 92.61807879547574 38.224698650303175V38.995328533115675L80.23760020697294 40.9912892811334H79.78457723589085L79.41752273787313 36.12870401410914Z M109.46879154034515 8.709250378964551Q113.03345965485074 8.709250378964551 115.5769877419543 10.127999832381063Q118.12051582905784 11.546749285797574 119.57592099317864 14.252664594507928Q121.03132615729945 16.958579903218283 121.31263992537313 20.824614112056903H101.24767665578358V18.675588123833954H117.21900652985074L113.32117391557836 20.059473749416977Q113.09860876282649 16.544480964319032 112.51461345615672 14.472122420125935Q111.93061814948695 12.399763875932837 110.94495321245336 11.48203471169543Q109.95928827541977 10.564305547458023 108.49732684235074 10.564305547458023Q106.63632666744402 10.564305547458023 105.3163375626749 11.676178434001866Q103.99634845790578 12.788051320545708 103.30513077920942 15.200223552646921Q102.61391310051306 17.612395784748134 102.61391310051306 21.51735402576959Q102.61391310051306 26.26194467117537 103.7795215208139 29.185163355585352Q104.94512994111474 32.108382039995334 107.20757200326493 33.44628997347248Q109.47001406541511 34.78419790694963 112.7691118382696 34.78419790694963Q114.39824583138993 34.78419790694963 115.86642191872667 34.38706491954291Q117.33459800606343 33.989931932136194 118.69101507841651 33.13238069904384Q120.0474321507696 32.27482946595149 121.26033370743937 30.893574728894592L121.90248731926306 31.411788712686565Q119.88719937908115 34.88595171117071 117.86331459159281 36.92333255597015Q115.83942980410447 38.96071340076959 113.61745496152051 39.842149421350285Q111.39548011893656 40.72358544193097 108.73708568971549 40.72358544193097Q104.48943417677239 40.72358544193097 101.21181804600047 38.926688578591424Q97.93420191522854 37.12979171525187 96.08393208517957 33.68023863835121Q94.2336622551306 30.23068556145056 94.2336622551306 25.304359549906717Q94.2336622551306 20.843941304221083 95.98984320341651 17.06829833984375Q97.74602415170243 13.292655375466417 101.15116367624768 11.000952877215484Q104.55630320079291 8.709250378964551 109.46879154034515 8.709250378964551Z M136.97458459654848 8.709250378964551Q139.32086163421175 8.709250378964551 141.12719435051304 9.104115044892724Q142.93352706681435 9.498979710820898 144.81675497026583 10.28870904267724L145.94464093108675 18.56906993353545H145.0066107451026L140.47238368703358 10.445130305503731L143.05388292910447 13.081069263059703Q141.41662852728544 11.526924702658583 139.96982021047108 10.888717423624067Q138.5230118936567 10.250510144589551 136.7472550577192 10.250510144589551Q134.1375830806903 10.250510144589551 132.76803251807368 11.279998323810634Q131.39848195545707 12.309486503031717 131.39848195545707 14.33765923798974Q131.39848195545707 15.460283421758398 131.90773652489503 16.391146076259332Q132.416991094333 17.322008730760263 133.9814105133512 18.225288960471083Q135.5458299323694 19.128569190181903 138.76875765216883 20.21322221898321Q141.16040111940296 21.007488193796643 142.77998538800136 22.033278735715953Q144.3995696565998 23.059069277635263 145.35610898145987 24.30778753935401Q146.31264830631994 25.55650580107276 146.72781399399486 27.041285272854477Q147.14297968166977 28.526064744636194 147.14297968166977 30.268159325443097Q147.14297968166977 33.34446420242537 145.45557351183535 35.70482760756763Q143.76816734200094 38.06519101270989 140.87191981984608 39.394388227320434Q137.97567229769123 40.72358544193097 134.28084990088618 40.72358544193097Q131.54388227320428 40.72358544193097 129.52047392432368 40.27582424790112Q127.49706557544309 39.82806305387127 125.91402314598879 39.021140027402055L124.2631588152985 29.504241487873134H125.34590608966883L130.76944088152985 39.14244876690765L129.06173368994868 37.47175985307836Q129.8758242479011 38.038924032182834 130.78352724900884 38.41205836054104Q131.6912302501166 38.78519268889925 132.66496326958955 38.97289401381763Q133.6386962890625 39.16059533873601 134.60204057835819 39.16059533873601Q137.17278852320428 39.16059533873601 139.00645496880827 37.81588244082323Q140.8401214144123 36.471169542910445 140.8401214144123 33.726578897504666Q140.8401214144123 32.66819284923041 140.47558393336053 31.795239804395987Q140.11104645230876 30.922286759561565 139.2625685051306 30.153811326667444Q138.41409055795242 29.385335893773323 136.96226915957322 28.667965106110074Q135.51044776119403 27.95059431844683 133.3060291802705 27.245880582439366Q130.38519268889925 26.29328759036847 128.59151702425373 25.01961779238573Q126.7978413596082 23.745947994402986 125.9869720003498 22.05352874300373Q125.1761026410914 20.361109491604477 125.1761026410914 18.188447411380597Q125.1761026410914 15.253275857042912 126.74004562150185 13.132671299265393Q128.3039886019123 11.012066741487875 130.97683196565998 9.860658560226213Q133.64967532940764 8.709250378964551 136.97458459654848 8.709250378964551Z" class="word"/>
+</svg></span>
+    <span>A prototype built for Cofidis · International Project Week 2026, Görlitz · Showcase on 10 December 2026</span>
+  </footer>
+</div>
+
+<script>
+  const ROWS = [
+    { line: "001", en: "Total assets", cz: "Aktiva celkem", v: "48 912", conf: 98, src: "text layer", st: "ok" },
+    { line: "003", en: "Fixed assets", cz: "Stálá aktiva", v: "26 870", conf: 96, src: "OCR", st: "ok" },
+    { line: "037", en: "Current assets", cz: "Oběžná aktiva", v: "21 406", conf: 71, src: "OCR", st: "warn" },
+    { line: "074", en: "Accruals", cz: "Časové rozlišení aktiv", v: "636", conf: 93, src: "OCR", st: "ok" },
+    { line: "078", en: "Total liabilities", cz: "Pasiva celkem", v: "48 912", conf: 97, src: "OCR", st: "ok" },
+    { line: "079", en: "Equity", cz: "Vlastní kapitál", v: "19 554", conf: 95, src: "OCR", st: "ok" },
+    { line: "101", en: "Liabilities", cz: "Cizí zdroje", v: "28 905", conf: 94, src: "OCR", st: "ok" },
+  ];
+  const ICON = {
+    ok: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>',
+    warn: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>',
+  };
+  const LABEL = { ok: "Verified", warn: "Review" };
+  const list = document.getElementById("rows");
+  list.innerHTML = ROWS.map(r => `
+    <li><button type="button" data-line="${r.line}" aria-pressed="false">
+      <span class="code-l">${r.line}</span>
+      <span class="name">${r.en}<small>${r.cz}</small></span>
+      <span class="val">${r.v}</span>
+      <span class="meta"><span class="badge b-${r.st}">${ICON[r.st]} ${LABEL[r.st]}</span>str. 4 · ř. ${r.line} · ${r.src} ${r.conf} %</span>
+    </button></li>`).join("");
+
+  function select(line) {
+    list.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.line === line)));
+    document.querySelectorAll(".sheet td.v").forEach(td => td.classList.toggle("hit", td.dataset.line === line));
+  }
+  list.addEventListener("click", e => {
+    const b = e.target.closest("button");
+    if (b) select(b.dataset.line);
+  });
+  document.querySelectorAll(".sheet td.v").forEach(td => {
+    td.style.cursor = "pointer";
+    td.addEventListener("click", () => select(td.dataset.line));
+  });
+  select("037");
+</script>
+</body>
+</html>
