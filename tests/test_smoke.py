@@ -32,7 +32,7 @@ def test_folder_exists(rel):
 
 @pytest.mark.parametrize(
     "module",
-    ["pytesseract", "cv2", "fitz", "pdfplumber", "rapidfuzz", "pydantic", "pandas", "anthropic", "dotenv"],
+    ["pytesseract", "cv2", "pymupdf", "pdfplumber", "rapidfuzz", "pydantic", "pandas", "anthropic", "dotenv"],
 )
 def test_dependency_importable(module):
     importlib.import_module(module)

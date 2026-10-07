@@ -33,15 +33,17 @@ def configure_tesseract() -> None:
 
 
 def sample_image() -> Image.Image:
-    """Render the sample text into an image via PyMuPDF (has a font with Czech diacritics)."""
-    import fitz
+    """Render the sample text into an image via PyMuPDF.
 
-    doc = fitz.open()
+    insert_htmlbox falls back to bundled Noto fonts, so Czech diacritics render correctly
+    (the base-14 PDF fonts lack glyphs like ě, ž, ů).
+    """
+    import pymupdf
+
+    doc = pymupdf.open()
     page = doc.new_page(width=595, height=300)
-    y = 50
-    for line in SAMPLE_TEXT:
-        page.insert_text((40, y), line, fontsize=16, fontname="tiro")
-        y += 40
+    html = "".join(f'<p style="font-size:16px;margin:0 0 20px 0">{line}</p>' for line in SAMPLE_TEXT)
+    page.insert_htmlbox(pymupdf.Rect(40, 30, 560, 290), html)
     return page_to_image(page)
 
 
@@ -52,9 +54,9 @@ def page_to_image(page, dpi: int = 300) -> Image.Image:
 
 def load_image(path: Path, page_number: int = 1) -> Image.Image:
     if path.suffix.lower() == ".pdf":
-        import fitz
+        import pymupdf
 
-        with fitz.open(path) as doc:
+        with pymupdf.open(path) as doc:
             return page_to_image(doc[page_number - 1])
     return Image.open(path)
 

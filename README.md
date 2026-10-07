@@ -32,6 +32,11 @@ tests/
 
 Windows: if `tesseract` is not on `PATH`, set `TESSERACT_CMD=C:\Program Files\Tesseract-OCR\tesseract.exe` in `.env`.
 
+Windows without admin rights (silent/winget install includes only `eng`): download
+[`ces.traineddata`](https://github.com/tesseract-ocr/tessdata/raw/main/ces.traineddata) into a user folder,
+e.g. `%LOCALAPPDATA%\tessdata`, copy `eng`/`osd` from `C:\Program Files\Tesseract-OCR\tessdata` next to it,
+and set `TESSDATA_PREFIX` to that folder in `.env`.
+
 Check that `ces` is listed:
 
 ```bash
