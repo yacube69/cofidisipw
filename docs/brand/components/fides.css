@@ -1,0 +1,32 @@
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&family=Newsreader:ital,opsz,wght@0,6..72,500;1,6..72,400&display=swap");
+
+.fd-root { font-family: var(--font-sans); color: var(--ink); background: var(--surface); }
+
+/* StatusBadge */
+.fd-status { display: inline-flex; align-items: center; gap: var(--space-1); padding: 2px var(--space-2) 2px 6px; border: 1px solid currentColor; border-radius: var(--radius-sm); font: 500 12px/18px var(--font-sans); background: var(--surface-raised); }
+.fd-status svg { width: 14px; height: 14px; flex: none; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.fd-status--verified { color: var(--status-verified); }
+.fd-status--review { color: var(--status-review); }
+.fd-status--mismatch { color: var(--status-mismatch); }
+
+/* FigureRow */
+.fd-row { display: grid; grid-template-columns: 56px minmax(0, 1fr) auto auto; align-items: center; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--line); background: var(--surface-raised); }
+.fd-row[data-selected="true"] { background: var(--fides-tint); }
+.fd-row__code { font: 500 11px/16px var(--font-mono); letter-spacing: 0.08em; color: var(--ink-muted); }
+.fd-row__label { min-width: 0; font: 400 15px/22px var(--font-sans); }
+.fd-row__label small { display: block; font-size: 13px; line-height: 18px; color: var(--ink-muted); }
+.fd-row__value { font: 500 15px/24px var(--font-mono); font-variant-numeric: tabular-nums; text-align: right; }
+.fd-trace { display: inline-flex; align-items: center; gap: 6px; padding: 2px 6px; border-radius: var(--radius-sm); font: 400 12px/18px var(--font-mono); color: var(--seal); background: transparent; border: 1px solid transparent; cursor: pointer; }
+.fd-trace::before { content: ""; width: 7px; height: 7px; background: var(--seal); }
+.fd-trace:hover { border-color: var(--seal); }
+.fd-trace:focus-visible, .fd-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* RatioTile */
+.fd-tile { display: grid; gap: var(--space-2); padding: var(--space-6); border: 1px solid var(--line); border-radius: var(--radius-md); background: var(--surface-raised); }
+.fd-tile__label { font: 500 11px/16px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-muted); }
+.fd-tile__value { font: 500 28px/32px var(--font-mono); font-variant-numeric: tabular-nums; }
+.fd-tile__meta { display: flex; flex-wrap: wrap; gap: var(--space-2); align-items: center; font: 400 13px/20px var(--font-sans); color: var(--ink-muted); }
+
+/* Button */
+.fd-btn { display: inline-flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); border-radius: var(--radius-md); font: 600 14px/20px var(--font-sans); cursor: pointer; border: 1px solid var(--line-strong); background: var(--surface-raised); color: var(--ink); }
+.fd-btn--primary { background: var(--fides); border-color: var(--fides); color: var(--on-fides); }
