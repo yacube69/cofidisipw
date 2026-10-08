@@ -1,0 +1,24 @@
+name: Release
+
+# Pushing a version tag (e.g. `git tag v1.0.0 && git push origin v1.0.0`) creates a GitHub release
+# with notes generated from the merged pull requests (CIPW-49). The Docker workflow publishes the
+# matching image ghcr.io/<owner>/<repo>:1.0.0 for the same tag.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, '-') }}

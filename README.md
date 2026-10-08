@@ -1,5 +1,7 @@
 # cofidisipw
 
+[![CI](https://github.com/yacube69/cofidisipw/actions/workflows/ci.yml/badge.svg)](https://github.com/yacube69/cofidisipw/actions/workflows/ci.yml) [![Docker image](https://github.com/yacube69/cofidisipw/actions/workflows/docker.yml/badge.svg)](https://github.com/yacube69/cofidisipw/actions/workflows/docker.yml)
+
 Extraction of Czech financial statements (PDF, including scanned) → validated data → financial ratios, bankruptcy models and an AI assessment, shown in a Streamlit app.
 
 ## Structure
@@ -71,6 +73,26 @@ ruff check .
 ```
 
 All of them should end with `OK` / pass.
+
+## CI/CD (GitHub Actions)
+
+| Workflow | Runs on | What it does |
+| --- | --- | --- |
+| `ci.yml` | every push to any branch, PRs from forks | installs Tesseract with Czech data, `ruff check`, `pytest` on Python 3.11 and 3.12, uploads the JUnit report |
+| `docker.yml` | push to `main`, `v*` tags, PRs that change the image | builds the image, runs the OCR smoke test inside it, publishes `ghcr.io/yacube69/cofidisipw` (`main`, `sha-…`, version tags) |
+| `release.yml` | `v*` tags | creates a GitHub release with notes generated from merged PRs |
+
+Tests never call the paid LLM API: CI runs with an empty `ANTHROPIC_API_KEY`, LLM calls must be mocked.
+
+Release: `git tag v1.0.0 && git push origin v1.0.0` → GitHub release + image `ghcr.io/yacube69/cofidisipw:1.0.0`.
+
+Run the published image locally (documents stay on your machine):
+
+```bash
+docker run --rm -v "$PWD/data:/workspace/data" ghcr.io/yacube69/cofidisipw:main python scripts/hello_ocr.py
+```
+
+Recommended repository setting (Settings → Branches → `main`): require a pull request with 1 approval and the `CI` checks to pass before merging.
 
 ## Team conventions
 

@@ -26,3 +26,7 @@ Thumbs.db
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local pipeline outputs and CI reports
+outputs/
+reports/
