@@ -1,0 +1,245 @@
+{
+  "file": "ICO_year_statement.pdf",
+  "company_name": null,
+  "ico": null,
+  "period_end": null,
+  "scope": null,
+  "unit_multiplier": 1000,
+  "pages": {
+    "balance_sheet": [],
+    "income_statement": []
+  },
+  "balance_sheet": {
+    "total_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "receivables_subscribed_capital": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "fixed_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "intangible_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "tangible_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "financial_fixed_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "current_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "inventories": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "receivables": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "receivables_long_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "receivables_short_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "trade_receivables_short_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "short_term_financial_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "cash": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "accruals_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "total_liabilities_equity": {
+      "current": null,
+      "prior": null
+    },
+    "equity": {
+      "current": null,
+      "prior": null
+    },
+    "share_capital": {
+      "current": null,
+      "prior": null
+    },
+    "share_premium_capital_funds": {
+      "current": null,
+      "prior": null
+    },
+    "funds_from_profit": {
+      "current": null,
+      "prior": null
+    },
+    "retained_earnings": {
+      "current": null,
+      "prior": null
+    },
+    "profit_current_period": {
+      "current": null,
+      "prior": null
+    },
+    "external_sources": {
+      "current": null,
+      "prior": null
+    },
+    "provisions": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "bank_loans_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "bank_loans_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "trade_payables_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "accruals_liabilities": {
+      "current": null,
+      "prior": null
+    }
+  },
+  "income_statement": {
+    "revenue_products_services": {
+      "current": null,
+      "prior": null
+    },
+    "revenue_goods": {
+      "current": null,
+      "prior": null
+    },
+    "cost_of_sales": {
+      "current": null,
+      "prior": null
+    },
+    "change_in_inventory": {
+      "current": null,
+      "prior": null
+    },
+    "capitalization": {
+      "current": null,
+      "prior": null
+    },
+    "personnel_costs": {
+      "current": null,
+      "prior": null
+    },
+    "value_adjustments_operating": {
+      "current": null,
+      "prior": null
+    },
+    "depreciation": {
+      "current": null,
+      "prior": null
+    },
+    "other_operating_income": {
+      "current": null,
+      "prior": null
+    },
+    "other_operating_expenses": {
+      "current": null,
+      "prior": null
+    },
+    "operating_result": {
+      "current": null,
+      "prior": null
+    },
+    "interest_expense": {
+      "current": null,
+      "prior": null
+    },
+    "financial_result": {
+      "current": null,
+      "prior": null
+    },
+    "profit_before_tax": {
+      "current": null,
+      "prior": null
+    },
+    "income_tax": {
+      "current": null,
+      "prior": null
+    },
+    "profit_after_tax": {
+      "current": null,
+      "prior": null
+    },
+    "profit_for_period": {
+      "current": null,
+      "prior": null
+    },
+    "net_turnover": {
+      "current": null,
+      "prior": null
+    }
+  },
+  "transcribed_by": null,
+  "verified_by": null,
+  "notes": null
+}

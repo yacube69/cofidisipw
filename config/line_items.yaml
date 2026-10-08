@@ -1,18 +1,345 @@
-# Line codes and label variants for the parser (filled in CIPW-5).
-# Each item: code as printed on the Czech statement (rozvaha / výkaz zisku a ztráty),
-# canonical key used in src/schema.py, and label variants for fuzzy matching.
+# Line-item dictionary for the rule-based parser (CIPW-5, used by CIPW-32).
+#
+# Structure follows the Czech forms in Vyhláška č. 500/2002 Sb. (layout valid since 2016).
+# Per field:
+#   key            canonical name used in src/schema.py and everywhere downstream
+#   side           balance sheet only: assets | liabilities
+#   code           "označení" as printed, normalized: no spaces, dot after every part ("B.II.", "C.II.2.", "B.+C.")
+#                  income-statement subtotals use their stars ("*", "**", "***")
+#   row            "číslo řádku" of the full form; verified on a real 2025 statement where marked `# verified`.
+#                  Row numbers are printed by most accounting software but are not always present (micro forms omit them).
+#   labels         official Czech label first, then known variants (abbreviated forms, older forms, typical OCR-free variants)
+#   abbreviated    true if the line also exists in the abbreviated (zkrácený) form
+#   en             English name for the UI and docs
+#
+# Extend `labels` whenever the parser meets a new variant (CIPW-32). Never remove a variant that matched real data.
 version: 1
 
 balance_sheet:
-  - code: "001"
-    key: total_assets
-    labels:
-      - "AKTIVA CELKEM"
-  # TODO(CIPW-5): remaining lines
+  # ---------------- AKTIVA ----------------
+  - key: total_assets
+    side: assets
+    code: ""
+    row: "001"  # verified
+    labels: ["AKTIVA CELKEM", "Aktiva celkem"]
+    abbreviated: true
+    en: Total assets
+  - key: receivables_subscribed_capital
+    side: assets
+    code: "A."
+    row: "002"
+    labels: ["Pohledávky za upsaný základní kapitál"]
+    abbreviated: true
+    en: Subscribed capital unpaid
+  - key: fixed_assets
+    side: assets
+    code: "B."
+    row: "003"  # verified
+    labels: ["Stálá aktiva", "Dlouhodobý majetek"]
+    abbreviated: true
+    en: Fixed assets
+  - key: intangible_assets
+    side: assets
+    code: "B.I."
+    row: "004"  # verified
+    labels: ["Dlouhodobý nehmotný majetek"]
+    abbreviated: true
+    en: Intangible fixed assets
+  - key: tangible_assets
+    side: assets
+    code: "B.II."
+    row: "014"  # verified
+    labels: ["Dlouhodobý hmotný majetek"]
+    abbreviated: true
+    en: Tangible fixed assets
+  - key: financial_fixed_assets
+    side: assets
+    code: "B.III."
+    row: "027"  # verified
+    labels: ["Dlouhodobý finanční majetek"]
+    abbreviated: true
+    en: Long-term financial assets
+  - key: current_assets
+    side: assets
+    code: "C."
+    row: "037"  # verified
+    labels: ["Oběžná aktiva"]
+    abbreviated: true
+    en: Current assets
+  - key: inventories
+    side: assets
+    code: "C.I."
+    row: "038"  # verified
+    labels: ["Zásoby"]
+    abbreviated: true
+    en: Inventories
+  - key: receivables
+    side: assets
+    code: "C.II."
+    row: "046"  # verified
+    labels: ["Pohledávky"]
+    abbreviated: true
+    en: Receivables
+  - key: receivables_long_term
+    side: assets
+    code: "C.II.1."
+    row: "047"
+    labels: ["Dlouhodobé pohledávky"]
+    abbreviated: true
+    en: Long-term receivables
+  - key: receivables_short_term
+    side: assets
+    code: "C.II.2."
+    row: "057"  # verified
+    labels: ["Krátkodobé pohledávky"]
+    abbreviated: true
+    en: Short-term receivables
+  - key: trade_receivables_short_term
+    side: assets
+    code: "C.II.2.1."
+    row: "058"  # verified
+    labels: ["Pohledávky z obchodních vztahů"]
+    abbreviated: false
+    en: Trade receivables (short-term)
+  - key: short_term_financial_assets
+    side: assets
+    code: "C.III."
+    row: "071"
+    labels: ["Krátkodobý finanční majetek"]
+    abbreviated: true
+    en: Short-term financial assets
+  - key: cash
+    side: assets
+    code: "C.IV."
+    row: "075"  # verified
+    labels: ["Peněžní prostředky"]
+    abbreviated: true
+    en: Cash and cash equivalents
+  - key: accruals_assets
+    side: assets
+    code: "D."
+    row: "078"  # verified
+    labels: ["Časové rozlišení aktiv", "Časové rozlišení"]
+    abbreviated: true
+    en: Prepayments and accrued income
+
+  # ---------------- PASIVA ----------------
+  - key: total_liabilities_equity
+    side: liabilities
+    code: ""
+    row: "082"  # verified
+    labels: ["PASIVA CELKEM", "Pasiva celkem"]
+    abbreviated: true
+    en: Total liabilities and equity
+  - key: equity
+    side: liabilities
+    code: "A."
+    row: "083"  # verified
+    labels: ["Vlastní kapitál"]
+    abbreviated: true
+    en: Equity
+  - key: share_capital
+    side: liabilities
+    code: "A.I."
+    row: "084"  # verified
+    labels: ["Základní kapitál"]
+    abbreviated: true
+    en: Share capital
+  - key: share_premium_capital_funds
+    side: liabilities
+    code: "A.II."
+    row: "088"  # verified
+    labels: ["Ážio a kapitálové fondy"]
+    abbreviated: true
+    en: Share premium and capital funds
+  - key: funds_from_profit
+    side: liabilities
+    code: "A.III."
+    row: "096"  # verified
+    labels: ["Fondy ze zisku"]
+    abbreviated: true
+    en: Funds from profit
+  - key: retained_earnings
+    side: liabilities
+    code: "A.IV."
+    row: "099"  # verified
+    labels: ["Výsledek hospodaření minulých let (+/-)", "Výsledek hospodaření minulých let"]
+    abbreviated: true
+    en: Retained earnings (prior years)
+  - key: profit_current_period
+    side: liabilities
+    code: "A.V."
+    row: "102"  # verified
+    labels: ["Výsledek hospodaření běžného účetního období (+/-)", "Výsledek hospodaření běžného účetního období"]
+    abbreviated: true
+    en: Profit or loss for the current period
+  - key: external_sources
+    side: liabilities
+    code: "B.+C."
+    row: "104"  # verified
+    labels: ["Cizí zdroje"]
+    abbreviated: true
+    en: External sources (provisions and liabilities)
+  - key: provisions
+    side: liabilities
+    code: "B."
+    row: "105"  # verified
+    labels: ["Rezervy"]
+    abbreviated: true
+    en: Provisions
+  - key: liabilities
+    side: liabilities
+    code: "C."
+    row: "110"  # verified
+    labels: ["Závazky"]
+    abbreviated: true
+    en: Liabilities
+  - key: liabilities_long_term
+    side: liabilities
+    code: "C.I."
+    row: "111"  # verified
+    labels: ["Dlouhodobé závazky"]
+    abbreviated: true
+    en: Long-term liabilities
+  - key: bank_loans_long_term
+    side: liabilities
+    code: "C.I.2."
+    labels: ["Závazky k úvěrovým institucím"]
+    abbreviated: false
+    en: Long-term bank loans
+  - key: liabilities_short_term
+    side: liabilities
+    code: "C.II."
+    row: "126"  # verified
+    labels: ["Krátkodobé závazky"]
+    abbreviated: true
+    en: Short-term liabilities
+  - key: bank_loans_short_term
+    side: liabilities
+    code: "C.II.2."
+    labels: ["Závazky k úvěrovým institucím"]
+    abbreviated: false
+    en: Short-term bank loans
+  - key: trade_payables_short_term
+    side: liabilities
+    code: "C.II.4."
+    row: "132"  # verified
+    labels: ["Závazky z obchodních vztahů"]
+    abbreviated: false
+    en: Trade payables (short-term)
+  - key: accruals_liabilities
+    side: liabilities
+    code: "D."
+    labels: ["Časové rozlišení pasiv", "Časové rozlišení"]
+    abbreviated: true
+    en: Accruals and deferred income
 
 income_statement:
-  - code: "I."
-    key: revenue_products_services
-    labels:
-      - "Tržby z prodeje výrobků a služeb"
-  # TODO(CIPW-5): remaining lines
+  - key: revenue_products_services
+    code: "I."
+    row: "01"  # verified
+    labels: ["Tržby z prodeje výrobků a služeb"]
+    abbreviated: true
+    en: Revenue from products and services
+  - key: revenue_goods
+    code: "II."
+    row: "02"
+    labels: ["Tržby za prodej zboží"]
+    abbreviated: true
+    en: Revenue from goods
+  - key: cost_of_sales
+    code: "A."
+    row: "03"  # verified
+    labels: ["Výkonová spotřeba", "Výkonová spotřeba a náklady vynaložené na prodané zboží"]
+    abbreviated: true
+    en: Cost of sales (materials, energy, services, goods sold)
+  - key: change_in_inventory
+    code: "B."
+    row: "07"  # verified
+    labels: ["Změna stavu zásob vlastní činnosti (+/-)", "Změna stavu zásob vlastní činnosti"]
+    abbreviated: true
+    en: Change in inventories of own production
+  - key: capitalization
+    code: "C."
+    row: "08"  # verified
+    labels: ["Aktivace (-)", "Aktivace"]
+    abbreviated: true
+    en: Own work capitalised
+  - key: personnel_costs
+    code: "D."
+    row: "09"  # verified
+    labels: ["Osobní náklady"]
+    abbreviated: true
+    en: Personnel costs
+  - key: value_adjustments_operating
+    code: "E."
+    row: "14"  # verified
+    labels: ["Úpravy hodnot v provozní oblasti"]
+    abbreviated: true
+    en: Value adjustments in operating activities
+  - key: depreciation
+    code: "E.1."
+    row: "15"  # verified
+    labels: ["Úpravy hodnot dlouhodobého nehmotného a hmotného majetku"]
+    abbreviated: false
+    en: Depreciation and amortisation of fixed assets
+  - key: other_operating_income
+    code: "III."
+    row: "20"  # verified
+    labels: ["Ostatní provozní výnosy"]
+    abbreviated: true
+    en: Other operating income
+  - key: other_operating_expenses
+    code: "F."
+    row: "24"  # verified
+    labels: ["Ostatní provozní náklady"]
+    abbreviated: true
+    en: Other operating expenses
+  - key: operating_result
+    code: "*"
+    row: "30"  # verified
+    labels: ["Provozní výsledek hospodaření (+/-)", "Provozní výsledek hospodaření"]
+    abbreviated: true
+    en: Operating result
+  - key: interest_expense
+    code: "J."
+    row: "43"  # verified
+    labels: ["Nákladové úroky a podobné náklady"]
+    abbreviated: true
+    en: Interest expense
+  - key: financial_result
+    code: "*"
+    row: "48"  # verified
+    labels: ["Finanční výsledek hospodaření (+/-)", "Finanční výsledek hospodaření"]
+    abbreviated: true
+    en: Financial result
+  - key: profit_before_tax
+    code: "**"
+    row: "49"  # verified
+    labels: ["Výsledek hospodaření před zdaněním (+/-)", "Výsledek hospodaření před zdaněním"]
+    abbreviated: true
+    en: Profit before tax
+  - key: income_tax
+    code: "L."
+    row: "50"  # verified
+    labels: ["Daň z příjmů"]
+    abbreviated: true
+    en: Income tax
+  - key: profit_after_tax
+    code: "**"
+    row: "53"  # verified
+    labels: ["Výsledek hospodaření po zdanění (+/-)", "Výsledek hospodaření po zdanění"]
+    abbreviated: true
+    en: Profit after tax
+  - key: profit_for_period
+    code: "***"
+    row: "55"  # verified
+    labels: ["Výsledek hospodaření za účetní období (+/-)", "Výsledek hospodaření za účetní období"]
+    abbreviated: true
+    en: Profit or loss for the period
+  - key: net_turnover
+    code: "*"
+    row: "56"  # verified
+    labels: ["Čistý obrat za účetní období"]
+    abbreviated: true
+    en: Net turnover

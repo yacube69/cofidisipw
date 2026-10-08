@@ -1,0 +1,189 @@
+{
+  "$defs": {
+    "GroundTruthLine": {
+      "properties": {
+        "gross": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gross"
+        },
+        "adjustment": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Adjustment"
+        },
+        "current": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Current"
+        },
+        "prior": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prior"
+        }
+      },
+      "title": "GroundTruthLine",
+      "type": "object"
+    }
+  },
+  "description": "Values exactly as printed (in the unit of the statement, usually tis. Kč).",
+  "properties": {
+    "file": {
+      "title": "File",
+      "type": "string"
+    },
+    "company_name": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Company Name"
+    },
+    "ico": {
+      "anyOf": [
+        {
+          "pattern": "^\\d{8}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Ico"
+    },
+    "period_end": {
+      "anyOf": [
+        {
+          "format": "date",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Period End"
+    },
+    "scope": {
+      "anyOf": [
+        {
+          "enum": [
+            "full",
+            "abbreviated"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Scope"
+    },
+    "unit_multiplier": {
+      "default": 1000,
+      "title": "Unit Multiplier",
+      "type": "integer"
+    },
+    "pages": {
+      "additionalProperties": {
+        "items": {
+          "type": "integer"
+        },
+        "type": "array"
+      },
+      "title": "Pages",
+      "type": "object"
+    },
+    "balance_sheet": {
+      "additionalProperties": {
+        "$ref": "#/$defs/GroundTruthLine"
+      },
+      "title": "Balance Sheet",
+      "type": "object"
+    },
+    "income_statement": {
+      "additionalProperties": {
+        "$ref": "#/$defs/GroundTruthLine"
+      },
+      "title": "Income Statement",
+      "type": "object"
+    },
+    "transcribed_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Transcribed By"
+    },
+    "verified_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Verified By"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "file"
+  ],
+  "title": "GroundTruth",
+  "type": "object"
+}

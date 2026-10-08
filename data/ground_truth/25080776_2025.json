@@ -1,0 +1,49 @@
+{
+  "file": "25080776_2025_statement.pdf",
+  "company_name": null,
+  "ico": "25080776",
+  "period_end": "2025-12-31",
+  "scope": "abbreviated",
+  "unit_multiplier": 1000,
+  "pages": {
+    "balance_sheet": [
+      1,
+      2
+    ],
+    "income_statement": []
+  },
+  "balance_sheet": {
+    "total_assets": {
+      "gross": 10000,
+      "adjustment": null,
+      "current": 10000,
+      "prior": 10000
+    },
+    "fixed_assets": {
+      "gross": 10000,
+      "adjustment": null,
+      "current": 10000,
+      "prior": 10000
+    },
+    "total_liabilities_equity": {
+      "current": 10000,
+      "prior": 10000
+    },
+    "equity": {
+      "current": 9843,
+      "prior": 9843
+    },
+    "external_sources": {
+      "current": 157,
+      "prior": 157
+    },
+    "liabilities": {
+      "current": 157,
+      "prior": 157
+    }
+  },
+  "income_statement": {},
+  "transcribed_by": "Claude (from the PDF text layer)",
+  "verified_by": null,
+  "notes": "Digital micro-entity balance sheet only (no income statement in the file). Korekce column empty."
+}

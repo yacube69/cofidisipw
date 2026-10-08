@@ -1,0 +1,216 @@
+{
+  "file": "26161516_2025_statement.pdf",
+  "company_name": "Mondi Štětí a.s.",
+  "ico": "26161516",
+  "period_end": "2025-12-31",
+  "scope": "full",
+  "unit_multiplier": 1000,
+  "pages": {
+    "balance_sheet": [
+      20,
+      21
+    ],
+    "income_statement": [
+      22
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": {
+      "gross": 46863840,
+      "adjustment": -17406042,
+      "current": 29457798,
+      "prior": 28427620
+    },
+    "fixed_assets": {
+      "gross": 41362805,
+      "adjustment": -16395217,
+      "current": 24967588,
+      "prior": 24180663
+    },
+    "intangible_assets": {
+      "gross": 302356,
+      "adjustment": -253685,
+      "current": 48671,
+      "prior": 57555
+    },
+    "tangible_assets": {
+      "gross": 38918158,
+      "adjustment": -16012053,
+      "current": 22906105,
+      "prior": 22116400
+    },
+    "financial_fixed_assets": {
+      "gross": 2142291,
+      "adjustment": -129479,
+      "current": 2012812,
+      "prior": 2006708
+    },
+    "current_assets": {
+      "gross": 5454486,
+      "adjustment": -1010825,
+      "current": 4443661,
+      "prior": 4201648
+    },
+    "inventories": {
+      "gross": 3443810,
+      "adjustment": -1004069,
+      "current": 2439741,
+      "prior": 2030830
+    },
+    "receivables": {
+      "gross": 1990490,
+      "adjustment": -6756,
+      "current": 1983734,
+      "prior": 2151105
+    },
+    "receivables_short_term": {
+      "gross": 1990490,
+      "adjustment": -6756,
+      "current": 1983734,
+      "prior": 2151105
+    },
+    "trade_receivables_short_term": {
+      "gross": 1687504,
+      "adjustment": -6756,
+      "current": 1680748,
+      "prior": 1859603
+    },
+    "cash": {
+      "gross": 20186,
+      "adjustment": 0,
+      "current": 20186,
+      "prior": 19713
+    },
+    "accruals_assets": {
+      "gross": 46549,
+      "adjustment": 0,
+      "current": 46549,
+      "prior": 45309
+    },
+    "total_liabilities_equity": {
+      "current": 29457798,
+      "prior": 28427620
+    },
+    "equity": {
+      "current": 7971740,
+      "prior": 7575872
+    },
+    "share_capital": {
+      "current": 2066000,
+      "prior": 2066000
+    },
+    "share_premium_capital_funds": {
+      "current": 59183,
+      "prior": 59183
+    },
+    "funds_from_profit": {
+      "current": 0,
+      "prior": 144
+    },
+    "retained_earnings": {
+      "current": 5450546,
+      "prior": 4200157
+    },
+    "profit_current_period": {
+      "current": 396011,
+      "prior": 1250388
+    },
+    "external_sources": {
+      "current": 21486058,
+      "prior": 20851748
+    },
+    "provisions": {
+      "current": 218387,
+      "prior": 232020
+    },
+    "liabilities": {
+      "current": 21267671,
+      "prior": 20619728
+    },
+    "liabilities_long_term": {
+      "current": 1317196,
+      "prior": 1206198
+    },
+    "liabilities_short_term": {
+      "current": 19950475,
+      "prior": 19413530
+    },
+    "trade_payables_short_term": {
+      "current": 2532204,
+      "prior": 2703626
+    }
+  },
+  "income_statement": {
+    "revenue_products_services": {
+      "current": 15510024,
+      "prior": 14465886
+    },
+    "cost_of_sales": {
+      "current": 11950207,
+      "prior": 10816291
+    },
+    "change_in_inventory": {
+      "current": -361019,
+      "prior": 40707
+    },
+    "capitalization": {
+      "current": -78225,
+      "prior": -80122
+    },
+    "personnel_costs": {
+      "current": 1363873,
+      "prior": 1270240
+    },
+    "value_adjustments_operating": {
+      "current": 1456550,
+      "prior": 964829
+    },
+    "depreciation": {
+      "current": 1351836,
+      "prior": 973762
+    },
+    "other_operating_income": {
+      "current": 1135313,
+      "prior": 1073978
+    },
+    "other_operating_expenses": {
+      "current": 1037499,
+      "prior": 1060637
+    },
+    "operating_result": {
+      "current": 1276452,
+      "prior": 1467282
+    },
+    "interest_expense": {
+      "current": 797693,
+      "prior": 635640
+    },
+    "financial_result": {
+      "current": -769443,
+      "prior": -132321
+    },
+    "profit_before_tax": {
+      "current": 507009,
+      "prior": 1334961
+    },
+    "income_tax": {
+      "current": 110998,
+      "prior": 84573
+    },
+    "profit_after_tax": {
+      "current": 396011,
+      "prior": 1250388
+    },
+    "profit_for_period": {
+      "current": 396011,
+      "prior": 1250388
+    },
+    "net_turnover": {
+      "current": 15510024,
+      "prior": 14465886
+    }
+  },
+  "transcribed_by": "Claude (from 200 dpi page renders, all section totals cross-checked)",
+  "verified_by": null,
+  "notes": "Scanned annual report (38 pages, Adobe Paper Capture text layer). Lines not printed in the statement (e.g. C.III., II., A., D. pasiv) are omitted = null. Needs the four-eyes check from CIPW-3."
+}

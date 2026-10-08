@@ -1,0 +1,412 @@
+{
+  "$defs": {
+    "BBox": {
+      "description": "Rectangle in PDF points (1/72 inch), origin top-left of the page.",
+      "properties": {
+        "x0": {
+          "title": "X0",
+          "type": "number"
+        },
+        "y0": {
+          "title": "Y0",
+          "type": "number"
+        },
+        "x1": {
+          "title": "X1",
+          "type": "number"
+        },
+        "y1": {
+          "title": "Y1",
+          "type": "number"
+        }
+      },
+      "required": [
+        "x0",
+        "y0",
+        "x1",
+        "y1"
+      ],
+      "title": "BBox",
+      "type": "object"
+    },
+    "LineItem": {
+      "properties": {
+        "key": {
+          "title": "Key",
+          "type": "string"
+        },
+        "code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Označení as read, normalized (e.g. 'C.II.').",
+          "title": "Code"
+        },
+        "row": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Číslo řádku as read.",
+          "title": "Row"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Label text as read.",
+          "title": "Label"
+        },
+        "gross": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Value"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "adjustment": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Value"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "current": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Value"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "prior": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Value"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "key"
+      ],
+      "title": "LineItem",
+      "type": "object"
+    },
+    "Metadata": {
+      "properties": {
+        "company_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Company Name"
+        },
+        "ico": {
+          "anyOf": [
+            {
+              "pattern": "^\\d{8}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ico"
+        },
+        "period_end": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Rozvahový den (balance sheet date) of the current period.",
+          "title": "Period End"
+        },
+        "prior_period_end": {
+          "anyOf": [
+            {
+              "format": "date",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Prior Period End"
+        },
+        "scope": {
+          "anyOf": [
+            {
+              "enum": [
+                "full",
+                "abbreviated"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Scope"
+        },
+        "accounting_standard": {
+          "default": "CZ GAAP (Vyhláška 500/2002 Sb.)",
+          "title": "Accounting Standard",
+          "type": "string"
+        },
+        "currency": {
+          "default": "CZK",
+          "title": "Currency",
+          "type": "string"
+        },
+        "unit_multiplier": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "1 = Kč, 1000 = tis. Kč, 1000000 = mil. Kč.",
+          "title": "Unit Multiplier"
+        },
+        "source_file": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source File"
+        },
+        "statement_pages": {
+          "additionalProperties": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array"
+          },
+          "title": "Statement Pages",
+          "type": "object"
+        },
+        "extraction_source": {
+          "additionalProperties": {
+            "enum": [
+              "text_layer",
+              "ocr",
+              "manual",
+              "ground_truth"
+            ],
+            "type": "string"
+          },
+          "description": "Text layer or OCR per page.",
+          "title": "Extraction Source",
+          "type": "object"
+        }
+      },
+      "title": "Metadata",
+      "type": "object"
+    },
+    "Value": {
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Amount in CZK (normalized). None = not printed / not found.",
+          "title": "Value"
+        },
+        "raw": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Text exactly as read from the page.",
+          "title": "Raw"
+        },
+        "page": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "1-based page number in the source PDF.",
+          "title": "Page"
+        },
+        "bbox": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/BBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "ocr_conf": {
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Lowest OCR word confidence; None for text layer.",
+          "title": "Ocr Conf"
+        },
+        "match_score": {
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 0,
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "How sure the parser is about the line.",
+          "title": "Match Score"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "enum": [
+                "text_layer",
+                "ocr",
+                "manual",
+                "ground_truth"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source"
+        },
+        "needs_review": {
+          "default": false,
+          "title": "Needs Review",
+          "type": "boolean"
+        },
+        "candidates": {
+          "description": "Alternative readings (CIPW-11).",
+          "items": {
+            "type": "number"
+          },
+          "title": "Candidates",
+          "type": "array"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        }
+      },
+      "title": "Value",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "metadata": {
+      "$ref": "#/$defs/Metadata"
+    },
+    "balance_sheet": {
+      "additionalProperties": {
+        "$ref": "#/$defs/LineItem"
+      },
+      "title": "Balance Sheet",
+      "type": "object"
+    },
+    "income_statement": {
+      "additionalProperties": {
+        "$ref": "#/$defs/LineItem"
+      },
+      "title": "Income Statement",
+      "type": "object"
+    }
+  },
+  "title": "FinancialStatements",
+  "type": "object"
+}
