@@ -1,19 +1,12 @@
 name: Docker image
 
-# CD: build the Fides image (Tesseract + Czech data + app) on every change to main and on release tags,
-# smoke-test it and publish it to GitHub Container Registry (ghcr.io/<owner>/<repo>).
-# Pull requests that touch the image only build and test it, nothing is published.
+# CD: build the Fides image (Tesseract + Czech data + app) on every push, smoke-test it inside the container
+# and, for main and release tags only, publish it to GitHub Container Registry (ghcr.io/<owner>/<repo>).
 
 on:
   push:
-    branches: [main]
+    branches: ["**"]
     tags: ["v*"]
-  pull_request:
-    paths:
-      - Dockerfile
-      - .dockerignore
-      - requirements.txt
-      - .github/workflows/docker.yml
   workflow_dispatch:
 
 concurrency:
@@ -55,8 +48,16 @@ jobs:
       - name: Smoke test (Tesseract + Czech OCR inside the image)
         run: docker run --rm fides:ci python scripts/hello_ocr.py
 
+      - name: Pipeline test inside the image (digital sample statement, no LLM)
+        run: |
+          docker run --rm -v "$PWD/data:/workspace/data:ro" fides:ci             python -m src.pipeline data/raw/25080776_2025_statement.pdf --skip-report --out /tmp/out
+
+      - name: Is this a publishing run?
+        id: publish
+        run: echo "enabled=${{ github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v') }}" >> "$GITHUB_OUTPUT"
+
       - name: Log in to GitHub Container Registry
-        if: github.event_name != 'pull_request'
+        if: steps.publish.outputs.enabled == 'true'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -64,7 +65,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish image
-        if: github.event_name != 'pull_request'
+        if: steps.publish.outputs.enabled == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .

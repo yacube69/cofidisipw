@@ -79,7 +79,7 @@ All of them should end with `OK` / pass.
 | Workflow | Runs on | What it does |
 | --- | --- | --- |
 | `ci.yml` | every push to any branch, PRs from forks | installs Tesseract with Czech data, `ruff check`, `pytest` on Python 3.11 and 3.12, uploads the JUnit report |
-| `docker.yml` | push to `main`, `v*` tags, PRs that change the image | builds the image, runs the OCR smoke test inside it, publishes `ghcr.io/yacube69/cofidisipw` (`main`, `sha-…`, version tags) |
+| `docker.yml` | every push, `v*` tags | builds the image, runs the OCR smoke test and a pipeline run inside it; on `main` and tags publishes `ghcr.io/yacube69/cofidisipw` (`main`, `sha-…`, version tags) |
 | `release.yml` | `v*` tags | creates a GitHub release with notes generated from merged PRs |
 
 Tests never call the paid LLM API: CI runs with an empty `ANTHROPIC_API_KEY`, LLM calls must be mocked.
