@@ -17,11 +17,13 @@ import sys
 import time
 import traceback
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 
 import pymupdf
 
+from src.extraction.ocr import DEFAULT as DEFAULT_OCR
+from src.extraction.reading import read_page
 from src.ratios.models import RatioReport
 from src.result import PipelineOptions, Result, StageRun, StageStatus
 from src.schema import FinancialStatements, GroundTruth
@@ -66,7 +68,11 @@ def stage_locate(result: Result, ctx: Context) -> StageStatus:
 
 
 def stage_read(result: Result, ctx: Context) -> StageStatus:
-    return "stub"
+    """CIPW-7: text layer for digital pages, Tesseract OCR for scans."""
+    config = replace(DEFAULT_OCR, dpi=ctx.options.ocr_dpi)
+    pages = sorted({p for pages in result.pages.values() for p in pages})
+    result.page_words = [read_page(ctx.doc, p, ctx.options.read_mode, config, ctx.pdf_path.name) for p in pages]
+    return "ok"
 
 
 def stage_parse(result: Result, ctx: Context) -> StageStatus:

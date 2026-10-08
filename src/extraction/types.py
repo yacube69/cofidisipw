@@ -44,6 +44,7 @@ class PageWords(BaseModel):
     height: float
     dpi: int | None = Field(None, description="Render resolution for OCR.")
     ocr_config: str | None = None
+    skew: float = Field(0.0, description="Degrees the page image was rotated to straighten it (OCR only).")
     seconds: float | None = None
     words: list[Word] = Field(default_factory=list)
 
