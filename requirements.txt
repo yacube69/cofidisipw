@@ -12,7 +12,7 @@ pyyaml>=6.0
 python-dotenv>=1.0
 
 # LLM provider SDK (AI report CIPW-16, vision baseline CIPW-8)
-anthropic>=0.40
+anthropic>=1.11.0
 
 # App
 streamlit>=1.35
