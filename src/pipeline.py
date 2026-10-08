@@ -28,7 +28,7 @@ from src.extraction.parser import parse_statements
 from src.extraction.reading import read_page
 from src.ratios.models import RatioReport
 from src.result import PipelineOptions, Result, StageRun, StageStatus
-from src.validation.models import ValidationReport
+from src.validation.checks import validate
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -75,8 +75,9 @@ def stage_parse(result: Result, ctx: Context) -> StageStatus:
 
 
 def stage_validate(result: Result, ctx: Context) -> StageStatus:
-    result.validation = ValidationReport()
-    return "stub"
+    """CIPW-10: accounting identity checks, plausibility and OCR-quality warnings."""
+    result.validation = validate(result.statements)
+    return "ok"
 
 
 def stage_reread(result: Result, ctx: Context) -> StageStatus:
