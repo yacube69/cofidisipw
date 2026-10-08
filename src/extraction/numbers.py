@@ -28,7 +28,7 @@ _DIGIT_FIXES = str.maketrans({"O": "0", "o": "0", "D": "0", "Q": "0", "l": "1", 
                               "i": "1", "S": "5", "s": "5", "B": "8", "Z": "2", "z": "2", "G": "6", "b": "6",
                               "g": "9", "q": "9", "T": "7", "A": "4"})  # fmt: skip
 _CONFUSABLE = set("OoDQlI|!i")  # letters OCR typically returns instead of 0 and 1
-_MINUS = "-−–—~«"
+_MINUS = "-−–—~«="
 _DASH_ONLY = re.compile(r"^[-−–—]+$")
 
 
@@ -63,7 +63,7 @@ def parse_number(text: str) -> float | None:
     if t.startswith("(") and t.endswith(")"):
         negative, t = True, t[1:-1]
     elif t[0] in _MINUS:
-        negative, t = True, t.lstrip(_MINUS)
+        negative, t = True, t.lstrip(_MINUS + "+")  # OCR sometimes reads "-253" as "-+253"
     elif t[0] == "+":
         t = t[1:]
     t = t.rstrip(".")

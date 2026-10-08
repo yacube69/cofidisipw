@@ -24,14 +24,13 @@ import pymupdf
 
 from src.extraction.locate import locate_statements
 from src.extraction.ocr import DEFAULT as DEFAULT_OCR
+from src.extraction.parser import parse_statements
 from src.extraction.reading import read_page
 from src.ratios.models import RatioReport
 from src.result import PipelineOptions, Result, StageRun, StageStatus
-from src.schema import FinancialStatements, GroundTruth
 from src.validation.models import ValidationReport
 
 ROOT = Path(__file__).resolve().parents[1]
-GROUND_TRUTH_DIR = ROOT / "data" / "ground_truth"
 
 
 @dataclass
@@ -43,14 +42,6 @@ class Context:
 
 
 Stage = Callable[[Result, Context], StageStatus]
-
-
-def _fixture_statements(pdf_path: Path) -> FinancialStatements | None:
-    """Mock data for stubs: the ground truth of the same file, if someone transcribed it."""
-    gt_file = GROUND_TRUTH_DIR / f"{pdf_path.stem.removesuffix('_statement')}.json"
-    if not gt_file.exists():
-        return None
-    return GroundTruth.model_validate_json(gt_file.read_text(encoding="utf-8")).to_statements()
 
 
 # ------------------------------------------------------------------------------------- stages (stubs)
@@ -73,10 +64,14 @@ def stage_read(result: Result, ctx: Context) -> StageStatus:
 
 
 def stage_parse(result: Result, ctx: Context) -> StageStatus:
-    fixture = _fixture_statements(ctx.pdf_path)
-    result.statements = fixture or FinancialStatements()
+    """CIPW-32: rule-based parser, words with positions -> FinancialStatements."""
+    result.statements = parse_statements(result.page_words, result.pages)
     result.statements.metadata.source_file = ctx.pdf_path.name
-    return "stub"
+    if result.statements.metadata.ico is None:  # fall back to the IČO in the file name (ICO_year_type.pdf)
+        prefix = ctx.pdf_path.name.split("_")[0]
+        if prefix.isdigit() and len(prefix) == 8:
+            result.statements.metadata.ico = prefix
+    return "ok"
 
 
 def stage_validate(result: Result, ctx: Context) -> StageStatus:

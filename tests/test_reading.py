@@ -134,3 +134,10 @@ def test_real_scan_ignores_scanner_text_layer_and_reads_totals():
     found = numbers_on(pw)
     # plain (unshaded) rows must be read exactly
     assert {2066000, 5450546, 2532204, 16547077} <= found
+
+
+def test_text_layer_ligatures_are_normalized(pdfs):
+    digital, _ = pdfs
+    with pymupdf.open(digital) as d:
+        pw = read_page(d, 1)
+    assert "ﬁ" not in pw.text and "firma" in pw.text

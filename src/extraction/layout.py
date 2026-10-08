@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from src.extraction.types import PageWords, Word
 from src.schema import BBox
 
-NUMERIC = re.compile(r"^[-−–(]?[\d.,]+\)?$")
+NUMERIC = re.compile(r"^[-−–—~«=+(]{0,2}[\d.,]+\)?$")  # OCR reads a minus as « = ~ too
 GROUP = re.compile(r"^\d{3}\)?$")
 
 

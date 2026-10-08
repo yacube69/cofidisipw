@@ -12,6 +12,7 @@ from __future__ import annotations
 import json
 import re
 import time
+import unicodedata
 from pathlib import Path
 from typing import Literal
 
@@ -53,8 +54,9 @@ def text_layer_ok(page: pymupdf.Page) -> bool:
 
 def read_text_layer(page: pymupdf.Page, file: str = "") -> PageWords:
     start = time.perf_counter()
+    # NFKC turns typographic ligatures ("ﬁ" U+FB01) and non-breaking spaces into plain characters
     words = [
-        Word(text=w[4], x0=w[0], y0=w[1], x1=w[2], y1=w[3], conf=None)
+        Word(text=unicodedata.normalize("NFKC", w[4]), x0=w[0], y0=w[1], x1=w[2], y1=w[3], conf=None)
         for w in page.get_text("words", sort=True)
         if w[4].strip()
     ]
