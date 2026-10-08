@@ -1,0 +1,5 @@
+file,company,ico,year,type,format,scope,industry,expected_pages,notes
+25080776_2024_statement.pdf,,25080776,2024,statement,digital,abbreviated,,BS:1-2;IS:,micro entity; balance sheet only; no row numbers; numbers without thousands separator
+25080776_2025_statement.pdf,,25080776,2025,statement,digital,abbreviated,,BS:1-2;IS:,micro entity; balance sheet only; no row numbers; numbers without thousands separator
+26161516_2024_statement.pdf,Mondi Štětí a.s.,26161516,2024,annual report,scan,full,manufacturing (paper),BS:20-21;IS:22,38 pages; Adobe Paper Capture OCR layer; pink shaded totals; signature over the table
+26161516_2025_statement.pdf,Mondi Štětí a.s.,26161516,2025,annual report,scan,full,manufacturing (paper),BS:20-21;IS:22,38 pages; Adobe Paper Capture OCR layer; pink shaded totals; signature over the table

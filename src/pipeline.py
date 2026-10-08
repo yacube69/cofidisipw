@@ -22,6 +22,7 @@ from pathlib import Path
 
 import pymupdf
 
+from src.extraction.locate import locate_statements
 from src.extraction.ocr import DEFAULT as DEFAULT_OCR
 from src.extraction.reading import read_page
 from src.ratios.models import RatioReport
@@ -56,15 +57,11 @@ def _fixture_statements(pdf_path: Path) -> FinancialStatements | None:
 
 
 def stage_locate(result: Result, ctx: Context) -> StageStatus:
-    if ctx.options.pages:
-        result.pages = ctx.options.pages
-        return "ok"
-    fixture = _fixture_statements(ctx.pdf_path)
-    if fixture and fixture.metadata.statement_pages:
-        result.pages = fixture.metadata.statement_pages
-    else:
-        result.pages = {"balance_sheet": list(range(1, ctx.doc.page_count + 1)), "income_statement": []}
-    return "stub"
+    """CIPW-6: find the balance sheet and income statement pages (or take them from the options)."""
+    result.pages = ctx.options.pages or locate_statements(ctx.doc)
+    if not any(result.pages.values()):
+        result.errors.append("locate: no balance sheet or income statement found; pass the pages manually")
+    return "ok"
 
 
 def stage_read(result: Result, ctx: Context) -> StageStatus:

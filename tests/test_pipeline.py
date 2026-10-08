@@ -7,6 +7,7 @@ import pytest
 
 from src.pipeline import STAGES, main, run_pipeline, write_result
 from src.result import PipelineOptions, Result
+from tests.synthetic import make_digital_pdf
 
 ROOT = Path(__file__).resolve().parents[1]
 MICRO = ROOT / "data/raw/25080776_2025_statement.pdf"
@@ -14,12 +15,15 @@ MICRO = ROOT / "data/raw/25080776_2025_statement.pdf"
 
 @pytest.fixture
 def tiny_pdf(tmp_path: Path) -> Path:
+    return make_digital_pdf(tmp_path / "12345678_2025_statement.pdf")
+
+
+def test_missing_statements_are_reported(tmp_path):
     doc = pymupdf.open()
-    page = doc.new_page()
-    page.insert_text((72, 72), "ROZVAHA")
-    path = tmp_path / "12345678_2025_statement.pdf"
-    doc.save(path)
-    return path
+    doc.new_page().insert_text((72, 72), "Výroční zpráva")
+    doc.save(tmp_path / "empty.pdf")
+    result = run_pipeline(tmp_path / "empty.pdf", PipelineOptions(skip_report=True))
+    assert any("no balance sheet" in e for e in result.errors)
 
 
 def test_every_stage_runs_and_is_recorded(tiny_pdf):
