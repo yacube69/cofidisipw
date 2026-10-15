@@ -1,0 +1,393 @@
+# Financial model config for the Cofidis IPW project.
+#
+# Keep official Czech statement positions in config/line_items.yaml.
+# This file only contains metadata, value metadata, derived values,
+# ratios, checks and the simple 2-year assessment used in Excel.
+#
+# IMPORTANT:
+# - Thresholds below are project defaults, not official Cofidis credit limits.
+# - Missing values stay null, not 0.
+# - Losses are stored as negative numbers.
+# - Extracted values are normalized to CZK after extraction.
+
+version: 1
+
+# -----------------------------------------------------------------------------
+# DOCUMENT / COMPANY METADATA
+# -----------------------------------------------------------------------------
+metadata:
+  - key: company_name
+    type: string
+    required: true
+    en: Company name
+
+  - key: ico
+    type: string
+    required: true
+    en: Czech company identification number (IČO)
+
+  - key: fiscal_year_end
+    type: date
+    required: true
+    en: Fiscal year end date
+
+  - key: scope
+    type: enum
+    values: [full, abbreviated]
+    required: true
+    en: Statement scope
+
+  - key: accounting_standard
+    type: string
+    default: "Czech GAAP - Decree No. 500/2002 Coll."
+    required: true
+    en: Accounting standard
+
+  - key: currency
+    type: string
+    default: CZK
+    required: true
+    en: Currency after normalization
+
+  - key: original_unit
+    type: enum
+    values: [CZK, thousand_CZK, million_CZK, other]
+    required: true
+    en: Unit printed in the source statement
+
+  - key: extraction_source
+    type: enum
+    values: [text_layer, OCR, vision_llm, manual]
+    required: true
+    en: Main extraction source
+
+  - key: source_file
+    type: string
+    required: false
+    en: Source PDF file name
+
+# -----------------------------------------------------------------------------
+# VALUE-LEVEL METADATA
+# Stored for every extracted financial statement field.
+# -----------------------------------------------------------------------------
+value_metadata:
+  value:
+    type: number_or_null
+    en: Value normalized to CZK
+
+  original_value:
+    type: number_or_null
+    en: Value as printed in the statement
+
+  original_unit:
+    type: string_or_null
+    en: Original unit for this value
+
+  source_page:
+    type: integer_or_null
+    en: PDF page containing the value
+
+  bounding_box:
+    type: array_or_null
+    format: [x1, y1, x2, y2]
+    en: Position of the value on the page
+
+  ocr_confidence:
+    type: number_or_null
+    range: [0.0, 1.0]
+    en: OCR confidence score
+
+  parser_match_score:
+    type: number_or_null
+    range: [0.0, 1.0]
+    en: Parser label match score
+
+  matched_label:
+    type: string_or_null
+    en: Label that was matched by the parser
+
+  line_code_detected:
+    type: string_or_null
+    en: Line code detected in the source document
+
+# -----------------------------------------------------------------------------
+# PERIODS
+# The model always tries to store the current and prior period.
+# -----------------------------------------------------------------------------
+periods:
+  current:
+    required: true
+    en: Current reporting period
+
+  prior:
+    required: false
+    en: Prior reporting period
+
+# -----------------------------------------------------------------------------
+# DERIVED VALUES
+# These are not official statement lines. They are calculated from line_items.
+# -----------------------------------------------------------------------------
+derived_values:
+  - key: total_revenue
+    formula: "revenue_products_services + revenue_goods"
+    en: Total revenue used for ratios
+
+  - key: bank_loans_total
+    formula: "coalesce(bank_loans_long_term, 0) + coalesce(bank_loans_short_term, 0)"
+    en: Total bank loans
+
+  - key: net_working_capital
+    formula: "current_assets - liabilities_short_term"
+    en: Net working capital
+
+  - key: net_debt_approx
+    formula: "bank_loans_total - cash"
+    en: Approximate net debt based only on bank loans and cash
+    note: "Approximation only; other interest-bearing debt is not included."
+
+# -----------------------------------------------------------------------------
+# FINANCIAL RATIOS USED IN THE EXCEL ASSESSMENT
+# result_format: percent means decimal result is displayed as percent.
+# Thresholds are simple project defaults and can be changed later with Cofidis.
+# -----------------------------------------------------------------------------
+ratios:
+  - key: equity_ratio
+    en: Equity ratio
+    formula: "equity / total_assets"
+    result_format: percent
+    better: higher
+    rating:
+      good: ">= 0.40"
+      okay: ">= 0.25"
+      bad: "< 0.25"
+
+  - key: return_on_equity
+    en: Return on equity (ROE)
+    formula: "profit_for_period / equity"
+    result_format: percent
+    better: higher
+    rating:
+      good: ">= 0.12"
+      okay: ">= 0.05"
+      bad: "< 0.05"
+
+  - key: return_on_assets
+    en: Return on assets (ROA)
+    formula: "profit_for_period / total_assets"
+    result_format: percent
+    better: higher
+    rating:
+      good: ">= 0.06"
+      okay: ">= 0.02"
+      bad: "< 0.02"
+
+  - key: current_ratio
+    en: Current ratio
+    formula: "current_assets / liabilities_short_term"
+    result_format: number
+    better: higher
+    rating:
+      good: ">= 1.20"
+      okay: ">= 1.00"
+      bad: "< 1.00"
+
+  - key: quick_ratio
+    en: Quick ratio
+    formula: "(current_assets - inventories) / liabilities_short_term"
+    result_format: number
+    better: higher
+    rating:
+      good: ">= 1.00"
+      okay: ">= 0.70"
+      bad: "< 0.70"
+
+  - key: cash_ratio
+    en: Cash ratio
+    formula: "cash / liabilities_short_term"
+    result_format: number
+    better: higher
+    rating:
+      good: ">= 0.30"
+      okay: ">= 0.10"
+      bad: "< 0.10"
+
+  - key: debt_to_equity
+    en: Debt-to-equity ratio
+    formula: "liabilities / equity"
+    result_format: number
+    better: lower
+    rating:
+      good: "<= 1.00"
+      okay: "<= 2.00"
+      bad: "> 2.00"
+
+  - key: debt_ratio
+    en: Liabilities to assets
+    formula: "liabilities / total_assets"
+    result_format: percent
+    better: lower
+    rating:
+      good: "<= 0.50"
+      okay: "<= 0.70"
+      bad: "> 0.70"
+
+  - key: net_profit_margin
+    en: Net profit margin
+    formula: "profit_for_period / total_revenue"
+    result_format: percent
+    better: higher
+    rating:
+      good: ">= 0.08"
+      okay: ">= 0.03"
+      bad: "< 0.03"
+
+  - key: operating_margin
+    en: Operating margin
+    formula: "operating_result / total_revenue"
+    result_format: percent
+    better: higher
+    rating:
+      good: ">= 0.10"
+      okay: ">= 0.05"
+      bad: "< 0.05"
+
+  - key: interest_coverage
+    en: Interest coverage
+    formula: "operating_result / interest_expense"
+    result_format: number
+    better: higher
+    rating:
+      good: ">= 3.00"
+      okay: ">= 1.50"
+      bad: "< 1.50"
+
+  - key: bank_loan_ratio
+    en: Bank loans to assets
+    formula: "bank_loans_total / total_assets"
+    result_format: percent
+    better: lower
+    rating:
+      good: "<= 0.25"
+      okay: "<= 0.40"
+      bad: "> 0.40"
+
+# -----------------------------------------------------------------------------
+# PLAUSIBILITY CHECKS
+# These checks help to see if extraction / mapping probably worked correctly.
+# -----------------------------------------------------------------------------
+checks:
+  - key: balance_sheet_balances
+    en: Assets equal liabilities and equity
+    formula: "abs(total_assets - total_liabilities_equity) <= tolerance"
+    tolerance_czk: 1000
+
+  - key: current_assets_components
+    en: Current asset components add up to current assets
+    formula: "abs(current_assets - (inventories + receivables + short_term_financial_assets + cash)) <= tolerance"
+    tolerance_czk: 1000
+
+  - key: receivables_split
+    en: Long-term and short-term receivables add up to total receivables
+    formula: "abs(receivables - (receivables_long_term + receivables_short_term)) <= tolerance"
+    tolerance_czk: 1000
+
+  - key: liabilities_split
+    en: Long-term and short-term liabilities add up to total liabilities
+    formula: "abs(liabilities - (liabilities_long_term + liabilities_short_term)) <= tolerance"
+    tolerance_czk: 1000
+
+  - key: external_sources_check
+    en: Provisions and liabilities add up to external sources
+    formula: "abs(external_sources - (provisions + liabilities)) <= tolerance"
+    tolerance_czk: 1000
+
+  - key: profit_cross_check
+    en: Balance-sheet profit matches income-statement profit
+    formula: "abs(profit_current_period - profit_for_period) <= tolerance"
+    tolerance_czk: 1000
+
+# -----------------------------------------------------------------------------
+# TWO-YEAR HISTORY / TREND
+# Positive means improvement unless direction is set to lower_is_better.
+# -----------------------------------------------------------------------------
+trend_metrics:
+  - key: revenue_growth
+    en: Revenue growth
+    formula: "(current.total_revenue / prior.total_revenue) - 1"
+    result_format: percent
+    direction: higher_is_better
+    weight: 20
+
+  - key: profit_growth
+    en: Profit growth
+    formula: "(current.profit_for_period / prior.profit_for_period) - 1"
+    result_format: percent
+    direction: higher_is_better
+    weight: 25
+
+  - key: equity_growth
+    en: Equity growth
+    formula: "(current.equity / prior.equity) - 1"
+    result_format: percent
+    direction: higher_is_better
+    weight: 15
+
+  - key: current_ratio_change
+    en: Change in current ratio
+    formula: "current.current_ratio - prior.current_ratio"
+    result_format: number
+    direction: higher_is_better
+    weight: 20
+
+  - key: bank_loans_growth
+    en: Change in bank loans
+    formula: "(current.bank_loans_total / prior.bank_loans_total) - 1"
+    result_format: percent
+    direction: lower_is_better
+    weight: 20
+
+# -----------------------------------------------------------------------------
+# SIMPLE GOOD / OKAY / BAD SCORING
+# Used for the Excel-like traffic-light result.
+# -----------------------------------------------------------------------------
+assessment:
+  ratio_weight: 70
+  history_weight: 30
+
+  status_points:
+    good: 100
+    okay: 60
+    bad: 20
+
+  trend_points:
+    strong_improvement: 100
+    slight_improvement: 80
+    stable: 60
+    slight_deterioration: 40
+    strong_deterioration: 20
+
+  trend_limits:
+    strong_improvement: ">= 0.10"
+    slight_improvement: ">= 0.02"
+    stable_lower: "> -0.02"
+    stable_upper: "< 0.02"
+    slight_deterioration: "> -0.10"
+    strong_deterioration: "<= -0.10"
+
+  final_rating:
+    good: ">= 75"
+    okay: ">= 50"
+    bad: "< 50"
+
+# -----------------------------------------------------------------------------
+# DATA CONVENTIONS AGREED / TO BE AGREED BY THE TEAM
+# -----------------------------------------------------------------------------
+conventions:
+  missing_value: null
+  zero_is_real_zero_only: true
+  losses_are_negative: true
+  normalize_values_to: CZK
+  keep_original_value_and_unit: true
+  store_two_periods: true
+  divide_by_zero_result: null
+  rating_when_required_input_missing: null
