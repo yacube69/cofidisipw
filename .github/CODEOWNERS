@@ -1,0 +1,3 @@
+# Every pull request into main needs an approval from the repository owner (CIPW-23).
+# The owner can push to main directly through the ruleset bypass; everyone else works through pull requests.
+* @yacube69
