@@ -19,4 +19,4 @@ streamlit>=1.35
 
 # Dev
 pytest>=8.0
-ruff>=0.5
+ruff>=0.16.10
