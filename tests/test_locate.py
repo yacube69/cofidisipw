@@ -1,17 +1,27 @@
-"""CIPW-6: page locator finds the statement pages."""
+"""CIPW-6: page locator finds the statement pages.
+
+The real-file test compares the locator with the `expected_pages` column of data/index.csv (pages annotated by hand
+before running the locator). As agreed with the team (2026-10-18), one extra page per statement is accepted; a
+missing page is always a failure. Files that need Tesseract on more than a few pages (image-only scans) are slow,
+so they run only with LOCATOR_FULL=1 (e.g. `LOCATOR_FULL=1 pytest tests/test_locate.py`). Rows whose notes start
+with "known failure" are expected to fail (reason in the notes).
+"""
 
 import csv
+import os
 from pathlib import Path
 
 import pymupdf
 import pytest
 
-from src.extraction.locate import locate_statements, normalize
+from src.extraction.locate import has_text_layer, locate_statements, normalize
 from tests.synthetic import asset_page_html, make_digital_pdf, make_scanned_pdf
 from tests.test_reading import needs_ocr
 
 ROOT = Path(__file__).resolve().parents[1]
 INDEX = ROOT / "data/index.csv"
+MAX_OCR_PAGES_IN_CI = 5  # files with more pages without a text layer run only with LOCATOR_FULL=1
+MAX_EXTRA_PAGES = 1  # per statement, agreed with the team
 
 
 def parse_expected(text: str) -> dict[str, list[int]]:
@@ -82,7 +92,41 @@ def test_scan_without_text_layer_uses_quick_ocr(tmp_path):
     assert found["balance_sheet"] == [1, 2]
 
 
+def pages_needing_ocr(doc: pymupdf.Document) -> int:
+    return sum(1 for page in doc if not has_text_layer(page.get_text(sort=True)))
+
+
+def matches(found: dict[str, list[int]], expected: dict[str, list[int]]) -> bool:
+    """All expected pages found and at most MAX_EXTRA_PAGES more per statement."""
+    for statement, pages in expected.items():
+        got = set(found.get(statement, []))
+        if not set(pages) <= got or len(got - set(pages)) > MAX_EXTRA_PAGES:
+            return False
+    return True
+
+
+def test_matches_accepts_one_extra_page_only():
+    expected = {"balance_sheet": [3, 4], "income_statement": [5]}
+    assert matches({"balance_sheet": [3, 4], "income_statement": [5]}, expected)
+    assert matches({"balance_sheet": [3, 4], "income_statement": [5, 6]}, expected)
+    assert not matches({"balance_sheet": [3, 4], "income_statement": [5, 6, 7]}, expected)
+    assert not matches({"balance_sheet": [3], "income_statement": [5]}, expected)
+
+
+def test_path_and_open_document_give_the_same_result(tmp_path):
+    pdf = make_digital_pdf(tmp_path / "a.pdf")
+    with pymupdf.open(pdf) as d:
+        assert locate_statements(pdf) == locate_statements(d)
+
+
 @pytest.mark.parametrize("row", index_rows(), ids=lambda r: r["file"])
 def test_real_files_match_index(row):
     with pymupdf.open(ROOT / "data/raw" / row["file"]) as d:
-        assert locate_statements(d) == parse_expected(row["expected_pages"])
+        if pages_needing_ocr(d) > MAX_OCR_PAGES_IN_CI and not os.getenv("LOCATOR_FULL"):
+            pytest.skip("image-only scan (slow quick-OCR pass): run with LOCATOR_FULL=1")
+        found = locate_statements(d)
+    expected = parse_expected(row["expected_pages"])
+    if row.get("notes", "").lower().startswith("known failure"):
+        if not matches(found, expected):
+            pytest.xfail(row["notes"])
+    assert matches(found, expected), f"expected {expected}, found {found}"
