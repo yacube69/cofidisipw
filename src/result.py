@@ -54,7 +54,13 @@ class Result(BaseModel):
     stages: list[StageRun] = Field(default_factory=list)
     llm_usage: LLMUsage = Field(default_factory=LLMUsage)
     errors: list[str] = Field(default_factory=list)
+    warnings: list[str] = Field(default_factory=list, description="Problems that did not stop a stage.")
 
     @property
     def stubbed_stages(self) -> list[str]:
+        """Stages that returned mock data (data/fixtures/mock_26161516_2025.json) instead of real results."""
         return [s.stage for s in self.stages if s.status == "stub"]
+
+    @property
+    def failed(self) -> bool:
+        return any(s.status == "error" for s in self.stages)

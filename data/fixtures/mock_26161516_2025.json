@@ -1,0 +1,383 @@
+{
+  "_comment": "CIPW-40 stub data for the pipeline stages that are not implemented yet. One real company (Mondi Štětí a.s., 2025), values derived from its ground truth with the formulas proposed in CIPW-12/13/14. Every run gets these values whatever PDF it reads; the stage status 'stub' marks them. Replace a stage, not this file.",
+  "company": "Mondi Štětí a.s.",
+  "ico": "26161516",
+  "period_end": "2025-12-31",
+  "ratios": {
+    "ratios": [
+      {
+        "key": "current_ratio",
+        "name": "Current ratio",
+        "group": "liquidity",
+        "formula": "current_assets / liabilities_short_term",
+        "unit": "x",
+        "current": {
+          "value": 0.2227,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "current_assets": 4443661,
+            "liabilities_short_term": 19950475
+          }
+        },
+        "prior": {
+          "value": 0.2164,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "current_assets": 4201648,
+            "liabilities_short_term": 19413530
+          }
+        }
+      },
+      {
+        "key": "quick_ratio",
+        "name": "Quick ratio",
+        "group": "liquidity",
+        "formula": "(current_assets - inventories) / liabilities_short_term",
+        "unit": "x",
+        "current": {
+          "value": 0.1004,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "current_assets": 4443661,
+            "inventories": 2439741,
+            "liabilities_short_term": 19950475
+          }
+        },
+        "prior": {
+          "value": 0.1118,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "current_assets": 4201648,
+            "inventories": 2030830,
+            "liabilities_short_term": 19413530
+          }
+        }
+      },
+      {
+        "key": "cash_ratio",
+        "name": "Cash ratio",
+        "group": "liquidity",
+        "formula": "(cash + short_term_financial_assets) / liabilities_short_term",
+        "unit": "x",
+        "current": {
+          "value": 0.001,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine; short-term financial assets not printed, counted as 0",
+          "inputs": {
+            "cash": 20186,
+            "short_term_financial_assets": null,
+            "liabilities_short_term": 19950475
+          }
+        },
+        "prior": {
+          "value": 0.001,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine; short-term financial assets not printed, counted as 0",
+          "inputs": {
+            "cash": 19713,
+            "short_term_financial_assets": null,
+            "liabilities_short_term": 19413530
+          }
+        }
+      },
+      {
+        "key": "roa",
+        "name": "Return on assets",
+        "group": "profitability",
+        "formula": "EBIT / total_assets",
+        "unit": "%",
+        "current": {
+          "value": 4.43,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "total_assets": 29457798,
+            "profit_before_tax": 507009,
+            "interest_expense": 797693,
+            "ebit": 1304702
+          }
+        },
+        "prior": {
+          "value": 6.93,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "total_assets": 28427620,
+            "profit_before_tax": 1334961,
+            "interest_expense": 635640,
+            "ebit": 1970601
+          }
+        }
+      },
+      {
+        "key": "roe",
+        "name": "Return on equity",
+        "group": "profitability",
+        "formula": "profit_for_period / equity",
+        "unit": "%",
+        "current": {
+          "value": 4.97,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "profit_for_period": 396011,
+            "equity": 7971740
+          }
+        },
+        "prior": {
+          "value": 16.5,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "profit_for_period": 1250388,
+            "equity": 7575872
+          }
+        }
+      },
+      {
+        "key": "ros",
+        "name": "Return on sales",
+        "group": "profitability",
+        "formula": "profit_for_period / revenue",
+        "unit": "%",
+        "current": {
+          "value": 2.55,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine; revenue = products and services only (no goods)",
+          "inputs": {
+            "profit_for_period": 396011,
+            "revenue_products_services": 15510024
+          }
+        },
+        "prior": {
+          "value": 8.64,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine; revenue = products and services only (no goods)",
+          "inputs": {
+            "profit_for_period": 1250388,
+            "revenue_products_services": 14465886
+          }
+        }
+      },
+      {
+        "key": "ebitda_margin",
+        "name": "EBITDA margin",
+        "group": "profitability",
+        "formula": "(operating_result + depreciation) / revenue",
+        "unit": "%",
+        "current": {
+          "value": 16.95,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "operating_result": 1276452,
+            "depreciation": 1351836,
+            "revenue_products_services": 15510024
+          }
+        },
+        "prior": {
+          "value": 16.87,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "operating_result": 1467282,
+            "depreciation": 973762,
+            "revenue_products_services": 14465886
+          }
+        }
+      },
+      {
+        "key": "debt_ratio",
+        "name": "Debt ratio",
+        "group": "leverage",
+        "formula": "external_sources / total_assets",
+        "unit": "%",
+        "current": {
+          "value": 72.94,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "external_sources": 21486058,
+            "total_assets": 29457798
+          }
+        },
+        "prior": {
+          "value": 73.35,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "external_sources": 20851748,
+            "total_assets": 28427620
+          }
+        }
+      },
+      {
+        "key": "debt_to_equity",
+        "name": "Debt to equity",
+        "group": "leverage",
+        "formula": "external_sources / equity",
+        "unit": "x",
+        "current": {
+          "value": 2.6953,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "external_sources": 21486058,
+            "equity": 7971740
+          }
+        },
+        "prior": {
+          "value": 2.7524,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "external_sources": 20851748,
+            "equity": 7575872
+          }
+        }
+      },
+      {
+        "key": "interest_coverage",
+        "name": "Interest coverage",
+        "group": "leverage",
+        "formula": "EBIT / interest_expense",
+        "unit": "x",
+        "current": {
+          "value": 1.6356,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "profit_before_tax": 507009,
+            "interest_expense": 797693,
+            "ebit": 1304702
+          }
+        },
+        "prior": {
+          "value": 3.1002,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "profit_before_tax": 1334961,
+            "interest_expense": 635640,
+            "ebit": 1970601
+          }
+        }
+      },
+      {
+        "key": "receivables_days",
+        "name": "Receivables days",
+        "group": "activity",
+        "formula": "receivables_short_term / revenue * 365",
+        "unit": "days",
+        "current": {
+          "value": 46.68,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "receivables_short_term": 1983734,
+            "revenue_products_services": 15510024
+          }
+        },
+        "prior": {
+          "value": 54.28,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "receivables_short_term": 2151105,
+            "revenue_products_services": 14465886
+          }
+        }
+      },
+      {
+        "key": "payables_days",
+        "name": "Payables days",
+        "group": "activity",
+        "formula": "trade_payables_short_term / revenue * 365",
+        "unit": "days",
+        "current": {
+          "value": 59.59,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "trade_payables_short_term": 2532204,
+            "revenue_products_services": 15510024
+          }
+        },
+        "prior": {
+          "value": 68.22,
+          "flag": "ok",
+          "reason": "mock data from data/ground_truth/26161516_2025.json, not computed by the ratio engine",
+          "inputs": {
+            "trade_payables_short_term": 2703626,
+            "revenue_products_services": 14465886
+          }
+        }
+      }
+    ]
+  },
+  "bankruptcy": {
+    "mock": true,
+    "in05": {
+      "score": 0.55,
+      "zone": "distress"
+    },
+    "altman_z_prime": {
+      "score": 0.6,
+      "zone": "distress"
+    },
+    "note": "IN05 without short-term bank loans (not printed); line mapping not verified (CIPW-13)"
+  },
+  "benchmarks": {
+    "mock": true,
+    "nace": null,
+    "source": "illustrative thresholds from CIPW-14 (current 1.5, quick 1.0, cash 0.2 as green minimum)",
+    "ratios": {
+      "current_ratio": {
+        "value": 0.2227,
+        "green_min": 1.5,
+        "amber_min": 1.0,
+        "light": "red"
+      },
+      "quick_ratio": {
+        "value": 0.1004,
+        "green_min": 1.0,
+        "amber_min": 0.7,
+        "light": "red"
+      },
+      "cash_ratio": {
+        "value": 0.001,
+        "green_min": 0.2,
+        "amber_min": 0.1,
+        "light": "red"
+      }
+    }
+  },
+  "report": {
+    "mock": true,
+    "language": "en",
+    "summary": "Mock assessment. Revenue grew to 15.5 bn CZK, but profit for the period fell to 0.40 bn CZK and ROE to 5.0 %. Liquidity is weak (current ratio 0.22) and the debt ratio is 72.9 %.",
+    "strengths": [
+      "Stable EBITDA margin of 16.9 %"
+    ],
+    "risks": [
+      "Interest coverage dropped to 1.64",
+      "Short-term liabilities exceed current assets (current ratio 0.22)"
+    ],
+    "red_flags": [],
+    "rating": {
+      "value": "high",
+      "reasoning": "mock rating, not produced by rules or an LLM"
+    },
+    "data_quality_note": "Mock report: no LLM was called."
+  },
+  "number_check": {
+    "mock": true,
+    "numbers_found": 8,
+    "unverified": [],
+    "passed": true
+  }
+}
