@@ -141,3 +141,55 @@ def test_text_layer_ligatures_are_normalized(pdfs):
     with pymupdf.open(digital) as d:
         pw = read_page(d, 1)
     assert "ﬁ" not in pw.text and "firma" in pw.text
+
+
+def _broken_text_layer_pdf(path: Path, source: Path) -> Path:
+    """A 'digital' page whose visible table is an image (55 % of the page) and whose text layer is garbage,
+    as produced by PDF generators with a broken font encoding."""
+    src = pymupdf.open(source)
+    png = src[0].get_pixmap(dpi=200, clip=pymupdf.Rect(30, 30, 565, 480)).tobytes("png")
+    doc = pymupdf.open()
+    page = doc.new_page(width=595, height=842)
+    page.insert_image(pymupdf.Rect(30, 30, 565, 480), stream=png)
+    page.insert_text((40, 520), "ÿþ¤§ ÞÞ×× ¶¶¤¤ ÿÿþþ ×Þ¤§ " * 6, fontsize=8)
+    doc.save(path)
+    return path
+
+
+def test_broken_text_layer_is_detected(pdfs, tmp_path):
+    digital, _ = pdfs
+    with pymupdf.open(_broken_text_layer_pdf(tmp_path / "broken.pdf", digital)) as d:
+        assert page_kind(d[0]) == "digital"  # has text and no full-page image
+        assert not text_layer_ok(d[0])
+
+
+@needs_ocr
+def test_broken_text_layer_falls_back_to_ocr(pdfs, tmp_path):
+    digital, _ = pdfs
+    with pymupdf.open(_broken_text_layer_pdf(tmp_path / "broken.pdf", digital)) as d:
+        pw = read_page(d, 1)
+    assert pw.source == "ocr"
+    assert {1_250_000, 1_000_000, 900_000} & numbers_on(pw), "OCR did not read the numbers from the image"
+
+
+def test_grey_shading_share():
+    page = np.full((400, 400), 255, np.uint8)
+    assert ocr.grey_shading_share(page) == 0.0
+    page[100:300] = 160  # grey band over half of the page
+    assert ocr.grey_shading_share(page) == pytest.approx(0.5, abs=0.02)
+
+
+GREY_FORM = ROOT / "data/raw/27114147_2024_statement.pdf"
+
+
+@needs_ocr
+@pytest.mark.skipif(not GREY_FORM.exists(), reason="sample statement not available")
+def test_grey_halftone_shaded_rows_are_read():
+    """Scanned justice.cz form with grey halftone total rows: the default threshold lost all of them
+    (5/18 numbers); the second pass with the grey profile reads them."""
+    with pymupdf.open(GREY_FORM) as d:
+        pw = read_page(d, 9)
+    expected = {21925, 1081495, 985333, 16900, 3742, 3460, 1711, 963433, 1075601, 99194, 96488, 27990, 27270,
+                23249, 5335, 4388, 4156, 34014}  # fmt: skip
+    found = expected & numbers_on(pw)
+    assert len(found) >= 14, f"only {len(found)}/18: {sorted(found)}"

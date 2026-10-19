@@ -21,6 +21,15 @@ Why the scanner's OCR layer is ignored: on `26161516_2025` (Adobe Paper Capture)
 4. **Adaptive threshold** (Gaussian, block 31, C 15).
 5. **Table-line removal** (morphological opening, horizontal and vertical).
 6. Tesseract `lang=ces`, `--psm 6`, `preserve_interword_spaces=1`.
+7. **Grey profile, second pass:** a page without coloured shading whose first reading is weak (mean confidence < 75) or which is more than 15 % mid-grey is read again with a median blur (5) and a wider, stricter adaptive window (51/25). This removes the halftone dots of grey-shaded total rows on scanned justice.cz forms. The reading with more numbers read at confidence ≥ 80 is kept, so the second pass never makes a page worse; it only costs time on weak pages.
+
+| Grey-shaded scanned form (`27114147_2024`, p. 9), 18 numbers on shaded rows | Found |
+| --- | --- |
+| default (adaptive 31/15) | 5 / 18 |
+| median 5 + adaptive 51/25 (grey profile) | 16 / 18 |
+| median 5 + fixed threshold 140 | 18 / 18, but only 38 / 108 on the pink-shaded Mondi scan |
+
+A fixed share-of-grey threshold to pick the profile did not work: on a sample of 22 real pages the grey profile was clearly better on 10 and clearly worse on 4 (e.g. 128 → 43 confident numbers), hence the best-of-two rule.
 
 ## Measurements on the real scan (26161516_2025, pages 20–22, 108 ground-truth numbers)
 
@@ -38,6 +47,15 @@ Numbers found exactly anywhere on the page (simple recall, before the parser):
 | red channel + adaptive, table lines kept | 67 / 108 | 36.8 | 31 s |
 
 Plain rows are read almost perfectly. The remaining misses are bold digits on shaded total rows (`24 967 588` → `24067 508`). They are caught by the accounting checks (CIPW-10) and re-read with other settings (CIPW-11); a grid search over more settings is CIPW-25.
+
+## Batch run on all statements (`scripts/run_reading.py`)
+
+```bash
+python scripts/run_reading.py            # every PDF in data/raw/, 5 worker processes
+python scripts/run_reading.py --index    # only data/index.csv
+```
+
+Locates the statement pages, reads them, writes `outputs/ocr/{file}_p{page}.json`, a debug PNG per page and `outputs/ocr/summary.csv` (source, page kind, fallback, words, mean confidence, share of words below 60, skew, seconds per page). Results of the run on 19 Oct 2026 are in the CIPW-7 comment.
 
 ## Debugging
 

@@ -10,7 +10,7 @@ from __future__ import annotations
 import math
 import os
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 
 import cv2
 import numpy as np
@@ -36,6 +36,10 @@ class OcrConfig:
     deskew: bool = True
     binarize: str = "adaptive"  # "none" | "otsu" | "adaptive" | "fixed"
     threshold: int = 150  # for binarize="fixed"
+    block: int = 31  # adaptive threshold neighbourhood (pixels at `dpi`)
+    offset: int = 15  # adaptive threshold constant C
+    median: int = 0  # median blur kernel before binarizing (0 = off); removes halftone dots of grey shading
+    grey_profile: bool = True  # weak pages without coloured shading get a second pass with GREY (see ocr_page)
     remove_lines: bool = True
     extra: tuple[str, ...] = field(default=("-c", "preserve_interword_spaces=1"))
 
@@ -46,7 +50,9 @@ class OcrConfig:
     def describe(self) -> str:
         return (
             f"dpi={self.dpi} psm={self.psm} lang={self.lang} shading={'off' if self.remove_shading else 'kept'} "
-            f"deskew={self.deskew} bin={self.binarize}{self.threshold if self.binarize == 'fixed' else ''} "
+            f"deskew={self.deskew} median={self.median} bin={self.binarize}"
+            f"{self.threshold if self.binarize == 'fixed' else ''}"
+            f"{f'{self.block}/{self.offset}' if self.binarize == 'adaptive' else ''} "
             f"lines={'removed' if self.remove_lines else 'kept'}"
         )
 
@@ -72,6 +78,16 @@ def shading_channel(rgb: np.ndarray) -> int | None:
     if len(colored) < 0.005 * len(sample):
         return None
     return int(np.argmax(colored.mean(axis=0)))
+
+
+def grey_shading_share(gray: np.ndarray) -> float:
+    """Share of mid-grey pixels: high on scanned forms whose total rows are shaded with grey halftone dots."""
+    sample = gray[::4, ::4]
+    return float(((sample > 100) & (sample < 215)).mean())
+
+
+GREY_SHADING = 0.15  # share of mid-grey pixels above which a page is retried with the grey profile
+WEAK_CONF = 75.0  # mean word confidence below which a page is retried with the grey profile
 
 
 def to_gray(rgb: np.ndarray, remove_shading: bool) -> np.ndarray:
@@ -104,7 +120,7 @@ def rotate(img: np.ndarray, angle: float) -> tuple[np.ndarray, np.ndarray]:
     return out, m
 
 
-def binarize(gray: np.ndarray, method: str, threshold: int = 150) -> np.ndarray:
+def binarize(gray: np.ndarray, method: str, threshold: int = 150, block: int = 31, offset: int = 15) -> np.ndarray:
     if method == "none":
         return gray
     if method == "otsu":
@@ -114,7 +130,7 @@ def binarize(gray: np.ndarray, method: str, threshold: int = 150) -> np.ndarray:
         _, bw = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)
         return bw
     if method == "adaptive":
-        return cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 31, 15)
+        return cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, block, offset)
     raise ValueError(f"Unknown binarization: {method}")
 
 
@@ -140,15 +156,15 @@ def preprocess(rgb: np.ndarray, config: OcrConfig) -> tuple[np.ndarray, np.ndarr
             gray, matrix = rotate(gray, angle)
         else:
             angle = 0.0
-    img = binarize(gray, config.binarize, config.threshold)
+    if config.median:
+        gray = cv2.medianBlur(gray, config.median)
+    img = binarize(gray, config.binarize, config.threshold, config.block, config.offset)
     if config.remove_lines and config.binarize != "none":
         img = remove_table_lines(img)
     return img, matrix, angle
 
 
-def ocr_page(page: pymupdf.Page, file: str = "", config: OcrConfig = DEFAULT) -> PageWords:
-    start = time.perf_counter()
-    rgb = render(page, config.dpi)
+def _ocr_pass(page: pymupdf.Page, rgb: np.ndarray, file: str, config: OcrConfig, start: float) -> PageWords:
     img, matrix, angle = preprocess(rgb, config)
     data = pytesseract.image_to_data(img, lang=config.lang, config=config.tesseract_config, output_type="dict")
 
@@ -180,3 +196,29 @@ def ocr_page(page: pymupdf.Page, file: str = "", config: OcrConfig = DEFAULT) ->
         seconds=round(time.perf_counter() - start, 2),
         words=words,
     )
+
+
+def _quality(pw: PageWords) -> tuple[int, float]:
+    """(numbers read with confidence >= 80, mean confidence): higher is better."""
+    numbers = sum(1 for w in pw.words if w.conf is not None and w.conf >= 80 and any(c.isdigit() for c in w.text))
+    return numbers, pw.mean_conf or 0.0
+
+
+def ocr_page(page: pymupdf.Page, file: str = "", config: OcrConfig = DEFAULT) -> PageWords:
+    """OCR one page. Weak pages without coloured shading are read a second time with the GREY profile
+    (median blur + wider adaptive window, for grey halftone shading on scanned forms) and the better reading
+    is kept, judged by how many numbers were read confidently. Deterministic: same page, same result."""
+    start = time.perf_counter()
+    rgb = render(page, config.dpi)
+    first = _ocr_pass(page, rgb, file, config, start)
+    if not (config.grey_profile and config.binarize == "adaptive" and config.median == 0):
+        return first
+    if shading_channel(rgb) is not None:
+        return first
+    weak = (first.mean_conf or 0.0) < WEAK_CONF
+    if not weak and grey_shading_share(to_gray(rgb, False)) <= GREY_SHADING:
+        return first
+    second = _ocr_pass(page, rgb, file, replace(config, median=5, block=51, offset=25), start)
+    best = second if _quality(second) > _quality(first) else first
+    best.seconds = round(time.perf_counter() - start, 2)
+    return best
