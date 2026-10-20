@@ -3,8 +3,13 @@
     locate → read → parse → validate → reread → ratios → bankruptcy → benchmarks → report → check_numbers
 
 Every stage is a function `stage(result, ctx) -> StageStatus`. A stage that is not implemented yet returns
-"stub" and fills the `Result` with mock data in the agreed schema, so the app and the CLI work end to end
-from day one. Track owners replace a stub by pointing STAGES at the real module.
+"stub" and fills the `Result` with the mock data of one real company (data/fixtures/mock_26161516_2025.json,
+Mondi 2025, whatever PDF is read), so the app and the CLI work end to end from day one. Track owners replace a
+stub by pointing STAGES at the real module.
+
+A stage that cannot do its job raises StageFailed (expected problem, e.g. no statement pages found) or any other
+exception (bug). Both mark the stage "error", and the stages that need its output (REQUIRES) are "skipped" instead
+of running on empty data. The CLI exits with 1 when a stage of any file failed.
 
 CLI:
     python -m src.pipeline data/raw/26161516_2025_statement.pdf --out outputs/ [--skip-report] [--mode ocr]
@@ -13,11 +18,14 @@ CLI:
 from __future__ import annotations
 
 import argparse
+import copy
+import json
 import sys
 import time
 import traceback
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
+from functools import cache
 from pathlib import Path
 
 import pymupdf
@@ -31,6 +39,21 @@ from src.result import PipelineOptions, Result, StageRun, StageStatus
 from src.validation.checks import validate
 
 ROOT = Path(__file__).resolve().parents[1]
+MOCK_FILE = ROOT / "data" / "fixtures" / "mock_26161516_2025.json"
+
+
+class StageFailed(Exception):
+    """An expected failure of a stage (no pages found, no text read): reported without a traceback."""
+
+
+@cache
+def _mock_data() -> dict:
+    return json.loads(MOCK_FILE.read_text(encoding="utf-8"))
+
+
+def mock(key: str):
+    """A fresh copy of one section of the mock data, so a stage cannot change it for the next run."""
+    return copy.deepcopy(_mock_data()[key])
 
 
 @dataclass
@@ -49,9 +72,16 @@ Stage = Callable[[Result, Context], StageStatus]
 
 def stage_locate(result: Result, ctx: Context) -> StageStatus:
     """CIPW-6: find the balance sheet and income statement pages (or take them from the options)."""
-    result.pages = ctx.options.pages or locate_statements(ctx.doc)
+    if ctx.options.pages:
+        n = ctx.doc.page_count
+        outside = sorted({p for pages in ctx.options.pages.values() for p in pages if not 1 <= p <= n})
+        if outside:
+            raise StageFailed(f"pages {outside} out of range (the PDF has {n} pages)")
+        result.pages = ctx.options.pages
+    else:
+        result.pages = locate_statements(ctx.doc)
     if not any(result.pages.values()):
-        result.errors.append("locate: no balance sheet or income statement found; pass the pages manually")
+        raise StageFailed("no balance sheet or income statement found; pass the pages manually")
     return "ok"
 
 
@@ -60,6 +90,12 @@ def stage_read(result: Result, ctx: Context) -> StageStatus:
     config = replace(DEFAULT_OCR, dpi=ctx.options.ocr_dpi)
     pages = sorted({p for pages in result.pages.values() for p in pages})
     result.page_words = [read_page(ctx.doc, p, ctx.options.read_mode, config, ctx.pdf_path.name) for p in pages]
+    empty = [pw.page for pw in result.page_words if not pw.words]
+    if empty:
+        hint = " (read mode 'text' on a scan? use --mode auto or ocr)" if ctx.options.read_mode == "text" else ""
+        if len(empty) == len(result.page_words):
+            raise StageFailed(f"no text on pages {empty}{hint}")
+        result.warnings.append(f"read: no text on pages {empty}{hint}")
     return "ok"
 
 
@@ -85,27 +121,36 @@ def stage_reread(result: Result, ctx: Context) -> StageStatus:
 
 
 def stage_ratios(result: Result, ctx: Context) -> StageStatus:
-    result.ratios = RatioReport()
+    """CIPW-12 (stub): mock ratios."""
+    result.ratios = RatioReport.model_validate(mock("ratios"))
     return "stub"
 
 
 def stage_bankruptcy(result: Result, ctx: Context) -> StageStatus:
+    """CIPW-13 (stub): mock IN05 and Altman Z' scores."""
+    result.bankruptcy = mock("bankruptcy")
     return "stub"
 
 
 def stage_benchmarks(result: Result, ctx: Context) -> StageStatus:
+    """CIPW-14 (stub): mock traffic lights."""
+    result.benchmarks = mock("benchmarks")
     return "stub"
 
 
 def stage_report(result: Result, ctx: Context) -> StageStatus:
+    """CIPW-16 (stub): mock AI assessment, no LLM call."""
     if ctx.options.skip_report:
         return "skipped"
+    result.report = mock("report")
     return "stub"
 
 
 def stage_check_numbers(result: Result, ctx: Context) -> StageStatus:
+    """CIPW-17 (stub): mock number check of the report."""
     if ctx.options.skip_report:
         return "skipped"
+    result.number_check = mock("number_check")
     return "stub"
 
 
@@ -122,22 +167,44 @@ STAGES: list[tuple[str, Stage]] = [
     ("check_numbers", stage_check_numbers),
 ]
 
+# stages whose output a stage needs: if one of them failed (or was skipped for that reason), the stage is skipped
+REQUIRES: dict[str, list[str]] = {
+    "read": ["locate"],
+    "parse": ["read"],
+    "validate": ["parse"],
+    "reread": ["validate"],
+    "ratios": ["validate"],
+    "bankruptcy": ["ratios"],
+    "benchmarks": ["ratios"],
+    "report": ["ratios", "bankruptcy", "benchmarks"],
+    "check_numbers": ["report"],
+}
+
 
 def run_pipeline(pdf_path: str | Path, options: PipelineOptions | None = None) -> Result:
     pdf_path = Path(pdf_path)
     options = options or PipelineOptions()
     result = Result(file=pdf_path.name, options=options)
+    unavailable: set[str] = set()  # stages that failed or were skipped because an input was missing
     with pymupdf.open(pdf_path) as doc:
         ctx = Context(pdf_path=pdf_path, options=options, doc=doc)
         for name, stage in STAGES:
             start = time.perf_counter()
-            try:
-                status = stage(result, ctx)
-                note = None
-            except Exception as exc:  # one failing stage must not hide what the others produced
-                status, note = "error", f"{type(exc).__name__}: {exc}"
-                result.errors.append(f"{name}: {note}")
-                result.errors.append(traceback.format_exc(limit=3))
+            missing = [dep for dep in REQUIRES.get(name, []) if dep in unavailable]
+            if missing:
+                status, note = "skipped", f"needs {', '.join(missing)}"
+            else:
+                try:
+                    status, note = stage(result, ctx), None
+                except StageFailed as exc:
+                    status, note = "error", str(exc)
+                    result.errors.append(f"{name}: {note}")
+                except Exception as exc:  # one failing stage must not hide what the others produced
+                    status, note = "error", f"{type(exc).__name__}: {exc}"
+                    result.errors.append(f"{name}: {note}")
+                    result.errors.append(traceback.format_exc(limit=3))
+            if status == "error" or missing:
+                unavailable.add(name)
             result.stages.append(
                 StageRun(stage=name, status=status, seconds=round(time.perf_counter() - start, 3), note=note)
             )
@@ -182,8 +249,12 @@ def main(argv: list[str] | None = None) -> int:
             continue
         path = write_result(result, args.out)
         stages = " ".join(f"{s.stage}:{s.status}" for s in result.stages)
-        flag = "with errors" if result.errors else "ok"
-        print(f"{pdf.name} -> {path} ({flag}) [{stages}]")
+        if result.failed:
+            failed += 1
+        flag = "FAILED" if result.failed else "with warnings" if result.warnings else "ok"
+        print(f"{pdf.name} -> {path} ({flag}) [{stages}]", flush=True)
+        for msg in result.errors[:1] + result.warnings:
+            print(f"  {msg.splitlines()[0]}", file=sys.stderr)
     return 1 if failed else 0
 
 

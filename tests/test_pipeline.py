@@ -5,9 +5,9 @@ from pathlib import Path
 import pymupdf
 import pytest
 
-from src.pipeline import STAGES, main, run_pipeline, write_result
+from src.pipeline import REQUIRES, STAGES, main, run_pipeline, write_result
 from src.result import PipelineOptions, Result
-from tests.synthetic import make_digital_pdf
+from tests.synthetic import make_digital_pdf, make_scanned_pdf
 
 ROOT = Path(__file__).resolve().parents[1]
 MICRO = ROOT / "data/raw/25080776_2025_statement.pdf"
@@ -24,6 +24,65 @@ def test_missing_statements_are_reported(tmp_path):
     doc.save(tmp_path / "empty.pdf")
     result = run_pipeline(tmp_path / "empty.pdf", PipelineOptions(skip_report=True))
     assert any("no balance sheet" in e for e in result.errors)
+    status = {s.stage: s.status for s in result.stages}
+    assert status["locate"] == "error"
+    # nothing downstream runs on empty data; report/check_numbers are skipped either way
+    assert all(status[name] == "skipped" for name, _ in STAGES[1:])
+    assert {s.stage: s.note for s in result.stages}["read"] == "needs locate"
+
+
+def test_cli_fails_when_a_stage_fails(tmp_path):
+    doc = pymupdf.open()
+    doc.new_page().insert_text((72, 72), "Výroční zpráva")
+    doc.save(tmp_path / "empty.pdf")
+    assert main([str(tmp_path / "empty.pdf"), "--out", str(tmp_path), "--skip-report"]) == 1
+
+
+def test_stubs_return_mock_data(tiny_pdf):
+    result = run_pipeline(tiny_pdf)
+    assert set(result.stubbed_stages) == {"reread", "ratios", "bankruptcy", "benchmarks", "report", "check_numbers"}
+    assert result.ratios.get("current_ratio").current.value == pytest.approx(0.2227)
+    assert result.bankruptcy["in05"]["zone"] in ("safe", "grey", "distress")
+    assert result.benchmarks["ratios"]["current_ratio"]["light"] == "red"
+    assert result.report["summary"] and result.report["rating"]["value"] in ("low", "medium", "high")
+    assert result.number_check["passed"] is True
+    assert all(d["mock"] for d in (result.bankruptcy, result.benchmarks, result.report, result.number_check))
+
+
+def test_mock_data_is_a_fresh_copy(tiny_pdf):
+    first = run_pipeline(tiny_pdf, PipelineOptions(skip_report=True))
+    first.bankruptcy["in05"]["score"] = -1
+    assert run_pipeline(tiny_pdf, PipelineOptions(skip_report=True)).bankruptcy["in05"]["score"] != -1
+
+
+def test_requires_names_real_stages():
+    names = [name for name, _ in STAGES]
+    for stage, deps in REQUIRES.items():
+        assert stage in names and all(names.index(d) < names.index(stage) for d in deps), stage
+
+
+def test_page_override_out_of_range(tiny_pdf):
+    result = run_pipeline(tiny_pdf, PipelineOptions(skip_report=True, pages={"balance_sheet": [1, 7]}))
+    assert result.stages[0].status == "error"
+    assert "pages [7] out of range (the PDF has 2 pages)" in result.errors[0]
+
+
+def test_text_mode_on_scan_fails_read(tiny_pdf, tmp_path):
+    scan = make_scanned_pdf(tiny_pdf, tmp_path / "scan.pdf")
+    result = run_pipeline(scan, PipelineOptions(skip_report=True, read_mode="text"))
+    status = {s.stage: s.status for s in result.stages}
+    assert status["read"] == "error" and status["parse"] == "skipped"
+    assert any("no text on pages [1, 2]" in e and "--mode auto" in e for e in result.errors)
+
+
+def test_page_without_text_is_a_warning(tiny_pdf, tmp_path):
+    doc = pymupdf.open(tiny_pdf)
+    doc.new_page()  # blank page 3
+    doc.save(tmp_path / "with_blank.pdf")
+    pages = {"balance_sheet": [1, 2, 3], "income_statement": []}
+    result = run_pipeline(tmp_path / "with_blank.pdf", PipelineOptions(skip_report=True, read_mode="text", pages=pages))
+    assert not result.failed
+    assert result.warnings == ["read: no text on pages [3] (read mode 'text' on a scan? use --mode auto or ocr)"]
 
 
 def test_every_stage_runs_and_is_recorded(tiny_pdf):
