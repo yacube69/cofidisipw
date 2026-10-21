@@ -15,6 +15,8 @@ browser  ──>  http://localhost:8000/        React app (web/, built to web/di
 | Development | `uvicorn src.api:app --reload`, and in `web/`: `npm install` once, then `npm run dev` | http://localhost:5173 (Vite forwards `/api` to port 8000) |
 | API only | `uvicorn src.api:app` | http://localhost:8000/api/docs (OpenAPI) |
 
+Settings (offline mode, model, OCR, upload limit) come from `config/fides.yaml` and the environment ([settings.md](settings.md)); **About this result** in the header shows the audit block of the result.
+
 Nothing has to be installed on the user's computer apart from Docker. Fonts are bundled, so the app also works without internet access. The only outgoing call is the LLM for the AI report, and only when an `ANTHROPIC_API_KEY` is set.
 
 ## Screens

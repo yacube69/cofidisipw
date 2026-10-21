@@ -10,4 +10,5 @@ services:
         required: false
     volumes:
       - ./data:/workspace/data:ro
+      - ./outputs:/workspace/outputs # run logs (outputs/logs) and exported results
     restart: unless-stopped

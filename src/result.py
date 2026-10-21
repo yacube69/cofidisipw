@@ -11,6 +11,7 @@ from src.extraction.types import PageWords
 from src.ratios.models import RatioReport
 from src.schema import FinancialStatements
 from src.validation.models import ValidationReport
+from src.version import package_version
 
 StageStatus = Literal["ok", "stub", "skipped", "error"]
 
@@ -19,7 +20,7 @@ class PipelineOptions(BaseModel):
     read_mode: Literal["auto", "text", "ocr"] = Field(
         "auto", description="auto = text layer when it is clean, OCR otherwise."
     )
-    ocr_dpi: int = 300
+    ocr_dpi: int | None = Field(None, description="OCR resolution; None = settings.ocr.dpi (config/fides.yaml).")
     skip_report: bool = Field(False, description="Run only the deterministic part, no LLM call.")
     pages: dict[str, list[int]] | None = Field(None, description="Override the page locator (1-based pages).")
     scope: Literal["individual", "consolidated"] = Field(
@@ -34,6 +35,41 @@ class StageRun(BaseModel):
     note: str | None = None
 
 
+class Correction(BaseModel):
+    """A value changed by hand in the app (CIPW-42); kept so every manual change is visible in the result."""
+
+    key: str
+    period: Literal["gross", "adjustment", "current", "prior"]
+    old: float | None
+    new: float | None
+    by: str | None = None
+    at: datetime = Field(default_factory=datetime.now)
+    reason: str | None = None
+
+
+class Audit(BaseModel):
+    """What produced this result (CIPW-45): enough to reproduce it and to explain it."""
+
+    run_id: str
+    tool_version: str = Field(description="Fides package version (pyproject.toml).")
+    git_commit: str | None = Field(None, description="Full commit hash of the code; None outside a git checkout.")
+    git_describe: str | None = Field(None, description="Nearest tag and distance, e.g. v1.0.0-3-gabc1234.")
+    git_dirty: bool | None = Field(None, description="The checkout had uncommitted changes.")
+    settings_hash: str = Field(description="Fingerprint of the settings that change a result (src/settings.py).")
+    settings: dict[str, Any] = Field(default_factory=dict, description="Those settings: OCR, LLM, offline.")
+    dictionary_version: str = Field(description="config/line_items.yaml: its `version` and content hash.")
+    prompt_version: str | None = Field(None, description="Content hash of the report prompt; None without a report.")
+    model: str | None = Field(None, description="LLM used for this result; None when no LLM was called.")
+    offline: bool = False
+    ocr_config: str | None = Field(None, description="OCR configuration of the reading stage.")
+    tesseract_version: str | None = None
+    python_version: str
+    started_at: datetime
+    finished_at: datetime | None = None
+    log_file: str | None = Field(None, description="JSON-lines log of this run, relative to the repository root.")
+    corrections: list[Correction] = Field(default_factory=list)
+
+
 class LLMUsage(BaseModel):
     input_tokens: int = 0
     output_tokens: int = 0
@@ -41,7 +77,7 @@ class LLMUsage(BaseModel):
 
 
 class Result(BaseModel):
-    tool_version: str = "0.1.0"
+    tool_version: str = Field(default_factory=package_version)
     file: str
     created_at: datetime = Field(default_factory=datetime.now)
     options: PipelineOptions = Field(default_factory=PipelineOptions)
@@ -61,6 +97,7 @@ class Result(BaseModel):
     llm_usage: LLMUsage = Field(default_factory=LLMUsage)
     errors: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list, description="Problems that did not stop a stage.")
+    audit: Audit | None = Field(None, description="Filled by every pipeline run; None only in hand-made results.")
 
     @property
     def stubbed_stages(self) -> list[str]:

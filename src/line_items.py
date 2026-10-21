@@ -9,9 +9,6 @@ from typing import Literal
 import yaml
 from pydantic import BaseModel, Field
 
-ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_PATH = ROOT / "config" / "line_items.yaml"
-
 Statement = Literal["balance_sheet", "income_statement"]
 Side = Literal["assets", "liabilities"]
 
@@ -48,9 +45,16 @@ class LineDictionary(BaseModel):
         return [d.key for d in self.for_statement(statement)]
 
 
+def load_dictionary(path: Path | None = None) -> LineDictionary:
+    """The dictionary at `path`, by default `settings.paths.dictionary` (config/line_items.yaml)."""
+    from src.settings import get_settings
+
+    return _load(Path(path) if path else get_settings().paths.dictionary)
+
+
 @lru_cache(maxsize=4)
-def load_dictionary(path: Path = DEFAULT_PATH) -> LineDictionary:
-    raw = yaml.safe_load(Path(path).read_text(encoding="utf-8"))
+def _load(path: Path) -> LineDictionary:
+    raw = yaml.safe_load(path.read_text(encoding="utf-8"))
     lines = []
     for statement in ("balance_sheet", "income_statement"):
         for item in raw.get(statement) or []:

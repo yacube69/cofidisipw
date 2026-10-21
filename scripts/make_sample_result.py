@@ -20,14 +20,15 @@ sys.path.insert(0, str(ROOT))
 
 from src.pipeline import run_pipeline  # noqa: E402
 from src.result import PipelineOptions  # noqa: E402
+from src.settings import get_settings  # noqa: E402
 
-FIXTURES = ROOT / "data" / "fixtures"
+FIXTURES = get_settings().paths.fixtures
 ZOOM = 2.0  # same as app/loading.py
 JPEG_QUALITY = 80
 
 
 def main(argv: list[str]) -> int:
-    pdf = Path(argv[0]) if argv else ROOT / "data/raw/26161516_2025_statement.pdf"
+    pdf = Path(argv[0]) if argv else get_settings().paths.raw / "26161516_2025_statement.pdf"
     result = run_pipeline(pdf, PipelineOptions())
     out = FIXTURES / f"result_{'_'.join(pdf.stem.split('_')[:2])}.json"
     out.write_text(result.model_dump_json(), encoding="utf-8")

@@ -50,6 +50,7 @@ def test_analyse_a_digital_pdf(tmp_path):
     view = response.json()
     assert view["pages"]["balance_sheet"] == [1, 2] and view["consolidation"] == "individual"
     assert view["statements"]["balance_sheet"]["total_assets"]["current"]["value"] == 1_000_000_000
+    assert view["audit"]["run_id"] and view["audit"]["settings_hash"]  # "About this result" in the app
     # the analysed file is kept for its page images and the export
     assert client.get(f"/api/results/{view['id']}/pages/1").headers["content-type"] == "image/jpeg"
     export = client.get(f"/api/results/{view['id']}/export")

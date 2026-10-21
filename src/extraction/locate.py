@@ -35,7 +35,7 @@ import pytesseract
 from PIL import Image
 from rapidfuzz import fuzz
 
-from src.extraction import ocr as _ocr  # noqa: F401  (applies TESSERACT_CMD from .env like the rest of the repo)
+from src.extraction import ocr as _ocr  # noqa: F401  (points pytesseract at the configured Tesseract)
 
 OCR_DPI = 150
 OCR_RETRY_DPI = 300    # if the quick pass reads (almost) nothing, read the page again at this resolution

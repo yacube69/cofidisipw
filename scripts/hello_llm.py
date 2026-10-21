@@ -2,30 +2,32 @@
 
 Usage:
     python scripts/hello_llm.py
-Requires ANTHROPIC_API_KEY in .env (see .env.example).
+Requires ANTHROPIC_API_KEY in .env (see .env.example); the model comes from the settings (config/fides.yaml).
 """
 
 from __future__ import annotations
 
-import os
 import sys
+from pathlib import Path
 
-from dotenv import load_dotenv
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-DEFAULT_MODEL = "claude-sonnet-5-5"
+from src.settings import get_settings  # noqa: E402
 
 
 def main() -> int:
-    load_dotenv()
-    api_key = os.getenv("ANTHROPIC_API_KEY")
-    if not api_key:
+    settings = get_settings()
+    if settings.offline:
+        print("Offline mode (FIDES_OFFLINE / config/fides.yaml): no LLM call made. OK")
+        return 0
+    if not settings.llm_enabled:
         print("ERROR: ANTHROPIC_API_KEY is not set. Copy .env.example to .env and fill it in.")
         return 1
 
     import anthropic
 
-    model = os.getenv("LLM_MODEL") or DEFAULT_MODEL
-    client = anthropic.Anthropic(api_key=api_key)
+    model = settings.llm.model
+    client = anthropic.Anthropic(api_key=settings.llm.api_key.get_secret_value())  # type: ignore[union-attr]
     try:
         response = client.messages.create(
             model=model,
