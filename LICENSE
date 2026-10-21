@@ -1,0 +1,138 @@
+cofidisipw Source-Available License, Version 1.0
+
+Copyright (c) 2026 the Licensors named in Section 1.
+
+This is not an open-source license. The source code is published so that it
+can be read, studied and evaluated. Commercial Use requires a paid license
+(Section 4).
+
+
+1. Licensors and Beneficiaries
+
+1.1 "Licensors" are the student authors of the Software:
+
+    - Jakub Strejc                 (GitHub: yacube69)
+    - [full name]                  (GitHub: julianroensch2401-dotcom)
+    - [full name]                  (GitHub: marnold200)
+    - [full name]                  (GitHub: vminelli05-sketch)
+    - [full name]                  (GitHub: basiagaluszka25)
+    - [full name]                  (GitHub: berank10)
+
+1.2 "School" means České vysoké učení technické v Praze (Czech Technical
+    University in Prague), where the Software was created as a student
+    project.
+
+1.3 "Beneficiaries" are each Licensor and the School. There are seven
+    Beneficiaries, each entitled to an equal share of every License Fee.
+
+
+2. Definitions
+
+2.1 "Software" means the source code, configuration, prompts, documentation,
+    tests and other material in this repository, except Third-Party Material
+    (Section 8).
+
+2.2 "Commercial Use" means any use of the Software, in whole or in part, by or
+    on behalf of a company, public authority or other organisation in the
+    course of its business, including internal use (for example assessing
+    clients, suppliers or credit risk), providing services to others, and
+    incorporating the Software or derived code into a product or service.
+
+2.3 "Non-Commercial Use" means:
+    (a) personal study and teaching;
+    (b) academic research that is not carried out for a commercial client;
+    (c) review, grading and presentation of the student project by the School,
+        its staff and the project partner;
+    (d) evaluation by an organisation for up to 30 days, solely to decide
+        whether to obtain a Commercial License, without using results in its
+        business.
+
+
+3. Non-Commercial Use
+
+Anyone may use, copy and modify the Software for Non-Commercial Use free of
+charge, provided that this License and the copyright notice are kept in every
+copy and every modified version. Copies and modified versions may be shared
+only for Non-Commercial Use and only under this License.
+
+
+4. Commercial License
+
+4.1 Commercial Use is permitted only after the user has obtained a Commercial
+    License from the Licensors and paid the License Fee.
+
+4.2 The License Fee is EUR 14,000 (fourteen thousand euros), paid once per
+    legal entity. Value added tax or other taxes are added where they apply.
+
+4.3 The License Fee is divided in equal shares among all Beneficiaries, so
+    each of the seven Beneficiaries receives EUR 2,000. Each share is paid
+    directly to that Beneficiary, against its own invoice or payment request,
+    within 30 days of receipt. No Beneficiary may collect another
+    Beneficiary's share.
+
+4.4 Once the License Fee has been paid in full, the licensee receives a
+    perpetual, worldwide, non-exclusive, non-transferable right to use, copy
+    and modify the Software for its own Commercial Use, including for
+    services it provides to its customers. The licensee may not sell,
+    sublicense or publish the Software or a modified version of it as a
+    standalone product.
+
+4.5 A Commercial License is granted only in writing (e-mail is sufficient)
+    and requires the consent of all Licensors. The Licensors may agree in
+    writing to a different fee for a particular licensee; the Beneficiaries'
+    shares remain equal.
+
+4.6 Requests for a Commercial License: open an issue in this repository or
+    contact the repository owner (GitHub: yacube69).
+
+
+5. Conditions
+
+5.1 Copyright notices and this License must not be removed or altered.
+
+5.2 Code derived from the Software remains subject to this License.
+
+5.3 Any use not expressly permitted by this License is prohibited.
+
+
+6. Termination
+
+Any use in breach of this License automatically terminates the rights granted
+under it. Commercial Use without a paid Commercial License is copyright
+infringement; the Licensors may then claim at least the License Fee as
+compensation, without limiting other claims.
+
+
+7. Separate Agreements
+
+If the School, the project partner or any other party holds rights in the
+Software under a separate written agreement (for example a project or
+cooperation agreement), that agreement prevails over this License for that
+party.
+
+
+8. Third-Party Material
+
+This License does not cover, and grants no rights in:
+    (a) third-party libraries and tools, which remain under their own
+        licenses;
+    (b) financial statements and other documents in data/ and in the
+        repository root, which belong to the companies that published them;
+    (c) names, logos and trademarks of third parties.
+
+
+9. No Warranty and Limitation of Liability
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED. THE SOFTWARE PRODUCES AUTOMATED FINANCIAL ANALYSES THAT MAY BE
+INCORRECT AND MUST NOT BE RELIED ON WITHOUT HUMAN REVIEW. TO THE EXTENT
+PERMITTED BY LAW, THE LICENSORS AND THE SCHOOL ARE NOT LIABLE FOR ANY DAMAGE
+ARISING FROM THE USE OF THE SOFTWARE, EXCEPT FOR INTENT AND GROSS NEGLIGENCE.
+
+
+10. Governing Law
+
+This License is governed by the laws of the Czech Republic, in particular
+Act No. 121/2000 Coll., the Copyright Act. Place of jurisdiction, to the
+extent permitted by law, is Prague, Czech Republic.
+If any provision is invalid, the remaining provisions stay in effect.

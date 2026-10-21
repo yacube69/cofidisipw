@@ -100,3 +100,7 @@ Recommended repository setting (Settings → Branches → `main`): require a pul
 - Issue ID in every commit message, e.g. `CIPW-32: add line code matcher`.
 - Every PR is reviewed by one other team member before merge.
 - Decisions go to `docs/decisions.md`.
+
+## License
+
+Source-available, not open source — see [LICENSE](LICENSE). Study, teaching, academic research and project grading are free. Commercial use requires a one-time license fee of EUR 14,000 per company, split equally between the six student authors and the Czech Technical University in Prague (ČVUT).
