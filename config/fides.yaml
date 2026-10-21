@@ -1,0 +1,47 @@
+# Fides settings (CIPW-45). Loaded by src/settings.py; see docs/settings.md.
+#
+# Override any value without editing this file:
+#   environment variable or .env:  FIDES_OFFLINE=true, FIDES_OCR__DPI=400, FIDES_LLM__MODEL=...
+# Secrets never go here: the API key comes from ANTHROPIC_API_KEY in .env or the environment.
+
+# No LLM call at all: the AI report step is skipped, everything else runs (extraction, checks, ratios).
+offline: false
+
+# A JSON-lines log of every pipeline run in paths.logs
+log_runs: true
+
+# Relative to the repository root (/workspace in the Docker image)
+paths:
+  raw: data/raw
+  ground_truth: data/ground_truth
+  fixtures: data/fixtures
+  outputs: outputs
+  logs: outputs/logs
+  dictionary: config/line_items.yaml
+  prompts: prompts
+
+# Reading-stage OCR, tuned on the real scans in CIPW-25 (docs/ocr.md)
+ocr:
+  dpi: 300
+  lang: ces
+  psm: 6
+  remove_shading: true
+  deskew: true
+  binarize: adaptive
+  block: 31
+  offset: 15
+  median: 0
+  grey_profile: true
+  remove_lines: true
+
+# Paths to Tesseract when it is not on PATH: set TESSERACT_CMD / TESSDATA_PREFIX in .env (they differ per computer)
+tesseract: {}
+
+llm:
+  provider: anthropic
+  model: claude-sonnet-5-5
+  max_cost_usd: 0.50   # upper limit for one AI report
+
+api:
+  max_upload_mb: 60
+  max_results: 20      # analysed files kept in memory by the web app's API

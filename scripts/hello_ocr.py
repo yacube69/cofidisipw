@@ -8,13 +8,13 @@ Usage:
 
 from __future__ import annotations
 
-import os
 import sys
 from pathlib import Path
 
 import pytesseract
-from dotenv import load_dotenv
 from PIL import Image
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 SAMPLE_TEXT = [
     "ROZVAHA v plném rozsahu",
@@ -26,10 +26,9 @@ SAMPLE_TEXT = [
 
 
 def configure_tesseract() -> None:
-    load_dotenv()
-    cmd = os.getenv("TESSERACT_CMD")
-    if cmd:
-        pytesseract.pytesseract.tesseract_cmd = cmd
+    from src.settings import get_settings  # TESSERACT_CMD / TESSDATA_PREFIX from .env or the environment
+
+    get_settings().apply_tesseract()
 
 
 def sample_image() -> Image.Image:

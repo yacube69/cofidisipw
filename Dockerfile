@@ -24,6 +24,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 COPY --from=web /web/dist web/dist
 
+# The image has no .git folder: CI passes the commit so every result's audit block names the code (CIPW-45)
+ARG GIT_COMMIT=""
+ARG GIT_DESCRIBE=""
+ENV FIDES_GIT_COMMIT=${GIT_COMMIT} FIDES_GIT_DESCRIBE=${GIT_DESCRIBE}
+
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')"

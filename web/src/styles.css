@@ -245,6 +245,18 @@ table.values .sub { display: block; font-size: 11.5px; color: var(--faint); }
 .group-title { font: 500 18px/1.3 var(--font-display); margin: 6px 0 10px; }
 .zone { font: 500 32px/1.1 var(--font-mono); }
 
+/* ---------- about this result ---------- */
+dialog.about {
+  width: min(720px, calc(100vw - 32px)); max-height: calc(100vh - 64px); overflow: auto;
+  border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; background: var(--card); color: var(--ink);
+}
+dialog.about::backdrop { background: rgb(30 26 24 / 0.45); }
+dl.audit { display: grid; grid-template-columns: max-content 1fr; gap: 7px 18px; margin: 0; font-size: 13px; }
+dl.audit dt { color: var(--muted); }
+dl.audit dd { margin: 0; overflow-wrap: anywhere; }
+ul.plain { list-style: none; margin: 0; padding: 0; }
+.head-badges { align-items: center; }
+
 /* ---------- states ---------- */
 .empty { display: grid; place-items: center; text-align: center; gap: 10px; padding: 80px 20px; color: var(--muted); }
 .empty h2 { font: 500 24px/1.2 var(--font-display); color: var(--ink); }

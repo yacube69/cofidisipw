@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { About } from "./components/About";
 import { Extraction } from "./components/Extraction";
 import { Overview } from "./components/Overview";
 import { Ratios } from "./components/Ratios";
@@ -152,6 +153,7 @@ export default function App() {
                   </Badge>
                 )}
                 {result.stubbed_stages.length > 0 && <MockBadge />}
+                <About result={result} />
               </div>
             </header>
             {result.warnings.map((w) => <div key={w} className="banner warn" style={{ marginBottom: 12 }}>{w}</div>)}

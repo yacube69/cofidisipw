@@ -132,6 +132,38 @@ export interface StageRun {
   note: string | null;
 }
 
+export interface Correction {
+  key: string;
+  period: Period;
+  old: number | null;
+  new: number | null;
+  by: string | null;
+  at: string;
+  reason: string | null;
+}
+
+// What produced the result (src/result.py Audit, CIPW-45)
+export interface Audit {
+  run_id: string;
+  tool_version: string;
+  git_commit: string | null;
+  git_describe: string | null;
+  git_dirty: boolean | null;
+  settings_hash: string;
+  settings: Record<string, unknown>;
+  dictionary_version: string;
+  prompt_version: string | null;
+  model: string | null;
+  offline: boolean;
+  ocr_config: string | null;
+  tesseract_version: string | null;
+  python_version: string;
+  started_at: string;
+  finished_at: string | null;
+  log_file: string | null;
+  corrections: Correction[];
+}
+
 export interface ResultView {
   id: string;
   tool_version: string;
@@ -151,6 +183,7 @@ export interface ResultView {
   stubbed_stages: string[];
   errors: string[];
   warnings: string[];
+  audit: Audit | null;
 }
 
 export interface LineDef {

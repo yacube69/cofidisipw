@@ -36,14 +36,15 @@ from fastapi.staticfiles import StaticFiles
 from src.line_items import load_dictionary
 from src.pipeline import run_pipeline
 from src.result import PipelineOptions, Result
+from src.settings import ROOT, get_settings
 
-ROOT = Path(__file__).resolve().parents[1]
-FIXTURES = ROOT / "data" / "fixtures"
-RAW = ROOT / "data" / "raw"
-WEB_DIST = ROOT / "web" / "dist"
+SETTINGS = get_settings()
+FIXTURES = SETTINGS.paths.fixtures
+RAW = SETTINGS.paths.raw
+WEB_DIST = ROOT / "web" / "dist"  # part of the app build, not a setting
 ZOOM = 2.0  # page images at 144 dpi, the same as scripts/make_sample_result.py
-MAX_UPLOAD = 60 * 1024 * 1024
-MAX_RESULTS = 20  # analysed files kept in memory (single-user tool; restart clears them)
+MAX_UPLOAD = SETTINGS.api.max_upload_mb * 1024 * 1024
+MAX_RESULTS = SETTINGS.api.max_results  # analysed files kept in memory (single-user tool; restart clears them)
 
 # id -> (label, saved Result). Make a sample with `python scripts/make_sample_result.py <pdf>`.
 SAMPLES = {

@@ -42,6 +42,9 @@ jobs:
           context: .
           load: true
           tags: fides:ci
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
+            GIT_DESCRIBE=${{ github.ref_name }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -50,7 +53,9 @@ jobs:
 
       - name: Pipeline test inside the image (digital sample statement, no LLM)
         run: |
-          docker run --rm -v "$PWD/data:/workspace/data:ro" fides:ci             python -m src.pipeline data/raw/25080776_2025_statement.pdf --skip-report --out /tmp/out
+          docker run --rm -v "$PWD/data:/workspace/data:ro" -v /tmp/out:/tmp/out fides:ci             python -m src.pipeline data/raw/25080776_2025_statement.pdf --skip-report --out /tmp/out
+          # the audit block names the commit the image was built from (CIPW-45)
+          python3 -c "import json, glob; a = json.load(open(glob.glob('/tmp/out/*.json')[0]))['audit']; assert a['git_commit'] == '${{ github.sha }}', a; print('audit', a['run_id'], a['settings_hash'])"
 
       - name: Web app and API inside the image (no data mounted, sample only)
         run: |
@@ -81,4 +86,7 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            GIT_COMMIT=${{ github.sha }}
+            GIT_DESCRIBE=${{ github.ref_name }}
           cache-from: type=gha

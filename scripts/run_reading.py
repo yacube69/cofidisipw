@@ -24,8 +24,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-RAW = ROOT / "data" / "raw"
-OUT = ROOT / "outputs" / "ocr"
+from src.settings import get_settings  # noqa: E402
+
+RAW = get_settings().paths.raw
+OUT = get_settings().paths.outputs / "ocr"
 FIELDS = [
     "file", "page", "statement", "page_kind", "text_layer_ok", "source", "fallback_to_ocr", "words",
     "numeric_words", "mean_conf", "low_conf_share", "skew", "seconds", "error",

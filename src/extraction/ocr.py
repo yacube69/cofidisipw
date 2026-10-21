@@ -8,7 +8,6 @@ text layer of digital PDFs and can be drawn on the page in the app.
 from __future__ import annotations
 
 import math
-import os
 import time
 from dataclasses import dataclass, field, replace
 
@@ -16,13 +15,11 @@ import cv2
 import numpy as np
 import pymupdf
 import pytesseract
-from dotenv import load_dotenv
 
 from src.extraction.types import PageWords, Word
+from src.settings import get_settings
 
-load_dotenv()
-if os.getenv("TESSERACT_CMD"):
-    pytesseract.pytesseract.tesseract_cmd = os.environ["TESSERACT_CMD"]
+get_settings().apply_tesseract()  # TESSERACT_CMD / TESSDATA_PREFIX from .env or the environment (src/settings.py)
 
 
 @dataclass(frozen=True)
@@ -57,7 +54,7 @@ class OcrConfig:
         )
 
 
-DEFAULT = OcrConfig()
+DEFAULT = OcrConfig()  # the code default; the pipeline reads `settings.ocr` (config/fides.yaml) instead
 QUICK = OcrConfig(dpi=150, psm=3, deskew=False, binarize="none", remove_lines=False)  # page locator (CIPW-6)
 
 

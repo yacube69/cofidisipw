@@ -26,6 +26,8 @@ beforeEach(() => {
     return new Response(JSON.stringify(body), { status: 200, headers: { "Content-Type": "application/json" } });
   }));
   Element.prototype.scrollIntoView = vi.fn();
+  HTMLDialogElement.prototype.showModal ??= function (this: HTMLDialogElement) { this.open = true; };
+  HTMLDialogElement.prototype.close ??= function (this: HTMLDialogElement) { this.open = false; };
   window.scrollTo = vi.fn() as unknown as typeof window.scrollTo;
 });
 afterEach(() => {
@@ -62,6 +64,15 @@ describe("App", () => {
 
     fireEvent.click(within(steps).getByText("AI report"));
     expect(await screen.findByText("Strengths")).toBeTruthy();
+
+    // "About this result": the audit block of the run (CIPW-45)
+    fireEvent.click(screen.getByRole("button", { name: /About this result/ }));
+    const about = document.querySelector("dialog.about") as HTMLDialogElement;
+    expect(about.open).toBe(true);
+    const audit = sampleView().audit;
+    expect(within(about).getByText(audit.settings_hash)).toBeTruthy();
+    expect(within(about).getByText(audit.dictionary_version)).toBeTruthy();
+    expect(within(about).getByText("Line dictionary")).toBeTruthy();
   });
 
   it("says so when the service is not reachable", async () => {

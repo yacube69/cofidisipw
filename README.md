@@ -58,11 +58,13 @@ source .venv/bin/activate      # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 3. API key
+### 3. API key and settings
 
 ```bash
 cp .env.example .env           # then fill in ANTHROPIC_API_KEY
 ```
+
+All other settings (OCR, paths, model, offline mode) are in `config/fides.yaml` and can be overridden in `.env` or the environment, e.g. `FIDES_OFFLINE=true` to run without any LLM call. See [docs/settings.md](docs/settings.md).
 
 **Never commit `.env` or API keys.** The key is shared privately within the team; the account has a spending limit.
 

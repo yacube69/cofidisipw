@@ -10,6 +10,7 @@ pydantic>=2.6
 pandas>=2.2
 pyyaml>=6.0
 python-dotenv>=1.0
+pydantic-settings>=2.4  # src/settings.py (CIPW-45)
 
 # LLM provider SDK (AI report CIPW-16, vision baseline CIPW-8)
 anthropic>=1.11.0
