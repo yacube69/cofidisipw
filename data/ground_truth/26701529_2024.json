@@ -1,0 +1,249 @@
+{
+  "file": "26701529_2024_statement.pdf",
+  "company_name": "ARZ-HP, a.s.",
+  "ico": "26701529",
+  "period_end": "2024-12-31",
+  "scope": "abbreviated",
+  "unit_multiplier": 1000,
+  "pages": {
+    "balance_sheet": [
+      1,
+      2
+    ],
+    "income_statement": [
+      3
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": {
+      "gross": 3327,
+      "adjustment": 1531,
+      "current": 1796,
+      "prior": 1531
+    },
+    "receivables_subscribed_capital": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "fixed_assets": {
+      "gross": 2788,
+      "adjustment": 1531,
+      "current": 1257,
+      "prior": 691
+    },
+    "intangible_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "tangible_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "financial_fixed_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "current_assets": {
+      "gross": 539,
+      "adjustment": null,
+      "current": 539,
+      "prior": 840
+    },
+    "inventories": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "receivables": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "receivables_long_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "receivables_short_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "trade_receivables_short_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "short_term_financial_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "cash": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "accruals_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "total_liabilities_equity": {
+      "current": 1796,
+      "prior": 1531
+    },
+    "equity": {
+      "current": 1698,
+      "prior": 1427
+    },
+    "share_capital": {
+      "current": null,
+      "prior": null
+    },
+    "share_premium_capital_funds": {
+      "current": null,
+      "prior": null
+    },
+    "funds_from_profit": {
+      "current": null,
+      "prior": null
+    },
+    "retained_earnings": {
+      "current": null,
+      "prior": null
+    },
+    "profit_current_period": {
+      "current": null,
+      "prior": null
+    },
+    "external_sources": {
+      "current": 98,
+      "prior": 102
+    },
+    "provisions": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities": {
+      "current": 98,
+      "prior": 102
+    },
+    "liabilities_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "bank_loans_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "bank_loans_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "trade_payables_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "accruals_liabilities": {
+      "current": 0,
+      "prior": 2
+    }
+  },
+  "income_statement": {
+    "revenue_products_services": {
+      "current": 1000,
+      "prior": 527
+    },
+    "revenue_goods": {
+      "current": null,
+      "prior": null
+    },
+    "cost_of_sales": {
+      "current": 233,
+      "prior": 353
+    },
+    "change_in_inventory": {
+      "current": null,
+      "prior": null
+    },
+    "capitalization": {
+      "current": null,
+      "prior": null
+    },
+    "personnel_costs": {
+      "current": 55,
+      "prior": 0
+    },
+    "value_adjustments_operating": {
+      "current": 433,
+      "prior": 362
+    },
+    "depreciation": {
+      "current": 433,
+      "prior": 362
+    },
+    "other_operating_income": {
+      "current": 0,
+      "prior": 248
+    },
+    "other_operating_expenses": {
+      "current": 7,
+      "prior": 225
+    },
+    "operating_result": {
+      "current": 272,
+      "prior": -165
+    },
+    "interest_expense": {
+      "current": null,
+      "prior": null
+    },
+    "financial_result": {
+      "current": -1,
+      "prior": -1
+    },
+    "profit_before_tax": {
+      "current": 271,
+      "prior": -166
+    },
+    "income_tax": {
+      "current": null,
+      "prior": null
+    },
+    "profit_after_tax": {
+      "current": 271,
+      "prior": -166
+    },
+    "profit_for_period": {
+      "current": 271,
+      "prior": -166
+    },
+    "net_turnover": {
+      "current": 1000,
+      "prior": 775
+    }
+  },
+  "transcribed_by": "Claude (from the PDF text layer)",
+  "verified_by": null,
+  "notes": "Digital micro-entity statement, 3 pages: abbreviated balance sheet (pp. 1-2, 've zkracenem rozsahu pro mikro ucetni jednotku') and income statement in full scope (p. 3). Company name is not printed (only the ICO), so company_name is null. The abbreviated balance sheet prints only the top-level lines (B, C, A, B.+C., C, D), so all other balance-sheet lines are null; A.V (profit of the period) is not printed in the balance sheet. Korekce is blank for current assets (null). Prior year has only a Netto column. Income tax and interest expense lines are not printed (null). No unreadable characters."
