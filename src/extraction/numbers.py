@@ -5,7 +5,7 @@ Interface agreed with CIPW-32:
     detect_unit(text)                  -> multiplier (1, 1000, 1_000_000) or None
     detect_period(text)                -> (period_end, prior_period_end)
     detect_scope(text)                 -> "full" | "abbreviated" | None
-    detect_columns(lines, kind)        -> [Column(name, x0, x1)], name in gross/adjustment/current/prior/row
+    detect_columns(lines, kind)        -> [Column(name, x0, x1)], name in gross/adjustment/current/prior/row/extra
 """
 
 from __future__ import annotations
@@ -14,7 +14,7 @@ import re
 import statistics
 import unicodedata
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 from typing import Literal
 
 from rapidfuzz import fuzz
@@ -81,10 +81,16 @@ def parse_number(text: str) -> float | None:
 
 # ------------------------------------------------------------------------------------- unit and period
 
-_MONTHS = {
-    "ledna": 1, "unora": 2, "brezna": 3, "dubna": 4, "kvetna": 5, "cervna": 6,
-    "cervence": 7, "srpna": 8, "zari": 9, "rijna": 10, "listopadu": 11, "prosince": 12,
-}  # fmt: skip
+# month stems, so every case matches: "31. prosince", "k 31. prosinci", "končící 31. prosincem"
+# (červenec before červen: the longer stem first)
+_MONTHS = [
+    ("led", 1), ("unor", 2), ("brez", 3), ("dub", 4), ("kvet", 5), ("cervenc", 7), ("cerv", 6),
+    ("srp", 8), ("zari", 9), ("rij", 10), ("listopad", 11), ("prosin", 12),
+]  # fmt: skip
+
+
+def _month(word: str) -> int | None:
+    return next((m for stem, m in _MONTHS if word.startswith(stem)), None)
 
 
 def _plain(text: str) -> str:
@@ -94,7 +100,8 @@ def _plain(text: str) -> str:
 
 def detect_unit(text: str) -> int | None:
     t = _plain(text)
-    if re.search(r"(tisic|tis\s*\.|\btis\b|v\s*tis)", t):
+    # OCR variants seen in real scans: "vtiis. Kc", "celych tislcick"
+    if re.search(r"(tisic|tis\s*\.|\btis\b|v\s*tis|t[il1]{1,2}s\s*\.|t[il1]s[il1]?c)", t):
         return 1000
     if re.search(r"(milion|\bmil\b|mil\s*\.)", t):
         return 1_000_000
@@ -103,43 +110,76 @@ def detect_unit(text: str) -> int | None:
     return None
 
 
+def _date(y: str | int, m: str | int, d: str | int) -> date | None:
+    try:
+        return date(int(y), int(m), int(d))
+    except ValueError:
+        return None
+
+
+def _dated(t: str) -> list[tuple[int, int, date]]:
+    """(start, end, date) of every date in plain text `t`, with repetitions."""
+    found: list[tuple[int, int, date | None]] = []
+    for m in re.finditer(r"\b(\d{1,2})\s*[.,/]\s*(\d{1,2})\s*[.,/]+\s*((?:19|20)\d{2})\b", t):
+        found.append((m.start(), m.end(), _date(m[3], m[2], m[1])))
+    for m in re.finditer(r"\b(\d{1,2})\s*[.,]?\s*([a-z]+)\s+((?:19|20)\d{2})\b", t):
+        month = _month(m[2])
+        found.append((m.start(), m.end(), _date(m[3], month, m[1]) if month else None))
+    # forms with one box per digit: "k . . . 3 . . 1 . . . 1 . . 2 . . . 2 . . 0 . . 2 . . 5"
+    for m in re.finditer(r"\bke?(?:\s*dni)?((?:[\s.]+\d){8})\b", t):
+        digits = re.sub(r"\D", "", m[1])
+        found.append((m.start(1), m.end(), _date(digits[4:], digits[2:4], digits[:2])))
+    return [(a, b, d) for a, b, d in found if d is not None]
+
+
 def _dates(text: str) -> list[date]:
-    t = _plain(text)
-    out: list[date] = []
-    for d, m, y in re.findall(r"\b(\d{1,2})\s*[.,]\s*(\d{1,2})\s*[.,]+\s*((?:19|20)\d{2})\b", t):
-        try:
-            out.append(date(int(y), int(m), int(d)))
-        except ValueError:
-            pass
-    for d, month, y in re.findall(r"\b(\d{1,2})\s*[.,]?\s*([a-z]+)\s+((?:19|20)\d{2})\b", t):
-        if month in _MONTHS:
-            try:
-                out.append(date(int(y), _MONTHS[month], int(d)))
-            except ValueError:
-                pass
-    return out
+    """Every date in the text, with repetitions (how often a date is printed tells the balance sheet date)."""
+    return [d for _, _, d in _dated(_plain(text))]
+
+
+def _month_end(d: date) -> bool:
+    return (d + timedelta(days=1)).day == 1
 
 
 def detect_period(text: str) -> tuple[date | None, date | None]:
-    """(current period end, prior period end) from 'Rozvahový den: 31. prosince 2025', '31.12.2025' columns etc."""
-    dates = sorted(set(_dates(text)), reverse=True)
-    # ignore dates after the balance sheet date (date of preparation, audit report)
-    rozvahovy = re.search(r"rozvahov\w*\s+den\W*(.{0,30})", _plain(text))
+    """(current period end, prior period end) from 'Rozvahový den: 31. prosince 2025', '31.12.2025' columns,
+    'od 1.3.2024 - 28.2.2025' ranges etc."""
+    t = _plain(text)
+    # dates of preparation and signature ("Sestaveno dne: 17.4.2026", "podpis ... 30.06.2025") are no period ends
+    found = [(a, b, d) for a, b, d in _dated(t) if not re.search(r"sestaven|podpis|\bdne\b", t[max(0, a - 40) : a])]
+    every = [d for _, _, d in found]
+    # period starts are not period ends: "od 1.3.2024", "1.3.2024 - 28.2.2025", or the day after a printed date
+    starts = {
+        d for a, b, d in found if re.search(r"\bod\s*$", t[max(0, a - 4) : a]) or re.match(r"\s*[-–]\s*\d", t[b:])
+    }
+    starts |= {d for d in every if d - timedelta(days=1) in every}
+    range_ends = {d for a, _, d in found if re.search(r"\d\s*[-–]\s*$", t[max(0, a - 4) : a])}
+    ends = sorted(set(every) - starts, reverse=True)
+
     current = None
+    rozvahovy = re.search(r"rozvahov\w*\s+den\W*(.{0,30})", t)
     if rozvahovy:
-        found = _dates(rozvahovy.group(1))
-        current = found[0] if found else None
+        own = _dates(rozvahovy.group(1))
+        current = own[0] if own else None
     if current is None:
-        year_ends = [d for d in dates if (d.month, d.day) in ((12, 31), (6, 30), (3, 31), (9, 30))]
-        current = year_ends[0] if year_ends else (dates[0] if dates else None)
+        # the balance sheet date is the last day of a month (mostly a quarter end) and is printed in the headers
+        # of every page; a date printed once is more likely the date of preparation or a maturity in a note
+        quarter_ends = [d for d in ends if (d.month, d.day) in ((12, 31), (6, 30), (3, 31), (9, 30))]
+        for candidates in (quarter_ends, [d for d in ends if _month_end(d)], [d for d in ends if d in range_ends]):
+            if candidates:
+                current = max(candidates, key=lambda d: (every.count(d), d))
+                break
     if current is None:
-        return None, None
-    prior = next((d for d in dates if d < current and (current - d).days >= 300), None)
+        year = re.search(r"\bza\s+(?:ucetni\s+)?rok\s+((?:19|20)\d{2})\b", t)  # "účetní závěrka za rok 2024"
+        if year is None:
+            return None, None
+        current = date(int(year[1]), 12, 31)
+    prior = next((d for d in ends if d < current and (current - d).days >= 300), None)
     if prior is None:
         try:
             prior = current.replace(year=current.year - 1)
-        except ValueError:
-            prior = None
+        except ValueError:  # 29 February
+            prior = current.replace(year=current.year - 1, day=28)
     return current, prior
 
 
@@ -169,7 +209,7 @@ def detect_company(text: str) -> str | None:
 
 # ------------------------------------------------------------------------------------------- columns
 
-ColumnName = Literal["gross", "adjustment", "current", "prior", "row"]
+ColumnName = Literal["gross", "adjustment", "current", "prior", "row", "extra"]  # extra: not used
 StatementKind = Literal["assets", "liabilities", "income_statement"]
 
 ORDER: dict[StatementKind, list[ColumnName]] = {
@@ -179,6 +219,7 @@ ORDER: dict[StatementKind, list[ColumnName]] = {
 }
 
 _HEADERS = {"BRUTTO": "gross", "KOREKCE": "adjustment", "NETTO": "net"}
+_PERIOD_HEADERS = {"BEZNE": "current", "BEZNEM": "current", "MINULE": "prior", "MINULEM": "prior"}
 
 
 @dataclass
@@ -210,6 +251,30 @@ def _is_row_code(text: str) -> bool:
     return bool(re.fullmatch(r"\d{2,3}", text)) and int(text) <= 400
 
 
+def _row_like(col: Column, tokens: list[NumberToken]) -> bool:
+    """Most tokens are 2–3 digit codes and they rise down the page (row numbers, unlike values or the
+    references in formulas such as '(ř. 83 + 104 + 147)')."""
+    members = sorted((t for t in tokens if col.contains(t, 2)), key=lambda t: t.words[0].cy)
+    codes = [int(t.text) for t in members if _is_row_code(t.text)]
+    if len(codes) < 3 or len(codes) < 0.6 * len(members):
+        return False
+    rising = sum(b > a for a, b in zip(codes, codes[1:], strict=False))
+    return rising >= 0.6 * (len(codes) - 1)
+
+
+def _merge_overlapping(columns: list[Column]) -> list[Column]:
+    """OCR jitters the right edges of one column into two clusters whose x-ranges overlap; real columns are
+    separated by white space."""
+    out: list[Column] = []
+    for col in sorted(columns, key=lambda c: c.x1):
+        prev = out[-1] if out else None
+        if prev is not None and col.x0 <= prev.x1:
+            prev.x0, prev.x1, prev.count = min(prev.x0, col.x0), max(prev.x1, col.x1), prev.count + col.count
+        else:
+            out.append(col)
+    return out
+
+
 def numeric_tokens(lines: list[Line]) -> list[NumberToken]:
     """Number tokens that can be table values: parseable, not a date, not a column-index row ('1 2 3 4'),
     not a lone single digit (označení parts like 'B. I. 2.' and column indexes produce those)."""
@@ -227,16 +292,59 @@ def numeric_tokens(lines: list[Line]) -> list[NumberToken]:
     return out
 
 
-def _header_anchors(lines: list[Line]) -> list[tuple[str, float]]:
-    """('gross'|'adjustment'|'net', x-center) for Brutto/Korekce/Netto header words, left to right."""
+def _overlap(a: Column, b: Column) -> bool:
+    return a.x0 <= b.x1 and b.x0 <= a.x1
+
+
+def _within(anchors: list[tuple[str, float]], columns: list[Column]) -> list[tuple[str, float]]:
+    """Header words above the numbers only: 'běžného' in a label (A.V.) is not a column header."""
+    left = min(c.x0 for c in columns) - 30.0
+    return [(name, x) for name, x in anchors if x >= left]
+
+
+def _header_anchors(lines: list[Line], headers: dict[str, str]) -> list[tuple[str, float]]:
+    """(name, x-center) of the header words in `headers` (fuzzy, OCR-tolerant), left to right."""
     anchors = []
     for line in lines[:40]:
         for w in line.words:
             word = _plain(w.text).upper().strip(".:,")
-            for header, name in _HEADERS.items():
+            for header, name in headers.items():
                 if len(word) >= 5 and fuzz.ratio(header, word) >= 80:
-                    anchors.append((name, w.cx))
+                    # a text layer may hold the same word twice (fake bold): one anchor per position
+                    if not any(n == name and abs(x - w.cx) < 3 for n, x in anchors):
+                        anchors.append((name, w.cx))
+                    break
     return sorted(anchors, key=lambda a: a[1])
+
+
+def _name_by_anchors(value_cols: list[Column], anchors: list[tuple[str, float]]) -> None:
+    """Each column takes the name of its nearest header. The first Netto (or Běžné) is the current period, the
+    next one the prior period; further ones (a third year) and a second column claiming a header are 'extra'."""
+    named: list[tuple[ColumnName, float]] = []
+    nets = 0
+    for name, x in anchors:
+        if name == "net":
+            nets += 1
+            name = "current" if nets == 1 else "prior" if nets == 2 else "extra"
+        if name != "extra" and any(n == name for n, _ in named):
+            name = "extra"  # a header repeated on another line
+        named.append((name, x))  # type: ignore[arg-type]
+    for col in value_cols:
+        col.name = min(named, key=lambda a: abs(a[1] - col.center))[0]
+    for name in {c.name for c in value_cols if c.name != "extra"}:
+        same = [c for c in value_cols if c.name == name]
+        if len(same) > 1:  # keep the fullest column, then the one nearest its header
+            x = next(x for n, x in named if n == name)
+            keep = min(same, key=lambda c: (-c.count, abs(x - c.center)))
+            for c in same:
+                if c is not keep:
+                    c.name = "extra"
+
+
+def _looks_like_notes(col: Column, tokens: list[NumberToken]) -> bool:
+    """A 'Příloha' / 'Pozn.' column: small reference numbers, no amounts."""
+    members = [t for t in tokens if col.contains(t, 2)]
+    return bool(members) and sum(len(re.sub(r"\D", "", t.text)) <= 2 for t in members) >= 0.8 * len(members)
 
 
 def detect_columns(lines: list[Line], kind: StatementKind, gap: float | None = None) -> list[Column]:
@@ -250,45 +358,69 @@ def detect_columns(lines: list[Line], kind: StatementKind, gap: float | None = N
     min_count = max(2, int(0.08 * len(tokens)))
 
     columns: list[Column] = []
+    sparse: list[Column] = []
     for cl in clusters:
         members = [t for t in tokens if cl[0] - 0.01 <= t.x1 <= cl[-1] + 0.01]
-        if len(members) < min_count:
-            continue
         lefts = sorted(t.x0 for t in members)
         x0 = lefts[len(lefts) // 10]  # left edge of the wider numbers, ignoring a few outliers
-        columns.append(Column(name="current", x0=x0, x1=statistics.median(cl), count=len(members)))
+        col = Column(name="current", x0=x0, x1=statistics.median(cl), count=len(members))
+        (columns if len(members) >= min_count else sparse).append(col)
+    columns = _merge_overlapping(columns)
+    if kind == "assets" and columns:
+        # Korekce is often printed on a few lines only (the depreciated assets): when no column belongs to the
+        # Korekce header, take the sparse one that does
+        anchors = _within(_header_anchors(lines, _HEADERS), columns)
 
-    # row-number column ("řád."): made of 2–3 digit codes, left of the value columns
-    for col in columns[:-1]:
-        members = [t for t in tokens if col.contains(t, 2)]
-        if members and sum(_is_row_code(t.text) for t in members) >= 0.6 * len(members):
+        def header_of(c: Column) -> str:
+            return min(anchors, key=lambda a: abs(a[1] - c.center))[0]
+
+        if any(n == "adjustment" for n, _ in anchors) and not any(header_of(c) == "adjustment" for c in columns):
+            free = [c for c in sparse if header_of(c) == "adjustment" and not any(_overlap(c, d) for d in columns)]
+            if free:
+                columns = sorted([*columns, max(free, key=lambda c: c.count)], key=lambda c: c.x1)
+
+    # row-number column ("řád."): the rightmost column of rising 2–3 digit codes that still has value columns
+    # to its right; anything left of it is the label area (označení, text, formula references)
+    for col in reversed(columns[:-1]):
+        if _row_like(col, tokens):
             col.name = "row"
-            columns = [c for c in columns if c.x0 >= col.x0]  # anything left of it is the label area
+            columns = [c for c in columns if c.x0 >= col.x0]
             break
     value_cols = [c for c in columns if c.name != "row"]
 
     names = ORDER[kind]
-    anchors = _header_anchors(lines) if kind == "assets" else []
-    if kind == "assets" and len(anchors) >= 3:
-        # map Brutto/Korekce/Netto/Netto headers to names, then each column to its nearest header
-        named, seen_net = [], False
-        for name, x in anchors:
-            if name == "net":
-                named.append(("prior" if seen_net else "current", x))
-                seen_net = True
-            else:
-                named.append((name, x))
+    if not value_cols:
+        return columns
+    if kind == "assets":
+        anchors = _within(_header_anchors(lines, _HEADERS), value_cols)
+        by_header = len(anchors) >= 3 and len(value_cols) != len(names)  # the order is safer than OCR-garbled headers
+    else:
+        anchors = _within(_header_anchors(lines, _PERIOD_HEADERS), value_cols)
+        by_header = len(value_cols) != len(names) and (
+            {"current", "prior"} <= {n for n, _ in anchors} or (len(value_cols) < len(names) and bool(anchors))
+        )
+    if by_header:
+        _name_by_anchors(value_cols, anchors)
+        return columns
+    if len(value_cols) > len(names):
         for col in value_cols:
-            col.name = min(named, key=lambda a: abs(a[1] - col.center))[0]
-    elif len(value_cols) == len(names):
+            if _looks_like_notes(col, tokens):
+                col.name = "extra"
+        value_cols = [c for c in value_cols if c.name != "extra"]
+    if len(value_cols) == len(names):
         for col, name in zip(value_cols, names, strict=True):
             col.name = name
     elif kind == "assets" and len(value_cols) == 3:
         for col, name in zip(value_cols, ["gross", "current", "prior"], strict=True):  # empty Korekce column
             col.name = name
-    else:
+    elif len(value_cols) > len(names):
+        # more columns than expected and no usable header: the statement columns are the rightmost ones
+        for col in value_cols[: -len(names)]:
+            col.name = "extra"
+        for col, name in zip(value_cols[-len(names) :], names, strict=True):
+            col.name = name
+    elif value_cols:
         # fewer columns than expected: assume the rightmost ones are current, prior (most common layouts)
-        tail = names[-len(value_cols) :] if len(value_cols) <= len(names) else names
-        for col, name in zip(value_cols[-len(tail) :], tail, strict=False):
+        for col, name in zip(value_cols, names[-len(value_cols) :], strict=True):
             col.name = name
     return columns
