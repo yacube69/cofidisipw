@@ -1,0 +1,300 @@
+# Financial model config for the Cofidis IPW project.
+# Revision based on the review of config/financial_model.yaml (Oct 2026).
+#
+# Official Czech statement fields and labels: config/line_items.yaml.
+# Metadata, per-value evidence, OCR scores, bbox and reporting periods:
+# src/schema.py and docs/schema.md are the SINGLE SOURCE OF TRUTH.
+# Do not redefine those structures here (OCR confidence and match score: 0-100).
+#
+# This config proposes derived calculations, ratios, validation checks and trends.
+# Thresholds and weights are PROJECT ASSUMPTIONS, NOT Cofidis policy.
+# Coordinate formulas with CIPW-12 and thresholds with CIPW-14 before enabling;
+# coordinate rule-based vs. LLM rating with CIPW-16.
+# No code is known to consume this file yet; the calculation engine needs wiring.
+
+version: 2
+
+references:
+  line_items: config/line_items.yaml
+  data_schema: src/schema.py
+  conventions: docs/schema.md
+  calculation_owner: CIPW-12
+  threshold_owner: CIPW-14
+  assessment_owner: CIPW-16
+  checks_owner: CIPW-10
+
+# Missing values are NOT globally zero. coalesce(x, 0) below only applies
+# to an optional additive component confirmed absent (not an OCR failure).
+# A missing mandatory total or unverified component remains null/requires review.
+derived_values:
+  - key: total_revenue
+    en: Total revenue from products/services and goods
+    formula: "coalesce(revenue_products_services, 0) + coalesce(revenue_goods, 0)"
+    condition: "at_least_one_component_reported_and_missing_components_confirmed_absent"
+    note: "Do not silently convert an unreadable revenue line to zero."
+
+  - key: bank_loans_total
+    en: Total bank loans, where separately disclosed
+    formula: "coalesce(bank_loans_long_term, 0) + coalesce(bank_loans_short_term, 0)"
+    condition: "missing_components_confirmed_absent"
+    note: "If loans are included in other lines but not separately disclosed, result is null, not zero."
+
+  - key: ebit
+    en: EBIT (CIPW-12 working definition)
+    formula: "profit_before_tax + interest_expense"
+    note: "Apply expense sign normalization for formulas: positive interest expense."
+
+  - key: ebitda
+    en: EBITDA (CIPW-12 working approximation)
+    formula: "ebit + depreciation"
+    note: "Check that depreciation includes appropriate depreciation/amortisation and expense sign is positive; confirm with CIPW-12."
+
+  - key: net_working_capital
+    en: Net working capital
+    formula: "current_assets - liabilities_short_term"
+
+  - key: net_debt_approx
+    en: Approximate net debt (bank loans minus cash)
+    formula: "bank_loans_total - cash"
+    note: "Only an approximation; other interest-bearing liabilities and liquid financial assets excluded."
+
+# Each ratio yields null if an input is unknown or the denominator is zero.
+# Status thresholds below are provisional and require CIPW-14 approval/sources.
+ratios:
+  - key: equity_ratio
+    en: Equity ratio
+    formula: "equity / total_assets"
+    result_format: percent
+    better: higher
+    rating: {good: ">= 0.40", okay: ">= 0.25 and < 0.40", bad: "< 0.25"}
+    threshold_source: project_assumption_pending_CIPW-14
+
+  - key: return_on_equity
+    en: Return on equity (ROE)
+    formula: "profit_for_period / equity"
+    result_format: percent
+    better: higher
+    rating: {good: ">= 0.12", okay: ">= 0.05 and < 0.12", bad: "< 0.05"}
+    threshold_source: project_assumption_pending_CIPW-14
+
+  - key: return_on_assets
+    en: Return on assets (ROA, based on EBIT)
+    formula: "ebit / total_assets"
+    result_format: percent
+    better: higher
+    rating: {good: ">= 0.06", okay: ">= 0.02 and < 0.06", bad: "< 0.02"}
+    threshold_source: project_assumption_pending_CIPW-14
+
+  - key: current_ratio
+    en: Current ratio
+    formula: "current_assets / liabilities_short_term"
+    result_format: number
+    better: target_range
+    rating:
+      good: ">= 1.50 and <= 2.50"
+      okay: ">= 1.00 and < 1.50"
+      bad: "< 1.00"
+      review: "> 2.50"
+    note: "CIPW-14 proposes 1.5-2.5 as a good range; handling over 2.5 must be agreed."
+    threshold_source: CIPW-14_task_description_pending_confirmation
+
+  - key: quick_ratio
+    en: Quick ratio
+    formula: "(current_assets - inventories) / liabilities_short_term"
+    result_format: number
+    better: higher
+    rating: {good: ">= 1.00", okay: ">= 0.70 and < 1.00", bad: "< 0.70"}
+    threshold_source: project_assumption_pending_CIPW-14
+
+  - key: cash_ratio
+    en: Cash ratio (cash and short-term financial assets)
+    formula: "(cash + coalesce(short_term_financial_assets, 0)) / liabilities_short_term"
+    condition: "short_term_financial_assets_missing_only_if_confirmed_absent"
+    result_format: number
+    better: higher
+    rating: {good: ">= 0.30", okay: ">= 0.10 and < 0.30", bad: "< 0.10"}
+    threshold_source: project_assumption_pending_CIPW-14
+
+  - key: debt_to_equity
+    en: External sources to equity (includes provisions)
+    formula: "external_sources / equity"
+    result_format: number
+    better: lower
+    rating: {good: "<= 1.00", okay: "> 1.00 and <= 2.00", bad: "> 2.00"}
+    threshold_source: project_assumption_pending_CIPW-14
+
+  - key: debt_ratio
+    en: External sources to total assets (includes provisions)
+    formula: "external_sources / total_assets"
+    result_format: percent
+    better: lower
+    rating: {good: "<= 0.50", okay: "> 0.50 and <= 0.70", bad: "> 0.70"}
+    threshold_source: project_assumption_pending_CIPW-14
+
+  - key: net_profit_margin
+    en: Net profit margin
+    formula: "profit_for_period / total_revenue"
+    result_format: percent
+    better: higher
+    rating: {good: ">= 0.08", okay: ">= 0.03 and < 0.08", bad: "< 0.03"}
+    threshold_source: project_assumption_pending_CIPW-14
+
+  - key: operating_margin
+    en: Operating margin
+    formula: "operating_result / total_revenue"
+    result_format: percent
+    better: higher
+    rating: {good: ">= 0.10", okay: ">= 0.05 and < 0.10", bad: "< 0.05"}
+    threshold_source: project_assumption_pending_CIPW-14
+
+  - key: ebitda_margin
+    en: EBITDA margin
+    formula: "ebitda / total_revenue"
+    result_format: percent
+    better: higher
+    rating: null
+    threshold_source: pending_CIPW-14
+
+  - key: interest_coverage
+    en: Interest coverage (EBIT)
+    formula: "ebit / interest_expense"
+    result_format: number
+    better: higher
+    rating: {good: ">= 3.00", okay: ">= 1.50 and < 3.00", bad: "< 1.50"}
+    note: "If interest expense is zero, return null or dedicated no-interest state; do not divide by zero."
+    threshold_source: project_assumption_pending_CIPW-14
+
+  - key: receivables_days
+    en: Trade receivables days (approximation)
+    formula: "trade_receivables_short_term / total_revenue * 365"
+    result_format: days
+    better: lower
+    rating: null
+    note: "Uses year-end receivables, not the two-period average. Confirm with CIPW-12."
+    threshold_source: pending_CIPW-14
+
+  - key: payables_days
+    en: Trade payables days (approximation)
+    formula: "trade_payables_short_term / cost_of_sales * 365"
+    result_format: days
+    better: contextual
+    rating: null
+    note: "Czech 'Výkonová spotřeba' is only an approximate purchases proxy. Confirm with CIPW-12."
+    threshold_source: pending_CIPW-14
+
+  - key: bank_loan_ratio
+    en: Bank loans to assets
+    formula: "bank_loans_total / total_assets"
+    result_format: percent
+    better: lower
+    rating: {good: "<= 0.25", okay: "> 0.25 and <= 0.40", bad: "> 0.40"}
+    note: "Additional metric; explicitly agree inclusion with CIPW-12."
+    threshold_source: project_assumption_pending_CIPW-14
+
+# Units: compare numbers in CZK, but tolerance equals 1 SOURCE PRINTED UNIT.
+# Example: printed in thousands => tolerance CZK = 1000.
+# A check with missing/unverified inputs yields null/review, not 'passed'.
+checks:
+  - key: balance_sheet_balances
+    en: Assets equal total liabilities and equity
+    formula: "abs(total_assets - total_liabilities_equity) <= tolerance"
+    tolerance_units: 1
+  - key: current_assets_components
+    en: Current assets are the sum of the reported components
+    formula: "abs(current_assets - (inventories + receivables + coalesce(short_term_financial_assets, 0) + cash)) <= tolerance"
+    condition: "short_term_financial_assets_missing_only_if_confirmed_absent"
+    tolerance_units: 1
+  - key: receivables_split
+    en: Long-term and short-term receivables add up to receivables
+    formula: "abs(receivables - (receivables_long_term + receivables_short_term)) <= tolerance"
+    tolerance_units: 1
+  - key: liabilities_split
+    en: Long-term and short-term liabilities add up to liabilities
+    formula: "abs(liabilities - (liabilities_long_term + liabilities_short_term)) <= tolerance"
+    tolerance_units: 1
+  - key: external_sources_check
+    en: Provisions and liabilities add up to external sources
+    formula: "abs(external_sources - (coalesce(provisions, 0) + liabilities)) <= tolerance"
+    condition: "provisions_missing_only_if_confirmed_absent"
+    tolerance_units: 1
+  - key: profit_cross_check
+    en: Balance-sheet profit matches income-statement period profit
+    formula: "abs(profit_current_period - profit_for_period) <= tolerance"
+    tolerance_units: 1
+
+# Two-year trend: (current - prior) / abs(prior) for percentage changes.
+# If prior is 0, the trend is null or a separate 'from_zero' state.
+# This avoids division by zero and reversals with negative prior-year profits.
+trend_metrics:
+  - key: revenue_growth
+    en: Revenue growth
+    formula: "(current.total_revenue - prior.total_revenue) / abs(prior.total_revenue)"
+    when_prior_zero: null
+    result_format: percent
+    direction: higher_is_better
+    weight: 20
+  - key: profit_growth
+    en: Profit change (also valid from a loss to profit)
+    formula: "(current.profit_for_period - prior.profit_for_period) / abs(prior.profit_for_period)"
+    when_prior_zero: null
+    result_format: percent
+    direction: higher_is_better
+    weight: 25
+  - key: equity_growth
+    en: Equity growth
+    formula: "(current.equity - prior.equity) / abs(prior.equity)"
+    when_prior_zero: null
+    result_format: percent
+    direction: higher_is_better
+    weight: 15
+  - key: current_ratio_change
+    en: Absolute change in current ratio
+    formula: "current.current_ratio - prior.current_ratio"
+    result_format: number
+    direction: higher_is_better
+    limits_ref: current_ratio_absolute
+    weight: 20
+  - key: bank_loans_growth
+    en: Change in bank loans
+    formula: "(current.bank_loans_total - prior.bank_loans_total) / abs(prior.bank_loans_total)"
+    when_prior_zero: null
+    result_format: percent
+    direction: lower_is_better
+    weight: 20
+    note: "Rising borrowing is not automatically bad; investment context matters."
+
+# Existing Excel style retained for comparison, but scores are NOT final policy.
+# Missing ratio/trend -> not rated; reweight observed components explicitly,
+# or report 'insufficient data' (team decision pending).
+assessment:
+  status: draft_pending_CIPW-14_and_CIPW-16
+  approach: rule_based_proposal_pending_team_decision
+  ratio_weight: 70
+  history_weight: 30
+  weights_source: student_project_assumption
+  status_points: {good: 100, okay: 60, bad: 20}
+  trend_points:
+    strong_improvement: 100
+    slight_improvement: 80
+    stable: 60
+    slight_deterioration: 40
+    strong_deterioration: 20
+  trend_limits:
+    relative_growth:
+      strong_improvement: ">= 0.10"
+      slight_improvement: ">= 0.02"
+      stable: "> -0.02 and < 0.02"
+      slight_deterioration: "> -0.10 and <= -0.02"
+      strong_deterioration: "<= -0.10"
+    current_ratio_absolute:
+      strong_improvement: ">= 0.20"
+      slight_improvement: ">= 0.05"
+      stable: "> -0.05 and < 0.05"
+      slight_deterioration: "> -0.20 and <= -0.05"
+      strong_deterioration: "<= -0.20"
+  final_rating: {good: ">= 75", okay: ">= 50 and < 75", bad: "< 50"}
+  threshold_source: project_assumption_pending_CIPW-14
+  missing_rating: null
+
+# Normative rules live in docs/schema.md; do not duplicate them here.
+# Pending team confirmations: conventions, thresholds, scores, and rating approach.
