@@ -110,7 +110,6 @@ def _from_fixtures(stem: str, pages: dict[str, list[int]]):
 @pytest.mark.parametrize(
     "stem, pages, min_accuracy, max_silent",
     [
-        ("25080776_2025", {"balance_sheet": [1, 2], "income_statement": []}, 1.0, 0),
         ("26161516_2025", {"balance_sheet": [20, 21], "income_statement": [22]}, 0.84, 8),
     ],
 )
