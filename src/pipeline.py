@@ -20,17 +20,20 @@ from __future__ import annotations
 import argparse
 import copy
 import json
+import re
 import sys
 import time
 import traceback
 from collections.abc import Callable
 from dataclasses import dataclass, field, replace
+from datetime import date
 from functools import cache
 from pathlib import Path
 
 import pymupdf
 
 from src.extraction.locate import locate_statements
+from src.extraction.numbers import detect_unit
 from src.extraction.ocr import DEFAULT as DEFAULT_OCR
 from src.extraction.parser import parse_statements
 from src.extraction.reading import read_page
@@ -102,11 +105,17 @@ def stage_read(result: Result, ctx: Context) -> StageStatus:
 def stage_parse(result: Result, ctx: Context) -> StageStatus:
     """CIPW-32: rule-based parser, words with positions -> FinancialStatements."""
     result.statements = parse_statements(result.page_words, result.pages)
-    result.statements.metadata.source_file = ctx.pdf_path.name
-    if result.statements.metadata.ico is None:  # fall back to the IČO in the file name (ICO_year_type.pdf)
-        prefix = ctx.pdf_path.name.split("_")[0]
-        if prefix.isdigit() and len(prefix) == 8:
-            result.statements.metadata.ico = prefix
+    meta = result.statements.metadata
+    meta.source_file = ctx.pdf_path.name
+    parts = ctx.pdf_path.stem.split("_")  # ICO_year_type.pdf
+    if meta.ico is None and parts[0].isdigit() and len(parts[0]) == 8:
+        meta.ico = parts[0]
+    if detect_unit("\n".join(pw.text for pw in result.page_words)) is None:
+        result.warnings.append("parse: unit not printed on the statement pages, assumed tis. Kč")
+    if meta.period_end is None and len(parts) > 1 and re.fullmatch(r"(19|20)\d{2}", parts[1]):
+        year = int(parts[1])
+        meta.period_end, meta.prior_period_end = date(year, 12, 31), date(year - 1, 12, 31)
+        result.warnings.append(f"parse: balance sheet date not found, assumed 31.12.{year} from the file name")
     return "ok"
 
 

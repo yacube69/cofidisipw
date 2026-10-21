@@ -328,7 +328,7 @@ def parse_statements(
                 parts = [("income_statement", lines)]
             for kind, part in parts:
                 columns = detect_columns(part, kind)
-                if not [c for c in columns if c.name != "row"]:
+                if not [c for c in columns if c.name not in ("row", "extra")]:
                     continue
                 side = None if kind == "income_statement" else kind
                 candidates = dictionary.for_statement(statement, side)  # type: ignore[arg-type]
