@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
-import type { CheckResult, LineDef, ResultView, Value } from "../types";
+import type { CheckResult, LineDef, Ratio, ResultView, Value } from "../types";
 import { formatAmount, formatChange, formatDate, formatNumber, formatRatio } from "./format";
-import { stepSummaries } from "./summary";
+import { ratioLight, stepSummaries } from "./summary";
 import { accountingChecks, confidence, failedFields, valueRows } from "./values";
 
 const value = (over: Partial<Value> = {}): Value => ({
@@ -116,5 +116,14 @@ describe("rows and summaries", () => {
     expect(extraction).toMatchObject({ headline: "2 values", detail: "1 to review, 0 to check", tone: "bad" });
     expect(validation).toMatchObject({ headline: "1 of 1 checks", tone: "ok" });
     expect(report).toMatchObject({ headline: "not generated", mock: true });
+  });
+
+  it("shows benchmark lights only when they belong to the same data as the ratios", () => {
+    const ratio = { key: "current_ratio" } as Ratio;
+    const benchmarks = { ratios: { current_ratio: { light: "red" } } };
+    const view = (stubbed_stages: string[]) => ({ ...result, benchmarks, stubbed_stages }) as unknown as ResultView;
+    expect(ratioLight(view(["ratios", "benchmarks"]), ratio)).toBe("red"); // both mock
+    expect(ratioLight(view([]), ratio)).toBe("red"); // both computed
+    expect(ratioLight(view(["benchmarks"]), ratio)).toBeNull(); // real ratios, mock lights
   });
 });

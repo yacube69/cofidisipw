@@ -40,8 +40,7 @@ def test_cli_fails_when_a_stage_fails(tmp_path):
 
 def test_stubs_return_mock_data(tiny_pdf):
     result = run_pipeline(tiny_pdf)
-    assert set(result.stubbed_stages) == {"reread", "ratios", "bankruptcy", "benchmarks", "report", "check_numbers"}
-    assert result.ratios.get("current_ratio").current.value == pytest.approx(0.2227)
+    assert set(result.stubbed_stages) == {"reread", "bankruptcy", "benchmarks", "report", "check_numbers"}
     assert result.bankruptcy["in05"]["zone"] in ("safe", "grey", "distress")
     assert result.benchmarks["ratios"]["current_ratio"]["light"] == "red"
     assert result.report["summary"] and result.report["rating"]["value"] in ("low", "medium", "high")
@@ -141,3 +140,11 @@ def test_group_report_reads_the_individual_statements(tmp_path):
     assert "locate: the PDF also has consolidated statements (pages [1, 2]), not read" in result.warnings
     result = run_pipeline(pdf, PipelineOptions(skip_report=True, scope="consolidated"))
     assert result.pages["balance_sheet"] == [1, 2] and result.consolidation == "consolidated"
+
+
+def test_ratios_are_computed_from_the_statements(tiny_pdf):
+    result = run_pipeline(tiny_pdf, PipelineOptions(skip_report=True))
+    assert {s.stage: s.status for s in result.stages}["ratios"] == "ok"
+    fs = result.statements
+    expected = fs.get("current_assets") / fs.get("liabilities_short_term")
+    assert result.ratios.get("current_ratio").current.value == pytest.approx(expected, rel=1e-3)

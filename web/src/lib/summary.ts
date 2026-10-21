@@ -14,6 +14,9 @@ export interface StepSummary {
 }
 
 export function ratioLight(result: ResultView, ratio: Ratio): Light | null {
+  // mock lights belong to the mock company: next to this file's own ratios they would mislead
+  const stub = result.stubbed_stages;
+  if (stub.includes("benchmarks") && !stub.includes("ratios")) return null;
   return result.benchmarks?.ratios?.[ratio.key]?.light ?? null;
 }
 
@@ -57,7 +60,7 @@ export function stepSummaries(result: ResultView, rows: ValueRow[]): StepSummary
       headline: `${ratios.length} ratios`,
       detail: lights.length ? `${red} red of ${lights.length} benchmarked` : "no benchmarks yet",
       tone: red ? "bad" : lights.length ? "ok" : "neutral",
-      mock: stub.has("ratios"),
+      mock: stub.has("ratios") || stub.has("bankruptcy"),
     },
     {
       id: "report",

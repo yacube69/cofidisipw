@@ -34,6 +34,7 @@ function RatioCard({ result, ratio }: { result: ResultView; ratio: Ratio }) {
       <div className="name">
         <span>{ratio.name}</span>
         {light && <Badge tone={LIGHT[light].tone} icon>{LIGHT[light].word}</Badge>}
+        {ratio.current.flag === "unreliable" && <Badge tone="warn">Check inputs</Badge>}
       </div>
       <div className="value">{formatRatio(ratio.current.value, ratio.unit)}</div>
       <div className={`change${better === null ? "" : better ? " up" : " down"}`}>
@@ -49,10 +50,15 @@ function RatioCard({ result, ratio }: { result: ResultView; ratio: Ratio }) {
 export function Ratios({ result }: { result: ResultView }) {
   const ratios = result.ratios?.ratios ?? [];
   const b = result.bankruptcy;
-  const mock = result.stubbed_stages.includes("ratios");
+  const stub = result.stubbed_stages;
+  const mock = stub.includes("ratios")
+    ? "Ratios, bankruptcy scores and benchmarks"
+    : stub.includes("bankruptcy")
+      ? "Bankruptcy scores"
+      : null;
   return (
     <div className="stack">
-      {mock && <MockBanner what="Ratios, bankruptcy scores and benchmarks" />}
+      {mock && <MockBanner what={mock} />}
       {b && (b.in05 || b.altman_z_prime) && (
         <div className="grid-2">
           {b.in05 && (
@@ -83,7 +89,7 @@ export function Ratios({ result }: { result: ResultView }) {
         );
       })}
       {ratios.length === 0 && <div className="empty"><h2>No ratios</h2><p>The ratio engine (CIPW-12) has not run on this file.</p></div>}
-      {result.benchmarks?.source && <p className="faint" style={{ margin: 0, fontSize: 12 }}>Benchmarks: {result.benchmarks.source}</p>}
+      {result.benchmarks?.source && !(stub.includes("benchmarks") && !stub.includes("ratios")) && <p className="faint" style={{ margin: 0, fontSize: 12 }}>Benchmarks: {result.benchmarks.source}</p>}
     </div>
   );
 }

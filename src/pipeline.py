@@ -41,7 +41,7 @@ from src.extraction.numbers import detect_unit
 from src.extraction.parser import parse_statements
 from src.extraction.reading import read_page
 from src.line_items import load_dictionary
-from src.ratios.models import RatioReport
+from src.ratios.engine import compute_ratios
 from src.result import Audit, PipelineOptions, Result, StageRun, StageStatus
 from src.runlog import RunLog
 from src.settings import ROOT, Settings, get_settings
@@ -152,9 +152,9 @@ def stage_reread(result: Result, ctx: Context) -> StageStatus:
 
 
 def stage_ratios(result: Result, ctx: Context) -> StageStatus:
-    """CIPW-12 (stub): mock ratios."""
-    result.ratios = RatioReport.model_validate(mock("ratios"))
-    return "stub"
+    """CIPW-12: ratios for both years; values in failed checks or to review are flagged unreliable."""
+    result.ratios = compute_ratios(result.statements, result.validation)
+    return "ok"
 
 
 def stage_bankruptcy(result: Result, ctx: Context) -> StageStatus:
