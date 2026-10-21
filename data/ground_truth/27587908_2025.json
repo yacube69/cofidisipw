@@ -259,7 +259,7 @@
     }
   },
   "transcribed_by": "Claude (from the scanned PDF, read visually)",
-  "verified_by": null,
+  "verified_by": "marvin",
   "partial": false,
   "notes": "Scan without text layer, 35-page annual report (audited); statements on PDF pages 14-18 (balance sheet; page 19 is blank) and 20-21 (income statement), full scope, whole thousands CZK. Blank cells in the current-year column are null; the prior-year column prints 0 for unused lines, stored as 0. Current-year net_turnover is printed 307 396 (identical to line I), although I + III + VI + VII would give 312 030; the prior year (313 276) follows the formula. Copied as printed, source inconsistency. Accruals on the liabilities side are line D (5 442 / 4 299); C.III is empty. No unreadable characters; the scan is clean."
 }
