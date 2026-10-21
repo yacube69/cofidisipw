@@ -183,6 +183,13 @@ balance_sheet:
     labels: ["Výsledek hospodaření běžného účetního období (+/-)", "Výsledek hospodaření běžného účetního období"]
     abbreviated: true
     en: Profit or loss for the current period
+  - key: advance_profit_distribution
+    side: liabilities
+    code: "A.VI."
+    row: "103"  # from the decree; Siemens 2025 prints A. as "ř. 84 + 88 + 96 + 99 + 102 - 103"
+    labels: ["Rozhodnuto o zálohové výplatě podílu na zisku (-)", "Rozhodnuto o zálohové výplatě podílu na zisku"]
+    abbreviated: true
+    en: Advance profit distribution decided
   - key: external_sources
     side: liabilities
     code: "B.+C."

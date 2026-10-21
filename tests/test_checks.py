@@ -124,3 +124,44 @@ def test_accruals_within_receivables_and_liabilities_count_in_the_sums():
     for key, name in checks.values():
         fs.balance_sheet[key] = LineItem(key=key, current=Value(value=5_000_000))
         assert name not in failed(fs)
+
+
+def test_misread_revenue_breaks_the_operating_result():
+    """The operating part of the income statement is covered by the form's own formula (* = I + II − A − …)."""
+    fs = load()
+    fs.income_statement["revenue_products_services"].current.value += 9_000_000  # one digit misread
+    assert "Operating result: I + II − A − B − C − D − E + III − F" in failed(fs)
+    fs = load()
+    fs.income_statement["personnel_costs"].prior.value *= -1  # lost minus
+    assert "Operating result: I + II − A − B − C − D − E + III − F" in failed(fs)
+
+
+def test_operating_result_accepts_costs_printed_negative_and_capitalization_with_either_sign():
+    fs = load()
+    for key in ("cost_of_sales", "personnel_costs", "value_adjustments_operating", "other_operating_expenses"):
+        item = fs.income_statement[key]
+        item.current.value = -item.current.value  # software that prints costs negative
+    fs.income_statement["change_in_inventory"].current.value *= -1  # ... prints every line as it adds up
+    fs.income_statement["capitalization"].current.value *= -1
+    assert not {n for n in failed(fs) if n.startswith("Operating result:")}
+    fs = load()
+    fs.income_statement["capitalization"].current.value *= -1  # "Aktivace" printed positive, same meaning
+    assert "Operating result: I + II − A − B − C − D − E + III − F" not in failed(fs)
+
+
+def test_advance_profit_distribution_lowers_equity_whatever_its_printed_sign():
+    """A.VI. "Rozhodnuto o zálohové výplatě podílu na zisku (-)": some software prints it positive and subtracts it
+    (Siemens 2025: ř. 84 + 88 + 96 + 99 + 102 - 103), some prints it negative."""
+    for printed in (5_000_000, -5_000_000):
+        fs = load()
+        fs.balance_sheet["equity"].current.value -= 5_000_000
+        fs.balance_sheet["advance_profit_distribution"] = LineItem(
+            key="advance_profit_distribution", current=Value(value=printed)
+        )
+        assert "Equity: A.I + … + A.V − A.VI = A" not in failed(fs)
+
+
+def test_a_missed_equity_line_is_now_an_error():
+    fs = load()
+    del fs.balance_sheet["retained_earnings"]
+    assert "Equity: A.I + … + A.V − A.VI = A" in failed(fs)

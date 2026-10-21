@@ -17,8 +17,14 @@ from collections.abc import Iterable
 from src.schema import FinancialStatements, Period
 from src.validation.models import CheckResult, ValidationReport
 
+# How a part enters a sum: added, subtracted, or by its meaning whatever sign the software printed it with.
+#   "lower": always lowers the total (A.VI. advance profit distribution: printed "1 000" or "-1 000")
+#   "raise": always raises it (C. Aktivace: own work capitalised reduces costs, printed with either sign)
+Sign = int | str
+Part = str | tuple[str, Sign]
+
 # total = sum(parts); a check runs when the total and at least one part are present (missing parts count as 0)
-SUM_CHECKS: list[tuple[str, str, list[str], str]] = [
+SUM_CHECKS: list[tuple[str, str, list[Part], str]] = [
     # name, total, parts, severity
     ("Assets: A + B + C + D = total assets", "total_assets",
      ["receivables_subscribed_capital", "fixed_assets", "current_assets", "accruals_assets"], "error"),
@@ -33,11 +39,19 @@ SUM_CHECKS: list[tuple[str, str, list[str], str]] = [
     ("External sources: B + C = B + C total", "external_sources", ["provisions", "liabilities"], "error"),
     ("Liabilities: C.I + C.II + C.III = C", "liabilities",
      ["liabilities_long_term", "liabilities_short_term", "accruals_in_liabilities"], "error"),
-    # A.VI (advance profit distribution) and A.II–A.III details are not in the dictionary: warning only
-    ("Equity: A.I + … + A.V = A", "equity",
+    ("Equity: A.I + … + A.V − A.VI = A", "equity",
      ["share_capital", "share_premium_capital_funds", "funds_from_profit", "retained_earnings",
-      "profit_current_period"], "warning"),
+      "profit_current_period", ("advance_profit_distribution", "lower")], "error"),
+    # the form's own formula: * = I + II − A − B − C − D − E + III − F (ř. 01 + 02 − 03 − 07 − 08 − 09 − 14 + 20 − 24)
+    ("Operating result: I + II − A − B − C − D − E + III − F", "operating_result",
+     ["revenue_products_services", "revenue_goods", ("cost_of_sales", -1), ("change_in_inventory", -1),
+      ("capitalization", "raise"), ("personnel_costs", -1), ("value_adjustments_operating", -1),
+      "other_operating_income", ("other_operating_expenses", -1)], "error"),
 ]  # fmt: skip
+
+# Some software prints the costs negative (Osobní náklady -1 230 126): then the printed lines simply add up to the
+# total. For these checks a plain sum of the printed parts is accepted as well.
+PLAIN_SUM_ACCEPTED = {"Operating result: I + II − A − B − C − D − E + III − F"}
 
 # a = b (+ c …): both sides must be present. The 5th item says whether the check compares the same number
 # printed twice (exact, no tolerance) or a sum of separately rounded lines (rounding tolerance).
@@ -71,16 +85,29 @@ def _close(a: float, b: float, tolerance: float) -> bool:
     return abs(a - b) <= tolerance + 1e-6
 
 
+def _contribution(value: float, sign: Sign) -> float:
+    if sign == "lower":
+        return -abs(value)
+    if sign == "raise":
+        return abs(value)
+    return value * sign  # type: ignore[operator]
+
+
 def _sum_checks(fs: FinancialStatements, tol: float, periods: Iterable[Period]) -> list[CheckResult]:
     out = []
     for name, total_key, parts, severity in SUM_CHECKS:
+        signed = [(p, 1) if isinstance(p, str) else p for p in parts]
         for period in periods:
             total = _get(fs, total_key, period)
-            values = {p: _get(fs, p, period) for p in parts}
-            present = {p: v for p, v in values.items() if v is not None}
+            values = {p: (_get(fs, p, period), sign) for p, sign in signed}
+            present = {p: (v, sign) for p, (v, sign) in values.items() if v is not None}
             if total is None or not present:
                 continue
-            actual = sum(present.values())
+            actual = sum(_contribution(v, sign) for v, sign in present.values())
+            if name in PLAIN_SUM_ACCEPTED and not _close(total, actual, tol):
+                plain = sum(v for v, _ in present.values())
+                if _close(total, plain, tol):
+                    actual = plain  # costs printed negative
             out.append(
                 CheckResult(
                     name=name,
