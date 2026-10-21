@@ -27,7 +27,9 @@ def test_ground_truth_passes_every_check(path):
     fs = GroundTruth.model_validate_json(path.read_text(encoding="utf-8")).to_statements()
     report = validate(fs)
     assert report.passed, [c.name for c in report.errors]
-    assert len(report.checks) >= 8
+    gt = GroundTruth.model_validate_json(path.read_text(encoding="utf-8"))
+    if not gt.partial:  # a complete statement allows most identities; a partial one only what was filled
+        assert len(report.checks) >= 8, f"only {len(report.checks)} checks: fill more lines or set partial"
 
 
 def test_misread_digit_in_total_is_caught():

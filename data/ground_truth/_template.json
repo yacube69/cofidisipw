@@ -241,5 +241,6 @@
   },
   "transcribed_by": null,
   "verified_by": null,
+  "partial": false,
   "notes": null
 }

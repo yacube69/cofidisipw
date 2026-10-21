@@ -156,6 +156,11 @@ class GroundTruth(BaseModel):
     income_statement: dict[str, GroundTruthLine] = Field(default_factory=dict)
     transcribed_by: str | None = None
     verified_by: str | None = None
+    partial: bool = Field(
+        False,
+        description="Only some lines are filled on purpose (e.g. an IFRS statement whose lines do not map to the "
+        "Czech form). Accuracy is measured on the filled lines only; explain the gaps in `notes`.",
+    )
     notes: str | None = None
 
     @model_validator(mode="after")
@@ -212,5 +217,6 @@ def blank_ground_truth(file: str = "ICO_year_statement.pdf") -> dict:
         "income_statement": is_,
         "transcribed_by": None,
         "verified_by": None,
+        "partial": False,
         "notes": None,
     }

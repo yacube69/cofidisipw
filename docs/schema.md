@@ -30,6 +30,7 @@ A test fails when `_template.json` is out of date.
 - **Periods:** `current` is the balance sheet date of the statement (`Metadata.period_end`), `prior` the column before it.
 - **Every extracted amount keeps its source:** 1-based page, bounding box in PDF points (top-left origin), OCR confidence 0–100 (None for a text layer) and parser match score 0–100.
 - **Označení is normalized** without spaces and with a dot after every part: `B. II. 1.` → `B.II.1.`, `B. + C.` → `B.+C.`. Income-statement subtotals keep their stars (`*`, `**`, `***`).
+- **Partial ground truth:** set `"partial": true` when only some lines are filled on purpose (e.g. an IFRS statement whose lines do not map to the Czech form) and explain the gaps in `notes`. Accuracy is measured on the filled lines only; the accounting checks that can run must still pass.
 - **Row numbers (`row`) are a hint, not a key.** They are verified on a real 2025 full-form statement where marked `# verified`, but micro forms omit them and some software numbers differently.
 
 ## Scope of fields

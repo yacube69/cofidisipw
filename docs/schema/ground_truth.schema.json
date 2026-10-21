@@ -168,6 +168,12 @@
       "default": null,
       "title": "Verified By"
     },
+    "partial": {
+      "default": false,
+      "description": "Only some lines are filled on purpose (e.g. an IFRS statement whose lines do not map to the Czech form). Accuracy is measured on the filled lines only; explain the gaps in `notes`.",
+      "title": "Partial",
+      "type": "boolean"
+    },
     "notes": {
       "anyOf": [
         {
