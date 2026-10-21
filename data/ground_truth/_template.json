@@ -100,6 +100,12 @@
       "current": null,
       "prior": null
     },
+    "accruals_in_receivables": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
     "total_liabilities_equity": {
       "current": null,
       "prior": null
@@ -161,6 +167,10 @@
       "prior": null
     },
     "accruals_liabilities": {
+      "current": null,
+      "prior": null
+    },
+    "accruals_in_liabilities": {
       "current": null,
       "prior": null
     }

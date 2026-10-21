@@ -49,6 +49,18 @@ def test_identify_garbled_shaded_label_by_row_number():
     assert best.key == "intangible_assets" and best.score >= 90
 
 
+def test_identify_accruals_by_code_and_row():
+    """Časové rozlišení is printed twice on each side (C.II.3./D. and C.III./D.): code and row number decide."""
+    d = load_dictionary()
+    assets, liabilities = d.for_statement("balance_sheet", "assets"), d.for_statement("balance_sheet", "liabilities")
+    assert identify(_line("Časové rozlišení aktiv", "C.II.3.", "068"), assets)[0].key == "accruals_in_receivables"
+    assert identify(_line("Časové rozlišení aktiv", "D.", "078"), assets)[0].key == "accruals_assets"
+    assert identify(_line("Časové rozlišení aktiv", "D."), assets)[0].key == "accruals_assets"
+    assert identify(_line("Časové rozlišení pasiv", "C.III.", "144"), liabilities)[0].key == "accruals_in_liabilities"
+    assert identify(_line("Časové rozlišení pasiv", "D.", "147"), liabilities)[0].key == "accruals_liabilities"
+    assert identify(_line("Časové rozlišení pasiv"), liabilities)[0].key == "accruals_liabilities"  # tie: D.
+
+
 def test_identify_wrapped_label_does_not_match_its_second_half():
     candidates = load_dictionary().for_statement("balance_sheet", "assets")
     line = _line("dlouhodobý hmotný majetek", "B.II.5.", "024")

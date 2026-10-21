@@ -6,7 +6,8 @@
 #   side           balance sheet only: assets | liabilities
 #   code           "označení" as printed, normalized: no spaces, dot after every part ("B.II.", "C.II.2.", "B.+C.")
 #                  income-statement subtotals use their stars ("*", "**", "***")
-#   row            "číslo řádku" of the full form; verified on a real 2025 statement where marked `# verified`.
+#   row            "číslo řádku" of the full form; verified on a real 2025 statement where marked `# verified`,
+#                  counted from the form in the decree where marked `# from the decree`.
 #                  Row numbers are printed by most accounting software but are not always present (micro forms omit them).
 #   labels         official Czech label first, then known variants (abbreviated forms, older forms, typical OCR-free variants)
 #   abbreviated    true if the line also exists in the abbreviated (zkrácený) form
@@ -104,7 +105,7 @@ balance_sheet:
   - key: short_term_financial_assets
     side: assets
     code: "C.III."
-    row: "071"
+    row: "072"  # from the decree (071 is C.II.3.3.)
     labels: ["Krátkodobý finanční majetek"]
     abbreviated: true
     en: Short-term financial assets
@@ -122,6 +123,15 @@ balance_sheet:
     labels: ["Časové rozlišení aktiv", "Časové rozlišení"]
     abbreviated: true
     en: Prepayments and accrued income
+  # Listed after D. on purpose: both lines carry the same label, and when neither code nor row number is
+  # readable the parser keeps the first candidate. D. is the one that enters the asset total.
+  - key: accruals_in_receivables
+    side: assets
+    code: "C.II.3."
+    row: "068"  # from the decree
+    labels: ["Časové rozlišení aktiv"]
+    abbreviated: true
+    en: Prepayments and accrued income (within receivables)
 
   # ---------------- PASIVA ----------------
   - key: total_liabilities_equity
@@ -204,6 +214,7 @@ balance_sheet:
   - key: bank_loans_long_term
     side: liabilities
     code: "C.I.2."
+    row: "115"  # from the decree
     labels: ["Závazky k úvěrovým institucím"]
     abbreviated: false
     en: Long-term bank loans
@@ -217,6 +228,7 @@ balance_sheet:
   - key: bank_loans_short_term
     side: liabilities
     code: "C.II.2."
+    row: "130"  # from the decree
     labels: ["Závazky k úvěrovým institucím"]
     abbreviated: false
     en: Short-term bank loans
@@ -230,9 +242,18 @@ balance_sheet:
   - key: accruals_liabilities
     side: liabilities
     code: "D."
+    row: "147"  # from the decree
     labels: ["Časové rozlišení pasiv", "Časové rozlišení"]
     abbreviated: true
     en: Accruals and deferred income
+  # after D. on purpose, as accruals_in_receivables above
+  - key: accruals_in_liabilities
+    side: liabilities
+    code: "C.III."
+    row: "144"  # from the decree
+    labels: ["Časové rozlišení pasiv"]
+    abbreviated: true
+    en: Accruals and deferred income (within liabilities)
 
 income_statement:
   - key: revenue_products_services

@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from src.evaluation import compare
-from src.schema import FinancialStatements, GroundTruth
+from src.schema import FinancialStatements, GroundTruth, LineItem, Value
 from src.validation.checks import fields_in_failed_checks, validate
 from tests.test_parser import _from_fixtures
 
@@ -108,3 +108,19 @@ def test_positive_korekce_printed_as_a_reduction_is_accepted():
     item = fs.balance_sheet["inventories"]
     item.adjustment.value = abs(item.adjustment.value)  # same numbers, korekce printed without the minus
     assert "Net = gross − adjustment (inventories)" not in failed(fs)
+
+
+def test_accruals_within_receivables_and_liabilities_count_in_the_sums():
+    """C.II.3. and C.III. (Časové rozlišení inside receivables and liabilities, form since 2016) are part of C.II.
+    and C.: moving an amount there must not break the sums."""
+    checks = {
+        "receivables_short_term": ("accruals_in_receivables", "Receivables: C.II.1 + C.II.2 + C.II.3 = C.II"),
+        "liabilities_short_term": ("accruals_in_liabilities", "Liabilities: C.I + C.II + C.III = C"),
+    }
+    fs = load()
+    for part, (_key, name) in checks.items():
+        fs.balance_sheet[part].current.value -= 5_000_000
+        assert name in failed(fs)
+    for key, name in checks.values():
+        fs.balance_sheet[key] = LineItem(key=key, current=Value(value=5_000_000))
+        assert name not in failed(fs)

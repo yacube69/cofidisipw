@@ -31,7 +31,9 @@ A test fails when `_template.json` is out of date.
 - **Every extracted amount keeps its source:** 1-based page, bounding box in PDF points (top-left origin), OCR confidence 0–100 (None for a text layer) and parser match score 0–100.
 - **Označení is normalized** without spaces and with a dot after every part: `B. II. 1.` → `B.II.1.`, `B. + C.` → `B.+C.`. Income-statement subtotals keep their stars (`*`, `**`, `***`).
 - **Partial ground truth:** set `"partial": true` when only some lines are filled on purpose (e.g. an IFRS statement whose lines do not map to the Czech form) and explain the gaps in `notes`. Accuracy is measured on the filled lines only; the accounting checks that can run must still pass.
-- **Row numbers (`row`) are a hint, not a key.** They are verified on a real 2025 full-form statement where marked `# verified`, but micro forms omit them and some software numbers differently.
+- **Row numbers (`row`) are a hint, not a key.** They are verified on a real 2025 full-form statement where marked `# verified` and counted from the form in the decree where marked `# from the decree`, but micro forms omit them and some software numbers differently.
+
+- **Časové rozlišení is printed twice on each side** of the form valid since 2016: inside receivables (`C.II.3.`, `accruals_in_receivables`) and on its own (`D.`, `accruals_assets`); inside liabilities (`C.III.`, `accruals_in_liabilities`) and on its own (`D.`, `accruals_liabilities`). Most companies use only `D.`; the sums of C.II. and C. include the inner line when it is printed.
 
 ## Scope of fields
 
