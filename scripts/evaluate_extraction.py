@@ -23,6 +23,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from src.evaluation import evaluate_file  # noqa: E402
+from src.settings import get_settings  # noqa: E402
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -33,7 +34,7 @@ def main(argv: list[str] | None = None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(errors="replace")
 
-    gt_dir = ROOT / "data" / "ground_truth"
+    gt_dir = get_settings().paths.ground_truth
     paths = [gt_dir / f"{n}.json" for n in args.files] or sorted(
         p for p in gt_dir.glob("*.json") if not p.name.startswith("_")
     )

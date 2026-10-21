@@ -121,7 +121,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.files:
         paths = [RAW / f for f in args.files]
     elif args.index:
-        with (ROOT / "data" / "index.csv").open(encoding="utf-8") as f:
+        with (get_settings().paths.raw.parent / "index.csv").open(encoding="utf-8") as f:
             paths = [RAW / r["file"] for r in csv.DictReader(f)]
     else:
         paths = sorted(RAW.glob("*.pdf"))

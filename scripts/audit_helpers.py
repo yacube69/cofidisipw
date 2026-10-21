@@ -28,10 +28,11 @@ from src.extraction.layout import group_lines, straighten  # noqa: E402
 from src.extraction.numbers import detect_columns, detect_period, detect_scope, detect_unit  # noqa: E402
 from src.extraction.parser import _split_sides, parse_statements  # noqa: E402
 from src.extraction.types import PageWords  # noqa: E402
+from src.settings import get_settings  # noqa: E402
 from src.validation.checks import validate  # noqa: E402
 
-OCR = ROOT / "outputs" / "ocr"
-OUT = ROOT / "outputs" / "audit_helpers.csv"
+OCR = get_settings().paths.outputs / "ocr"
+OUT = get_settings().paths.outputs / "audit_helpers.csv"
 EXPECTED = {"current", "prior"}  # every statement part needs at least these two columns
 
 

@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from src.schema import FinancialStatements, GroundTruth, blank_ground_truth  # noqa: E402
+from src.settings import get_settings  # noqa: E402
 
 
 def write_json(path: Path, data: dict) -> None:
@@ -30,7 +31,7 @@ def write_json(path: Path, data: dict) -> None:
 def main() -> int:
     write_json(ROOT / "docs/schema/financial_statements.schema.json", FinancialStatements.model_json_schema())
     write_json(ROOT / "docs/schema/ground_truth.schema.json", GroundTruth.model_json_schema())
-    write_json(ROOT / "data/ground_truth/_template.json", blank_ground_truth())
+    write_json(get_settings().paths.ground_truth / "_template.json", blank_ground_truth())
     return 0
 
 
