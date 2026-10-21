@@ -1,0 +1,250 @@
+{
+  "file": "07880383_2025_statement.pdf",
+  "company_name": "Skyport a.s.",
+  "ico": "07880383",
+  "period_end": "2025-12-31",
+  "scope": "full",
+  "unit_multiplier": 1000,
+  "pages": {
+    "balance_sheet": [
+      46,
+      47
+    ],
+    "income_statement": [
+      48
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": {
+      "gross": 291801,
+      "adjustment": -53630,
+      "current": 238171,
+      "prior": 132007
+    },
+    "receivables_subscribed_capital": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "fixed_assets": {
+      "gross": 87007,
+      "adjustment": -53427,
+      "current": 33580,
+      "prior": 15632
+    },
+    "intangible_assets": {
+      "gross": 2117,
+      "adjustment": -2117,
+      "current": 0,
+      "prior": 0
+    },
+    "tangible_assets": {
+      "gross": 72533,
+      "adjustment": -61215,
+      "current": 11318,
+      "prior": 2168
+    },
+    "financial_fixed_assets": {
+      "gross": 12357,
+      "adjustment": 9905,
+      "current": 22262,
+      "prior": 13464
+    },
+    "current_assets": {
+      "gross": 203835,
+      "adjustment": -203,
+      "current": 203632,
+      "prior": 115707
+    },
+    "inventories": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "receivables": {
+      "gross": 157142,
+      "adjustment": -203,
+      "current": 156939,
+      "prior": 96035
+    },
+    "receivables_long_term": {
+      "gross": 48434,
+      "adjustment": 0,
+      "current": 48434,
+      "prior": 52000
+    },
+    "receivables_short_term": {
+      "gross": 108708,
+      "adjustment": -203,
+      "current": 108505,
+      "prior": 44035
+    },
+    "trade_receivables_short_term": {
+      "gross": 70811,
+      "adjustment": -203,
+      "current": 70608,
+      "prior": 38763
+    },
+    "short_term_financial_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "cash": {
+      "gross": 46693,
+      "adjustment": 0,
+      "current": 46693,
+      "prior": 19672
+    },
+    "accruals_assets": {
+      "gross": 959,
+      "adjustment": 0,
+      "current": 959,
+      "prior": 668
+    },
+    "total_liabilities_equity": {
+      "current": 238171,
+      "prior": 132007
+    },
+    "equity": {
+      "current": 134394,
+      "prior": 75211
+    },
+    "share_capital": {
+      "current": 2000,
+      "prior": 2000
+    },
+    "share_premium_capital_funds": {
+      "current": 77700,
+      "prior": 185492
+    },
+    "funds_from_profit": {
+      "current": 2086,
+      "prior": 3208
+    },
+    "retained_earnings": {
+      "current": 0,
+      "prior": -119017
+    },
+    "profit_current_period": {
+      "current": 52608,
+      "prior": 3528
+    },
+    "external_sources": {
+      "current": 103680,
+      "prior": 56682
+    },
+    "provisions": {
+      "current": 15587,
+      "prior": 14001
+    },
+    "liabilities": {
+      "current": 88093,
+      "prior": 42681
+    },
+    "liabilities_long_term": {
+      "current": 3090,
+      "prior": 3929
+    },
+    "bank_loans_long_term": {
+      "current": 423,
+      "prior": 0
+    },
+    "liabilities_short_term": {
+      "current": 85003,
+      "prior": 38752
+    },
+    "bank_loans_short_term": {
+      "current": 194,
+      "prior": 0
+    },
+    "trade_payables_short_term": {
+      "current": 29323,
+      "prior": 5932
+    },
+    "accruals_liabilities": {
+      "current": 97,
+      "prior": 114
+    }
+  },
+  "income_statement": {
+    "revenue_products_services": {
+      "current": 529345,
+      "prior": 282090
+    },
+    "revenue_goods": {
+      "current": null,
+      "prior": null
+    },
+    "cost_of_sales": {
+      "current": 321968,
+      "prior": 168433
+    },
+    "change_in_inventory": {
+      "current": null,
+      "prior": null
+    },
+    "capitalization": {
+      "current": null,
+      "prior": null
+    },
+    "personnel_costs": {
+      "current": 144576,
+      "prior": 93439
+    },
+    "value_adjustments_operating": {
+      "current": 937,
+      "prior": 945
+    },
+    "depreciation": {
+      "current": 734,
+      "prior": 945
+    },
+    "other_operating_income": {
+      "current": 1332,
+      "prior": 335
+    },
+    "other_operating_expenses": {
+      "current": -7742,
+      "prior": 13735
+    },
+    "operating_result": {
+      "current": 70938,
+      "prior": 5873
+    },
+    "interest_expense": {
+      "current": 443,
+      "prior": 495
+    },
+    "financial_result": {
+      "current": -1551,
+      "prior": -358
+    },
+    "profit_before_tax": {
+      "current": 69387,
+      "prior": 5515
+    },
+    "income_tax": {
+      "current": 16779,
+      "prior": 1987
+    },
+    "profit_after_tax": {
+      "current": 52608,
+      "prior": 3528
+    },
+    "profit_for_period": {
+      "current": 52608,
+      "prior": 3528
+    },
+    "net_turnover": {
+      "current": 529345,
+      "prior": 282090
+    }
+  },
+  "transcribed_by": null,
+  "verified_by": null,
+  "notes": "Individual (non-consolidated) statements, full scope, whole thousands CZK. Gross/Korekce/Netto printed for current-year assets, prior year only Netto. adjustment for financial_fixed_assets is +9905 as printed (revaluation by equity method). No inventories line in the balance sheet (null). cost_of_sales = line A 'Vykonova spotreba'. depreciation = line E.1 (= E.1.1). interest_expense = line J (J.1 104 + J.2 339). accruals_liabilities printed as D.2 / D (outside B+C). Page numbers = PDF page index within the combined file."
+}
