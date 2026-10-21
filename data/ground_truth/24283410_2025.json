@@ -1,0 +1,251 @@
+{
+  "file": "24283410_2025_statement.pdf",
+  "company_name": "Silverton s.r.o.",
+  "ico": "24283410",
+  "period_end": "2025-12-31",
+  "scope": "full",
+  "unit_multiplier": 1000,
+  "pages": {
+    "balance_sheet": [
+      7,
+      8
+    ],
+    "income_statement": [
+      9,
+      10
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": {
+      "gross": 113461,
+      "adjustment": 39125,
+      "current": 74336,
+      "prior": 58343
+    },
+    "receivables_subscribed_capital": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "fixed_assets": {
+      "gross": 53514,
+      "adjustment": 35374,
+      "current": 18140,
+      "prior": 19132
+    },
+    "intangible_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "tangible_assets": {
+      "gross": 53514,
+      "adjustment": 35374,
+      "current": 18140,
+      "prior": 19132
+    },
+    "financial_fixed_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "current_assets": {
+      "gross": 59594,
+      "adjustment": 3751,
+      "current": 55843,
+      "prior": 38910
+    },
+    "inventories": {
+      "gross": 15318,
+      "adjustment": 3172,
+      "current": 12146,
+      "prior": 16355
+    },
+    "receivables": {
+      "gross": 28340,
+      "adjustment": 579,
+      "current": 27761,
+      "prior": 18424
+    },
+    "receivables_long_term": {
+      "gross": 2731,
+      "adjustment": null,
+      "current": 2731,
+      "prior": 817
+    },
+    "receivables_short_term": {
+      "gross": 25609,
+      "adjustment": 579,
+      "current": 25030,
+      "prior": 17607
+    },
+    "trade_receivables_short_term": {
+      "gross": 24959,
+      "adjustment": 579,
+      "current": 24380,
+      "prior": 15786
+    },
+    "short_term_financial_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "cash": {
+      "gross": 15936,
+      "adjustment": null,
+      "current": 15936,
+      "prior": 4131
+    },
+    "accruals_assets": {
+      "gross": 353,
+      "adjustment": null,
+      "current": 353,
+      "prior": 301
+    },
+    "total_liabilities_equity": {
+      "current": 74336,
+      "prior": 58343
+    },
+    "equity": {
+      "current": 54509,
+      "prior": 45797
+    },
+    "share_capital": {
+      "current": 1000,
+      "prior": 1000
+    },
+    "share_premium_capital_funds": {
+      "current": null,
+      "prior": null
+    },
+    "funds_from_profit": {
+      "current": null,
+      "prior": null
+    },
+    "retained_earnings": {
+      "current": 29058,
+      "prior": 39443
+    },
+    "profit_current_period": {
+      "current": 24451,
+      "prior": 5354
+    },
+    "external_sources": {
+      "current": 18599,
+      "prior": 10423
+    },
+    "provisions": {
+      "current": 1629,
+      "prior": null
+    },
+    "liabilities": {
+      "current": 16970,
+      "prior": 10423
+    },
+    "liabilities_long_term": {
+      "current": 509,
+      "prior": null
+    },
+    "bank_loans_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities_short_term": {
+      "current": 16461,
+      "prior": 10423
+    },
+    "bank_loans_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "trade_payables_short_term": {
+      "current": 9461,
+      "prior": 8328
+    },
+    "accruals_liabilities": {
+      "current": 1228,
+      "prior": 2123
+    }
+  },
+  "income_statement": {
+    "revenue_products_services": {
+      "current": 136010,
+      "prior": 92010
+    },
+    "revenue_goods": {
+      "current": 1329,
+      "prior": 1473
+    },
+    "cost_of_sales": {
+      "current": 68338,
+      "prior": 52900
+    },
+    "change_in_inventory": {
+      "current": 2873,
+      "prior": -4086
+    },
+    "capitalization": {
+      "current": null,
+      "prior": null
+    },
+    "personnel_costs": {
+      "current": 26897,
+      "prior": 25145
+    },
+    "value_adjustments_operating": {
+      "current": 11939,
+      "prior": 13054
+    },
+    "depreciation": {
+      "current": 10618,
+      "prior": 13330
+    },
+    "other_operating_income": {
+      "current": 8227,
+      "prior": 5148
+    },
+    "other_operating_expenses": {
+      "current": 4606,
+      "prior": 3674
+    },
+    "operating_result": {
+      "current": 30913,
+      "prior": 7944
+    },
+    "interest_expense": {
+      "current": null,
+      "prior": 1198
+    },
+    "financial_result": {
+      "current": -40,
+      "prior": -1132
+    },
+    "profit_before_tax": {
+      "current": 30873,
+      "prior": 6812
+    },
+    "income_tax": {
+      "current": 6422,
+      "prior": 1458
+    },
+    "profit_after_tax": {
+      "current": 24451,
+      "prior": 5354
+    },
+    "profit_for_period": {
+      "current": 24451,
+      "prior": 5354
+    },
+    "net_turnover": {
+      "current": 137339,
+      "prior": 93482
+    }
+  },
+  "transcribed_by": "Claude (from the scanned PDF, read visually)",
+  "verified_by": null,
+  "notes": "Scan without text layer, 26-page annual report; statements on PDF pages 7-10 (full scope, Priloha c.1/c.2 vyhlasky 500/2002). Whole thousands CZK (stated in the balance sheet header; the income statement header does not repeat the unit). The form prints only used lines: unprinted lines are null; a blank cell on a printed line is null (e.g. Korekce where gross = net, prior-year provisions). Prior-year net turnover is printed 93 482 although lines I + II add to 93 483 (rounding in the source, copied as printed). change_in_inventory printed positive (2 873) and subtracted in the operating result formula. No unreadable characters; all sub-totals add up."
+}
