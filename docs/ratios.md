@@ -1,4 +1,4 @@
-Markdown
+
 # Bankruptcy Prediction Models
 
 ## IN05 Model (Neumaierová & Neumaier, 2005)
