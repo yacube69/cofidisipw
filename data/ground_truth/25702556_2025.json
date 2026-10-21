@@ -1,0 +1,250 @@
+{
+  "file": "25702556_2025_statement.pdf",
+  "company_name": "ČEPS, a.s.",
+  "ico": "25702556",
+  "period_end": "2025-12-31",
+  "scope": "full",
+  "unit_multiplier": 1000000,
+  "pages": {
+    "balance_sheet": [
+      62,
+      63
+    ],
+    "income_statement": [
+      64
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": 87840,
+      "prior": 91706
+    },
+    "receivables_subscribed_capital": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "fixed_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "intangible_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": 1344,
+      "prior": 1248
+    },
+    "tangible_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": 63427,
+      "prior": 55650
+    },
+    "financial_fixed_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": 17036,
+      "prior": 17052
+    },
+    "current_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "inventories": {
+      "gross": null,
+      "adjustment": null,
+      "current": 94,
+      "prior": 101
+    },
+    "receivables": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "receivables_long_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": 26,
+      "prior": 20
+    },
+    "receivables_short_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "trade_receivables_short_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "short_term_financial_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "cash": {
+      "gross": null,
+      "adjustment": null,
+      "current": 3904,
+      "prior": 15020
+    },
+    "accruals_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "total_liabilities_equity": {
+      "current": 87840,
+      "prior": 91706
+    },
+    "equity": {
+      "current": null,
+      "prior": null
+    },
+    "share_capital": {
+      "current": 10535,
+      "prior": 10535
+    },
+    "share_premium_capital_funds": {
+      "current": null,
+      "prior": null
+    },
+    "funds_from_profit": {
+      "current": null,
+      "prior": null
+    },
+    "retained_earnings": {
+      "current": null,
+      "prior": null
+    },
+    "profit_current_period": {
+      "current": null,
+      "prior": null
+    },
+    "external_sources": {
+      "current": null,
+      "prior": null
+    },
+    "provisions": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities_long_term": {
+      "current": 31623,
+      "prior": 14835
+    },
+    "bank_loans_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities_short_term": {
+      "current": 14125,
+      "prior": 40651
+    },
+    "bank_loans_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "trade_payables_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "accruals_liabilities": {
+      "current": null,
+      "prior": null
+    }
+  },
+  "income_statement": {
+    "revenue_products_services": {
+      "current": 24698,
+      "prior": 29130
+    },
+    "revenue_goods": {
+      "current": null,
+      "prior": null
+    },
+    "cost_of_sales": {
+      "current": null,
+      "prior": null
+    },
+    "change_in_inventory": {
+      "current": null,
+      "prior": null
+    },
+    "capitalization": {
+      "current": null,
+      "prior": null
+    },
+    "personnel_costs": {
+      "current": null,
+      "prior": null
+    },
+    "value_adjustments_operating": {
+      "current": null,
+      "prior": null
+    },
+    "depreciation": {
+      "current": null,
+      "prior": null
+    },
+    "other_operating_income": {
+      "current": 6754,
+      "prior": 268
+    },
+    "other_operating_expenses": {
+      "current": null,
+      "prior": null
+    },
+    "operating_result": {
+      "current": null,
+      "prior": null
+    },
+    "interest_expense": {
+      "current": null,
+      "prior": null
+    },
+    "financial_result": {
+      "current": null,
+      "prior": null
+    },
+    "profit_before_tax": {
+      "current": 18230,
+      "prior": 13871
+    },
+    "income_tax": {
+      "current": null,
+      "prior": null
+    },
+    "profit_after_tax": {
+      "current": 7872,
+      "prior": 7183
+    },
+    "profit_for_period": {
+      "current": null,
+      "prior": null
+    },
+    "net_turnover": {
+      "current": null,
+      "prior": null
+    }
+  },
+  "transcribed_by": "Claude (from the PDF text layer)",
+  "verified_by": null,
+  "notes": "PARTIAL. IFRS individual statements of CEPS, a.s. in MILLIONS of CZK (unit_multiplier 1000000), annual report PDF pages 62-64 (digital text layer); consolidated statements start on p. 118 and are not transcribed. IFRS layout differs from the Czech decree form: no gross/korekce columns (gross and adjustment null), assets split into non-current/current with long-term receivables and right-of-use asset inside non-current. Filled only lines with the same meaning as a schema field. revenue_products_services = 'Vynosy ze smluv se zakazniky'; tangible_assets = 'Dlouhodoby hmotny majetek celkem' (incl. unfinished 15 035 / 11 029). Left null on purpose: fixed_assets and current_assets (IFRS totals 81 934 / 5 906 contain lines the Czech form places elsewhere, so the schema sums would not hold), receivables (printed together with other receivables 1 823 / 2 552), equity (42 092 / 36 220; filling it without external_sources breaks the liabilities identity because 'Zavazky celkem' is not printed), retained_earnings/profit_current_period (printed combined: 14 951 / 10 035), funds_from_profit (Fond rozvoje soustavy 16 606 / 15 650), bank loans (Uvery 26 540 / 2 968 not labelled as credit institutions), cost, depreciation, personnel, interest and tax lines (IFRS prints expenses negative, e.g. Osobni naklady -1 343). Statement of comprehensive income = profit after tax, so no separate OCI lines."
+}
