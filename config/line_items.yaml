@@ -102,6 +102,13 @@ balance_sheet:
     labels: ["Pohledávky z obchodních vztahů"]
     abbreviated: false
     en: Trade receivables (short-term)
+  - key: trade_receivables_long_term
+    side: assets
+    code: "C.II.1.1."
+    row: "048"  # from the decree
+    labels: ["Pohledávky z obchodních vztahů"]
+    abbreviated: false
+    en: Trade receivables (long-term)
   - key: short_term_financial_assets
     side: assets
     code: "C.III."
@@ -246,6 +253,13 @@ balance_sheet:
     labels: ["Závazky z obchodních vztahů"]
     abbreviated: false
     en: Trade payables (short-term)
+  - key: trade_payables_long_term
+    side: liabilities
+    code: "C.I.4."
+    row: "117"  # from the decree
+    labels: ["Závazky z obchodních vztahů"]
+    abbreviated: false
+    en: Trade payables (long-term)
   - key: accruals_liabilities
     side: liabilities
     code: "D."

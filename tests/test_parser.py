@@ -7,7 +7,7 @@ import pymupdf
 import pytest
 
 from src.evaluation import compare
-from src.extraction.parser import ParsedLine, ParseLog, code_key, identify, norm_code, parse_statements
+from src.extraction.parser import ParsedLine, ParseLog, code_key, continues, identify, norm_code, parse_statements
 from src.extraction.reading import read_page
 from src.extraction.types import PageWords
 from src.line_items import load_dictionary
@@ -145,3 +145,72 @@ def test_every_value_has_provenance():
             for v in item.values():
                 assert v.page in (20, 21, 22) and v.bbox is not None and v.source == "ocr"
                 assert v.match_score is not None and v.raw
+
+
+# ---------------------------------------------------------------- CIPW-32: lines the parser used to miss
+
+
+def test_formula_in_the_label_does_not_hide_the_line():
+    """Some software prints the formula after the name: "PASIVA CELKEM (A.+B.+C.+D.)",
+    "Rezervy (součet B.1. až B.4.)"."""
+    liabilities = load_dictionary().for_statement("balance_sheet", "liabilities")
+    for label, key in [("PASIVA CELKEM (A.+B.+C.+D.)", "total_liabilities_equity"),
+                       ("Rezervy (součet B.1. až B.4.)", "provisions"),
+                       ("Vlastní kapitál (ř. 80 + 84 + 92 + 95 + 98 +", "equity")]:  # fmt: skip
+        best = identify(_line(label), liabilities)[0]
+        assert best.key == key and best.score >= 90, (label, best)
+
+
+def test_garbled_code_in_front_of_the_label_is_ignored():
+    """OCR leaves an unreadable označení in the label: "C.m.2.1. — Pohledávky z obchodních vztahů", "c. Závazky"."""
+    assets = load_dictionary().for_statement("balance_sheet", "assets")
+    liabilities = load_dictionary().for_statement("balance_sheet", "liabilities")
+    assert identify(_line("C.m.2.1. — Pohledávky - ostatní z obchodních vztahů"), assets)[0].key.startswith("trade_")
+    assert identify(_line("c. Závazky"), liabilities)[0].key == "liabilities"
+    assert identify(_line("AIM. Fondy ze zisku"), liabilities)[0].key == "funds_from_profit"
+    # a garbled sub-line code (B.4.3.) does not win the line it belongs to (B.II.)
+    sub = identify(_line("B.4.3. | Jiný dlouhodobý hmotný majetek"), assets)[0]
+    assert sub.key != "tangible_assets" or sub.score < 86
+
+
+def test_only_a_real_continuation_joins_the_label_above():
+    above = _line("Poskytnuté zálohy na dlouhodobý hmotný majetek a")
+    coded_above = _line("A.3. Služby")
+    assert continues(_line("nedokončený dlouhodobý hmotný majetek"), above)
+    assert not continues(_line("Osobní náklady", "D."), coded_above)  # a new line, not the end of "Služby"
+    assert not continues(_line("c. Závazky"), above)
+    # the code of a two-line label may sit on its second line, next to the numbers
+    first_half = _line("Výsledek hospodaření běžného účetního období")
+    assert continues(_line("podílů (+/-)", "A.V."), first_half)
+
+
+def test_a_sub_line_printed_with_its_own_number_only():
+    """'4. Závazky z obchodních vztahů' fits C.I.4. (long-term) and C.II.4. (short-term) equally: the section
+    decides."""
+    liabilities = load_dictionary().for_statement("balance_sheet", "liabilities")
+    matches = identify(_line("Závazky z obchodních vztahů", "4."), liabilities)
+    assert {matches[0].key, matches[1].key} == {"trade_payables_short_term", "trade_payables_long_term"}
+    assert matches[0].score == matches[1].score
+
+
+def test_receivables_sections_on_a_real_page():
+    """27145107 2025: C.II.1. Dlouhodobé and C.II.2. Krátkodobé pohledávky, both read."""
+    fs, _ = _from_fixtures("27145107_2025", {"balance_sheet": [1], "income_statement": []})
+    assert fs.get("receivables_long_term", "current") == 7_492_000
+    assert fs.get("receivables_short_term", "current") == 5_278_000
+
+
+def test_continuation_page_keeps_the_columns_of_the_page_before():
+    """A balance sheet over several pages: a page where the current year is mostly blank finds too few numbers
+    to form its columns, and takes those of the page before when they sit at the same place."""
+    from src.extraction.numbers import Column
+    from src.extraction.parser import _with_template
+
+    full = [Column("row", 300, 310), Column("gross", 337, 367), Column("adjustment", 396, 422),
+            Column("current", 451, 477), Column("prior", 508, 533)]  # fmt: skip
+    sparse = [Column("row", 302, 311), Column("prior", 520, 534)]
+    names = [c.name for c in _with_template(sparse, (595.0, full), 595.0)]
+    assert names == ["row", "gross", "adjustment", "current", "prior"]
+    other_layout = [Column("current", 200, 230), Column("prior", 260, 290)]
+    assert _with_template(other_layout, (595.0, full), 595.0) == other_layout  # columns elsewhere: keep them
+    assert _with_template(sparse, (595.0, full), 842.0) == sparse  # another page size

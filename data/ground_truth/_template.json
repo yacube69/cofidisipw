@@ -82,6 +82,12 @@
       "current": null,
       "prior": null
     },
+    "trade_receivables_long_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
     "short_term_financial_assets": {
       "gross": null,
       "adjustment": null,
@@ -167,6 +173,10 @@
       "prior": null
     },
     "trade_payables_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "trade_payables_long_term": {
       "current": null,
       "prior": null
     },
