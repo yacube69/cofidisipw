@@ -1,0 +1,250 @@
+{
+  "file": "25702556_2025_statement.pdf",
+  "company_name": "ČEPS, a.s.",
+  "ico": "25702556",
+  "period_end": "2025-12-31",
+  "scope": "full",
+  "unit_multiplier": 1000000,
+  "pages": {
+    "balance_sheet": [
+      62,
+      63
+    ],
+    "income_statement": [
+      64
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": 87840,
+      "prior": 91706
+    },
+    "receivables_subscribed_capital": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "fixed_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": 81934,
+      "prior": 73970
+    },
+    "intangible_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": 1344,
+      "prior": 1248
+    },
+    "tangible_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": 63427,
+      "prior": 55650
+    },
+    "financial_fixed_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": 17036,
+      "prior": 17052
+    },
+    "current_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": 5906,
+      "prior": 17736
+    },
+    "inventories": {
+      "gross": null,
+      "adjustment": null,
+      "current": 94,
+      "prior": 101
+    },
+    "receivables": {
+      "gross": null,
+      "adjustment": null,
+      "current": 1823,
+      "prior": 2552
+    },
+    "receivables_long_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": 26,
+      "prior": 20
+    },
+    "receivables_short_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": 1823,
+      "prior": 2552
+    },
+    "trade_receivables_short_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "short_term_financial_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "cash": {
+      "gross": null,
+      "adjustment": null,
+      "current": 3904,
+      "prior": 15020
+    },
+    "accruals_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": 85,
+      "prior": 63
+    },
+    "total_liabilities_equity": {
+      "current": 87840,
+      "prior": 91706
+    },
+    "equity": {
+      "current": 42092,
+      "prior": 36220
+    },
+    "share_capital": {
+      "current": 10535,
+      "prior": 10535
+    },
+    "share_premium_capital_funds": {
+      "current": null,
+      "prior": null
+    },
+    "funds_from_profit": {
+      "current": 16606,
+      "prior": 15650
+    },
+    "retained_earnings": {
+      "current": 14951,
+      "prior": 10035
+    },
+    "profit_current_period": {
+      "current": null,
+      "prior": null
+    },
+    "external_sources": {
+      "current": 45748,
+      "prior": 55486
+    },
+    "provisions": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities": {
+      "current": 45748,
+      "prior": 55486
+    },
+    "liabilities_long_term": {
+      "current": 31623,
+      "prior": 14835
+    },
+    "bank_loans_long_term": {
+      "current": 26540,
+      "prior": 10896
+    },
+    "liabilities_short_term": {
+      "current": 14125,
+      "prior": 40651
+    },
+    "bank_loans_short_term": {
+      "current": 2968,
+      "prior": 23371
+    },
+    "trade_payables_short_term": {
+      "current": 6404,
+      "prior": 10993
+    },
+    "accruals_liabilities": {
+      "current": null,
+      "prior": null
+    }
+  },
+  "income_statement": {
+    "revenue_products_services": {
+      "current": 24698,
+      "prior": 29130
+    },
+    "revenue_goods": {
+      "current": null,
+      "prior": null
+    },
+    "cost_of_sales": {
+      "current": null,
+      "prior": null
+    },
+    "change_in_inventory": {
+      "current": null,
+      "prior": null
+    },
+    "capitalization": {
+      "current": null,
+      "prior": null
+    },
+    "personnel_costs": {
+      "current": -1343,
+      "prior": -1235
+    },
+    "value_adjustments_operating": {
+      "current": null,
+      "prior": null
+    },
+    "depreciation": {
+      "current": -3138,
+      "prior": -2867
+    },
+    "other_operating_income": {
+      "current": 6754,
+      "prior": 268
+    },
+    "other_operating_expenses": {
+      "current": -7176,
+      "prior": -995
+    },
+    "operating_result": {
+      "current": 15781,
+      "prior": 12531
+    },
+    "interest_expense": {
+      "current": -886,
+      "prior": -905
+    },
+    "financial_result": {
+      "current": 2449,
+      "prior": 1340
+    },
+    "profit_before_tax": {
+      "current": 18230,
+      "prior": 13871
+    },
+    "income_tax": {
+      "current": -10358,
+      "prior": -6688
+    },
+    "profit_after_tax": {
+      "current": 7872,
+      "prior": 7183
+    },
+    "profit_for_period": {
+      "current": 7872,
+      "prior": 7183
+    },
+    "net_turnover": {
+      "current": 31452,
+      "prior": 29398
+    }
+  },
+  "transcribed_by": ChatGPT,
+  "verified_by": null,
+  "notes": null
+}
