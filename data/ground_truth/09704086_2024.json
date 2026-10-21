@@ -1,0 +1,250 @@
+{
+  "file": "09704086_2024_statement.pdf",
+  "company_name": "Andel Czech",
+  "ico": "09704086",
+  "period_end": "2024-12-31",
+  "scope": "full",
+  "unit_multiplier": 1000,
+  "pages": {
+    "balance_sheet": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "income_statement": []
+  },
+  "balance_sheet": {
+    "total_assets": {
+      "gross": 2202,
+      "adjustment": 296,
+      "current": 1906,
+      "prior": 407
+    },
+    "receivables_subscribed_capital": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "fixed_assets": {
+      "gross": 390,
+      "adjustment": 296,
+      "current": 94,
+      "prior": 0
+    },
+    "intangible_assets": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "tangible_assets": {
+      "gross": 390,
+      "adjustment": 296,
+      "current": 94,
+      "prior": 0
+    },
+    "financial_fixed_assets": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "current_assets": {
+      "gross": 1812,
+      "adjustment": 0,
+      "current": 1812,
+      "prior": 407
+    },
+    "inventories": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "receivables": {
+      "gross": 1119,
+      "adjustment": 0,
+      "current": 1119,
+      "prior": 142
+    },
+    "receivables_long_term": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "receivables_short_term": {
+      "gross": 1119,
+      "adjustment": 0,
+      "current": 1119,
+      "prior": 142
+    },
+    "trade_receivables_short_term": {
+      "gross": 1104,
+      "adjustment": 0,
+      "current": 1104,
+      "prior": 142
+    },
+    "short_term_financial_assets": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "cash": {
+      "gross": 693,
+      "adjustment": 0,
+      "current": 693,
+      "prior": 265
+    },
+    "accruals_assets": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "total_liabilities_equity": {
+      "current": 1906,
+      "prior": 407
+    },
+    "equity": {
+      "current": 799,
+      "prior": 199
+    },
+    "share_capital": {
+      "current": 200,
+      "prior": 200
+    },
+    "share_premium_capital_funds": {
+      "current": 0,
+      "prior": 0
+    },
+    "funds_from_profit": {
+      "current": 0,
+      "prior": 0
+    },
+    "retained_earnings": {
+      "current": 238,
+      "prior": -4
+    },
+    "profit_current_period": {
+      "current": 361,
+      "prior": 3
+    },
+    "external_sources": {
+      "current": 1107,
+      "prior": 208
+    },
+    "provisions": {
+      "current": 0,
+      "prior": 0
+    },
+    "liabilities": {
+      "current": 1107,
+      "prior": 208
+    },
+    "liabilities_long_term": {
+      "current": 0,
+      "prior": 0
+    },
+    "bank_loans_long_term": {
+      "current": 0,
+      "prior": 0
+    },
+    "liabilities_short_term": {
+      "current": 1107,
+      "prior": 208
+    },
+    "bank_loans_short_term": {
+      "current": 5,
+      "prior": 0
+    },
+    "trade_payables_short_term": {
+      "current": 531,
+      "prior": 133
+    },
+    "accruals_liabilities": {
+      "current": 0,
+      "prior": 0
+    }
+  },
+  "income_statement": {
+    "revenue_products_services": {
+      "current": null,
+      "prior": null
+    },
+    "revenue_goods": {
+      "current": null,
+      "prior": null
+    },
+    "cost_of_sales": {
+      "current": null,
+      "prior": null
+    },
+    "change_in_inventory": {
+      "current": null,
+      "prior": null
+    },
+    "capitalization": {
+      "current": null,
+      "prior": null
+    },
+    "personnel_costs": {
+      "current": null,
+      "prior": null
+    },
+    "value_adjustments_operating": {
+      "current": null,
+      "prior": null
+    },
+    "depreciation": {
+      "current": null,
+      "prior": null
+    },
+    "other_operating_income": {
+      "current": null,
+      "prior": null
+    },
+    "other_operating_expenses": {
+      "current": null,
+      "prior": null
+    },
+    "operating_result": {
+      "current": null,
+      "prior": null
+    },
+    "interest_expense": {
+      "current": null,
+      "prior": null
+    },
+    "financial_result": {
+      "current": null,
+      "prior": null
+    },
+    "profit_before_tax": {
+      "current": null,
+      "prior": null
+    },
+    "income_tax": {
+      "current": null,
+      "prior": null
+    },
+    "profit_after_tax": {
+      "current": null,
+      "prior": null
+    },
+    "profit_for_period": {
+      "current": null,
+      "prior": null
+    },
+    "net_turnover": {
+      "current": null,
+      "prior": null
+    }
+  },
+  "transcribed_by": "Claude (from the scanned PDF, read visually)",
+  "verified_by": null,
+  "notes": "Scan (no text layer), 4 pages, balance sheet only: no income statement in the file, so all income_statement lines are null. Printed form heading says 'v plném rozsahu' (full scope), hence scope=full. Whole thousands CZK. Korekce printed positive (296), stored as printed. Prior year has only a Netto column. No unreadable characters; scan is clean."
+}
