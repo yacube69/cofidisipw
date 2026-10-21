@@ -124,26 +124,32 @@ def _equality_checks(fs: FinancialStatements, tol: float, periods: Iterable[Peri
 
 
 def _net_checks(fs: FinancialStatements, tol: float) -> list[CheckResult]:
-    """Net = Gross − |Adjustment| for every asset line with a gross value (Korekce may be printed with either
-    sign, but it always lowers the value; a swapped Brutto/Netto pair fails)."""
+    """Net = Gross + Korekce for every asset line with a gross value.
+
+    Korekce is usually printed negative (depreciation, impairment) and lowers the value. Some software prints it
+    positive with the same meaning, and a positive korekce can also really raise the value (revaluation of
+    shareholdings, e.g. Skyport 2025 B.III.: 12 357 + 9 905 = 22 262). Both readings are accepted:
+    net = gross + korekce as printed, or net = gross − |korekce|. A swapped Brutto/Netto pair fails both."""
     out = []
     for key, item in fs.balance_sheet.items():
         gross, net = item.amount("gross"), item.amount("current")
         if gross is None or net is None:
             continue
         adj = item.amount("adjustment") or 0.0
-        ok = _close(net, gross - abs(adj), tol)  # korekce always lowers the value, whatever sign is printed
+        as_printed, reducing = gross + adj, gross - abs(adj)
+        ok = _close(net, as_printed, tol) or _close(net, reducing, tol)
+        expected = as_printed if _close(net, as_printed, tol) or adj < 0 else reducing
         out.append(
             CheckResult(
                 name=f"Net = gross − adjustment ({key})",
                 period="current",
                 passed=ok,
                 severity="error",
-                expected=gross - abs(adj),
+                expected=expected,
                 actual=net,
-                difference=net - (gross - abs(adj)),
+                difference=net - expected,
                 fields=[key],
-                message="" if ok else "netto does not equal brutto minus korekce",
+                message="" if ok else "netto does not equal brutto plus korekce",
             )
         )
     return out

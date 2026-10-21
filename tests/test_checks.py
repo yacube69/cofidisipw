@@ -91,3 +91,18 @@ def test_every_silent_parser_error_on_the_real_scan_is_caught():
             period = "current" if f.period in ("gross", "adjustment") else f.period
             assert (f.key, period) in suspect, f"{f.key}.{f.period} ({f.raw}) wrong and not caught"
     assert fields_in_failed_checks(report)
+
+
+def test_positive_korekce_that_raises_the_value_is_accepted():
+    """Skyport 2025, B.III. Dlouhodobý finanční majetek: brutto 12 357, korekce +9 905, netto 22 262."""
+    fs = load()
+    item = fs.balance_sheet["financial_fixed_assets"]
+    item.gross.value, item.adjustment.value, item.current.value = 12_357_000, 9_905_000, 22_262_000
+    assert "Net = gross − adjustment (financial_fixed_assets)" not in failed(fs)
+
+
+def test_positive_korekce_printed_as_a_reduction_is_accepted():
+    fs = load()
+    item = fs.balance_sheet["inventories"]
+    item.adjustment.value = abs(item.adjustment.value)  # same numbers, korekce printed without the minus
+    assert "Net = gross − adjustment (inventories)" not in failed(fs)
