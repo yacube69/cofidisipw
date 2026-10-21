@@ -2,7 +2,9 @@
 
 [![CI](https://github.com/yacube69/cofidisipw/actions/workflows/ci.yml/badge.svg)](https://github.com/yacube69/cofidisipw/actions/workflows/ci.yml) [![Docker image](https://github.com/yacube69/cofidisipw/actions/workflows/docker.yml/badge.svg)](https://github.com/yacube69/cofidisipw/actions/workflows/docker.yml)
 
-Extraction of Czech financial statements (PDF, including scanned) → validated data → financial ratios, bankruptcy models and an AI assessment, shown in a Streamlit app.
+Extraction of Czech financial statements (PDF, including scanned) → validated data → financial ratios, bankruptcy models and an AI assessment, shown in a web app.
+
+**Run it:** `docker compose up`, then open http://localhost:8000 (see [docs/app.md](docs/app.md)).
 
 ## Structure
 
@@ -15,7 +17,8 @@ src/extraction/        # page locator, text/OCR layer, parser, vision baseline
 src/validation/        # accounting checks, re-read logic
 src/ratios/            # ratio engine, bankruptcy models
 src/report/            # AI assessment
-app/                   # Streamlit app
+src/api.py             # API for the web app (CIPW-41)
+web/                   # web app: React + TypeScript (CIPW-41)
 prompts/               # versioned prompts (vision baseline, AI report)
 docs/                  # ratio definitions, OCR settings, decisions
 scripts/               # evaluation and helper scripts
@@ -78,8 +81,8 @@ All of them should end with `OK` / pass.
 
 | Workflow | Runs on | What it does |
 | --- | --- | --- |
-| `ci.yml` | every push to any branch, PRs from forks | installs Tesseract with Czech data, `ruff check`, `pytest` on Python 3.11 and 3.12, uploads the JUnit report |
-| `docker.yml` | every push, `v*` tags | builds the image, runs the OCR smoke test and a pipeline run inside it; on `main` and tags publishes `ghcr.io/yacube69/cofidisipw` (`main`, `sha-…`, version tags) |
+| `ci.yml` | every push to any branch, PRs from forks | installs Tesseract with Czech data, `ruff check`, `pytest` on Python 3.11 and 3.12, uploads the JUnit report; web app typecheck, `vitest` and build |
+| `docker.yml` | every push, `v*` tags | builds the image, runs the OCR smoke test, a pipeline run and the web app inside it; on `main` and tags publishes `ghcr.io/yacube69/cofidisipw` (`main`, `sha-…`, version tags) |
 | `release.yml` | `v*` tags | creates a GitHub release with notes generated from merged PRs |
 
 Tests never call the paid LLM API: CI runs with an empty `ANTHROPIC_API_KEY`, LLM calls must be mocked.

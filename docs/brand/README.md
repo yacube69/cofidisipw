@@ -13,7 +13,7 @@ The mark is a red square with an **F built from two statement rows**. The lower 
 | --- | --- |
 | `logo/fides-logo.svg` | Main lockup (mark + wordmark) on light backgrounds |
 | `logo/fides-logo-white.svg` | Lockup on dark backgrounds and photos |
-| `logo/fides-mark.svg` | Mark alone: app icon, favicon, Streamlit `page_icon`, slide corner |
+| `logo/fides-mark.svg` | Mark alone: app icon, favicon of the web app, slide corner |
 | `logo/fides-mark-yellow.svg` | Alternative mark on red or neutral slides |
 | `logo/fides-mark-mono.svg` | Single-colour print |
 | `logo/fides-wordmark.svg` | Wordmark alone |

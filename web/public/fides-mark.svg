@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="Fides">
+  <rect width="64" height="64" rx="14" fill="#D52B1E"/>
+  <path d="M15 13h34v8H23v8h11v8H23v14h-8z" fill="#FFFFFF"/>
+  <g fill="none" stroke="#FFC72C" stroke-width="2.5" stroke-linecap="square">
+    <path d="M38.25 30.5v-3.25h3.75M47 27.25h3.75v3.25M50.75 35.5v3.25H47M42 38.75h-3.75V35.5"/>
+  </g>
+  <rect x="41.5" y="30.5" width="6" height="5" fill="#FFC72C"/>
+</svg>

@@ -2,6 +2,13 @@
 
 Log of project decisions. Newest first. Format: date, decision, reason.
 
+## 2026-10-21 — Web app in React + TypeScript over a Python API, no desktop installer (CIPW-41)
+
+- **Decision:** the user interface is a web app (React + TypeScript, `web/`) served by a small FastAPI app (`src/api.py`) over the existing pipeline. Python stays for reading, OCR, parsing, checks, ratios and the report. Both run in the one Docker image on port 8000 (`docker compose up`, then the browser). There is no Streamlit app and no `.exe` installer.
+- **Why:** reviewing extracted values needs boxes drawn on the PDF page that react to hover and click, which Streamlit can only approximate; a typed result contract keeps the Python and UI sides apart. A desktop installer was considered and dropped: Cofidis approved the Docker delivery, an unsigned `.exe` needs IT approval in a bank, and Cofidis can put the same container on an internal server (browser access for a whole team, their own sign-in) or build on the documented API (`/api/docs`).
+- **How:** layout "overview first" with "the document next to the data" inside, chosen from three variants; `docs/app.md` describes the screens, API and samples. CI builds and tests the web app and starts it inside the image.
+- **Affected tasks:** CIPW-41, CIPW-18, CIPW-42, CIPW-46, CIPW-47.
+
 ## 2026-10-19 — Page locator scope and acceptance (CIPW-6)
 
 - **Decision:** the page locator targets Czech companies with statements from 2022 on (older years from 2016 use the same layout and work too). Banks and investment companies are out of scope for now. One extra page per statement is acceptable; a missing page is a failure. The separate IFRS statement of other comprehensive income (OCI) is not part of the income statement (it may become a separate output, pending input from Marek).
@@ -11,7 +18,7 @@ Log of project decisions. Newest first. Format: date, decision, reason.
 
 ## 2026-10-09 — Delivery as a Docker container (CIPW-47, approved by Cofidis)
 
-- **Decision:** Fides is delivered as a Docker image with Tesseract + Czech data and the app inside, started with `docker compose up` (app on `http://localhost:8501`, `data/` and `outputs/` as volumes). The same image is used for the demo laptop, the handover and a possible production deployment at Cofidis.
+- **Decision:** Fides is delivered as a Docker image with Tesseract + Czech data and the app inside, started with `docker compose up` (app on `http://localhost:8000` since 2026-10-21, `data/` and `outputs/` as volumes). The same image is used for the demo laptop, the handover and a possible production deployment at Cofidis.
 - **Why:** documents stay on the user's machine or inside Cofidis infrastructure; no Tesseract/Python installation for the user; identical environment everywhere (the OCR results depend on the Tesseract version); CI already builds, tests and publishes the image.
 - **How:** CI publishes `ghcr.io/yacube69/cofidisipw:main` from `main` and `:<version>` from `v*` tags; the release also ships an offline `docker save` archive. Native install scripts are only a fallback for team laptops. Streamlit Community Cloud is not used.
 - **Affected tasks:** CIPW-47, CIPW-18, CIPW-49, CIPW-31, CIPW-28, CIPW-29.

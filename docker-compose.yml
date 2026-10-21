@@ -1,0 +1,13 @@
+# Fides for one user: `docker compose up`, then open http://localhost:8000
+services:
+  fides:
+    image: ghcr.io/yacube69/cofidisipw:main
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000" # only this computer; remove 127.0.0.1 to share it on a network
+    env_file:
+      - path: .env # ANTHROPIC_API_KEY for the AI report (optional)
+        required: false
+    volumes:
+      - ./data:/workspace/data:ro
+    restart: unless-stopped

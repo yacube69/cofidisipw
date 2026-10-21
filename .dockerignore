@@ -18,3 +18,7 @@ reports/
 
 # Source statements stay outside the image (mount data/ as a volume)
 data/raw/*.pdf
+
+# The web app is built inside the image (first stage)
+web/node_modules/
+web/dist/
