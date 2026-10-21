@@ -1,0 +1,254 @@
+{
+  "file": "27587908_2025_statement.pdf",
+  "company_name": "Program H plus, a.s.",
+  "ico": "27587908",
+  "period_end": "2025-12-31",
+  "scope": "full",
+  "unit_multiplier": 1000,
+  "pages": {
+    "balance_sheet": [
+      14,
+      15,
+      16,
+      17,
+      18
+    ],
+    "income_statement": [
+      20,
+      21
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": {
+      "gross": 239024,
+      "adjustment": 62508,
+      "current": 176516,
+      "prior": 180142
+    },
+    "receivables_subscribed_capital": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": 0
+    },
+    "fixed_assets": {
+      "gross": 152836,
+      "adjustment": 60123,
+      "current": 92713,
+      "prior": 92408
+    },
+    "intangible_assets": {
+      "gross": 24641,
+      "adjustment": 9651,
+      "current": 14990,
+      "prior": 7382
+    },
+    "tangible_assets": {
+      "gross": 128195,
+      "adjustment": 50472,
+      "current": 77723,
+      "prior": 85026
+    },
+    "financial_fixed_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": 0
+    },
+    "current_assets": {
+      "gross": 70092,
+      "adjustment": 2385,
+      "current": 67707,
+      "prior": 65647
+    },
+    "inventories": {
+      "gross": 1009,
+      "adjustment": null,
+      "current": 1009,
+      "prior": 988
+    },
+    "receivables": {
+      "gross": 50466,
+      "adjustment": 2385,
+      "current": 48081,
+      "prior": 48464
+    },
+    "receivables_long_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": 0
+    },
+    "receivables_short_term": {
+      "gross": 50466,
+      "adjustment": 2385,
+      "current": 48081,
+      "prior": 48464
+    },
+    "trade_receivables_short_term": {
+      "gross": 40249,
+      "adjustment": 2385,
+      "current": 37864,
+      "prior": 35610
+    },
+    "short_term_financial_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": 0
+    },
+    "cash": {
+      "gross": 18617,
+      "adjustment": null,
+      "current": 18617,
+      "prior": 16195
+    },
+    "accruals_assets": {
+      "gross": 16096,
+      "adjustment": null,
+      "current": 16096,
+      "prior": 22087
+    },
+    "total_liabilities_equity": {
+      "current": 176516,
+      "prior": 180142
+    },
+    "equity": {
+      "current": 102190,
+      "prior": 91871
+    },
+    "share_capital": {
+      "current": 2000,
+      "prior": 2000
+    },
+    "share_premium_capital_funds": {
+      "current": null,
+      "prior": 0
+    },
+    "funds_from_profit": {
+      "current": null,
+      "prior": 0
+    },
+    "retained_earnings": {
+      "current": 86341,
+      "prior": 83035
+    },
+    "profit_current_period": {
+      "current": 13849,
+      "prior": 6836
+    },
+    "external_sources": {
+      "current": 68884,
+      "prior": 83972
+    },
+    "provisions": {
+      "current": 3171,
+      "prior": 2792
+    },
+    "liabilities": {
+      "current": 65713,
+      "prior": 81180
+    },
+    "liabilities_long_term": {
+      "current": 2192,
+      "prior": 7584
+    },
+    "bank_loans_long_term": {
+      "current": 709,
+      "prior": 6263
+    },
+    "liabilities_short_term": {
+      "current": 63521,
+      "prior": 73596
+    },
+    "bank_loans_short_term": {
+      "current": null,
+      "prior": 0
+    },
+    "trade_payables_short_term": {
+      "current": 5048,
+      "prior": 14100
+    },
+    "accruals_liabilities": {
+      "current": 5442,
+      "prior": 4299
+    }
+  },
+  "income_statement": {
+    "revenue_products_services": {
+      "current": 307396,
+      "prior": 308139
+    },
+    "revenue_goods": {
+      "current": null,
+      "prior": 5
+    },
+    "cost_of_sales": {
+      "current": 125449,
+      "prior": 133201
+    },
+    "change_in_inventory": {
+      "current": null,
+      "prior": 0
+    },
+    "capitalization": {
+      "current": null,
+      "prior": 0
+    },
+    "personnel_costs": {
+      "current": 151357,
+      "prior": 150747
+    },
+    "value_adjustments_operating": {
+      "current": 7634,
+      "prior": 9558
+    },
+    "depreciation": {
+      "current": 8159,
+      "prior": 9375
+    },
+    "other_operating_income": {
+      "current": 4100,
+      "prior": 4579
+    },
+    "other_operating_expenses": {
+      "current": 3713,
+      "prior": 3886
+    },
+    "operating_result": {
+      "current": 23343,
+      "prior": 15331
+    },
+    "interest_expense": {
+      "current": 4752,
+      "prior": 4703
+    },
+    "financial_result": {
+      "current": -4711,
+      "prior": -4933
+    },
+    "profit_before_tax": {
+      "current": 18632,
+      "prior": 10398
+    },
+    "income_tax": {
+      "current": 4783,
+      "prior": 3562
+    },
+    "profit_after_tax": {
+      "current": 13849,
+      "prior": 6836
+    },
+    "profit_for_period": {
+      "current": 13849,
+      "prior": 6836
+    },
+    "net_turnover": {
+      "current": 307396,
+      "prior": 313276
+    }
+  },
+  "transcribed_by": "Claude (from the scanned PDF, read visually)",
+  "verified_by": null,
+  "notes": "Scan without text layer, 35-page annual report (audited); statements on PDF pages 14-18 (balance sheet; page 19 is blank) and 20-21 (income statement), full scope, whole thousands CZK. Blank cells in the current-year column are null; the prior-year column prints 0 for unused lines, stored as 0. Current-year net_turnover is printed 307 396 (identical to line I), although I + III + VI + VII would give 312 030; the prior year (313 276) follows the formula. Copied as printed, source inconsistency. Accruals on the liabilities side are line D (5 442 / 4 299); C.III is empty. No unreadable characters; the scan is clean."
+}
