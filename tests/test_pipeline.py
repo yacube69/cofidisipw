@@ -125,3 +125,19 @@ def test_real_statement_end_to_end(tmp_path):
     assert result.errors == []
     assert result.statements.metadata.source_file == MICRO.name
     assert result.statements.get("total_assets") == 10_000_000
+
+
+def test_group_report_reads_the_individual_statements(tmp_path):
+    from tests.synthetic import asset_page_html, liability_page_html
+    from tests.test_locate import _pdf
+
+    pdf = _pdf(
+        tmp_path / "12345678_2025_report.pdf",
+        ["<p>Konsolidovaná účetní závěrka</p>" + asset_page_html(), liability_page_html(),
+         "<p>Individuální účetní závěrka</p>" + asset_page_html(), liability_page_html()],
+    )  # fmt: skip
+    result = run_pipeline(pdf, PipelineOptions(skip_report=True))
+    assert result.pages["balance_sheet"] == [3, 4] and result.consolidation == "individual"
+    assert "locate: the PDF also has consolidated statements (pages [1, 2]), not read" in result.warnings
+    result = run_pipeline(pdf, PipelineOptions(skip_report=True, scope="consolidated"))
+    assert result.pages["balance_sheet"] == [1, 2] and result.consolidation == "consolidated"

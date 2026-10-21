@@ -22,6 +22,9 @@ class PipelineOptions(BaseModel):
     ocr_dpi: int = 300
     skip_report: bool = Field(False, description="Run only the deterministic part, no LLM call.")
     pages: dict[str, list[int]] | None = Field(None, description="Override the page locator (1-based pages).")
+    scope: Literal["individual", "consolidated"] = Field(
+        "individual", description="Which statements to read when the PDF has both (annual reports of groups)."
+    )
 
 
 class StageRun(BaseModel):
@@ -43,6 +46,9 @@ class Result(BaseModel):
     created_at: datetime = Field(default_factory=datetime.now)
     options: PipelineOptions = Field(default_factory=PipelineOptions)
     pages: dict[str, list[int]] = Field(default_factory=dict, description="Located statement pages, 1-based.")
+    consolidation: Literal["individual", "consolidated"] | None = Field(
+        None, description="Scope of the statements read; None when the pages were given in the options."
+    )
     page_words: list[PageWords] = Field(default_factory=list)
     statements: FinancialStatements = Field(default_factory=FinancialStatements)
     validation: ValidationReport | None = None

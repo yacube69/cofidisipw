@@ -14,8 +14,8 @@ from pathlib import Path
 import pymupdf
 import pytest
 
-from src.extraction.locate import has_text_layer, locate_statements, normalize
-from tests.synthetic import asset_page_html, make_digital_pdf, make_scanned_pdf
+from src.extraction.locate import has_text_layer, locate_one_set, locate_statements, normalize
+from tests.synthetic import ASSET_ROWS, asset_page_html, liability_page_html, make_digital_pdf, make_scanned_pdf
 from tests.test_reading import needs_ocr
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -90,6 +90,54 @@ def test_scan_without_text_layer_uses_quick_ocr(tmp_path):
         found, scores, _ = locate_statements(d, return_scores=True)
     assert all(s.source == "ocr" for s in scores)
     assert found["balance_sheet"] == [1, 2]
+
+
+def _pdf(path: Path, pages: list[str]) -> Path:
+    doc = pymupdf.open()
+    for html in pages:
+        page = doc.new_page(width=595, height=842)
+        page.insert_htmlbox(pymupdf.Rect(40, 40, 555, 800), html)
+    doc.save(path)
+    return path
+
+
+def test_one_set_of_statements_is_read_from_a_group_report(tmp_path):
+    """A group annual report holds the consolidated and the individual statements: the parser must get one set."""
+    pdf = _pdf(
+        tmp_path / "group.pdf",
+        [
+            "<p>Konsolidovaná účetní závěrka</p>" + asset_page_html(),
+            liability_page_html(),
+            "<h1>Příloha</h1><p>Text.</p>",
+            "<p>Individuální účetní závěrka</p>" + asset_page_html(),
+            liability_page_html(),
+        ],
+    )
+    with pymupdf.open(pdf) as d:
+        assert locate_statements(d)["balance_sheet"] == [1, 2, 4, 5]
+        assert locate_one_set(d) == (
+            {"balance_sheet": [4, 5], "income_statement": []},
+            "individual",
+            {"balance_sheet": [1, 2], "income_statement": []},
+        )
+        pages, scope, _ = locate_one_set(d, "consolidated")
+        assert (pages["balance_sheet"], scope) == ([1, 2], "consolidated")
+
+
+def test_one_set_falls_back_to_the_other_scope(tmp_path):
+    pdf = _pdf(tmp_path / "group.pdf", ["<p>Konsolidovaná účetní závěrka</p>" + asset_page_html()])
+    with pymupdf.open(pdf) as d:
+        pages, scope, other = locate_one_set(d)
+    assert (pages["balance_sheet"], scope, other["balance_sheet"]) == ([1], "consolidated", [])
+
+
+def test_untitled_balance_sheet_starting_with_total_assets(tmp_path):
+    """28437098_2022: the quick OCR lost the ROZVAHA title, the page starts with the AKTIVA CELKEM row."""
+    rows = "".join(f"<tr><td>{c}</td><td>{label}</td><td>{r}</td><td>{g}</td><td>{n}</td></tr>"
+                   for c, label, r, g, _, n, _, _ in ASSET_ROWS)  # fmt: skip
+    pdf = _pdf(tmp_path / "untitled.pdf", [f"<table>{rows}</table>", "<h1>Příloha</h1><p>Text.</p>"])
+    with pymupdf.open(pdf) as d:
+        assert locate_statements(d)["balance_sheet"] == [1]
 
 
 def pages_needing_ocr(doc: pymupdf.Document) -> int:

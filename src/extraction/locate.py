@@ -28,6 +28,7 @@ import unicodedata
 import warnings
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Literal
 
 import pymupdf
 import pytesseract
@@ -645,6 +646,26 @@ def locate_statements_split(doc: pymupdf.Document | str | Path) -> dict[str, dic
     return out
 
 
+Scope = Literal["individual", "consolidated"]
+
+
+def locate_one_set(
+    doc: pymupdf.Document | str | Path, prefer: Scope = "individual"
+) -> tuple[dict[str, list[int]], Scope | None, dict[str, list[int]]]:
+    """Pages of ONE set of statements, so the parser never mixes an individual and a consolidated statement.
+
+    Returns (pages, scope used, pages of the other scope). The preferred scope is used when the PDF has any of its
+    statement pages, the other one otherwise; scope is None when nothing was found.
+    """
+    split = locate_statements_split(doc)
+    other: Scope = "consolidated" if prefer == "individual" else "individual"
+    for scope, rest in ((prefer, other), (other, prefer)):
+        pages = {stmt: groups[scope] for stmt, groups in split.items()}
+        if any(pages.values()):
+            return pages, scope, {stmt: groups[rest] for stmt, groups in split.items()}
+    return {stmt: [] for stmt in split}, None, {stmt: [] for stmt in split}
+
+
 def _title_after_header(text: str, fuzzy: bool) -> bool:
     """Some reports print 'Priloha v ucetni zaverce' as a running header on every page, statements included: a page
     whose statement title comes right after that header (no note number in front of it) is a statement page."""
@@ -709,6 +730,14 @@ def _locate(doc: pymupdf.Document):
                 and d["titles"][stmt]
                 and MIN_DIGIT_RATIO_TITLE <= d["digits"] < MIN_DIGIT_RATIO
                 and not d["toc"] and not d["stop"] and not all(d["titles"].values())
+            )
+        if not seeds and stmt == "balance_sheet":
+            # untitled balance sheet: the quick OCR lost the title (e.g. a shaded header), but the page starts with
+            # the first row of the table, AKTIVA CELKEM, followed by balance-sheet rows
+            seeds = sorted(
+                p for p, d in info.items()
+                if any(m in d["norm"][:EARLY_CHARS] for m in BS_ASSETS) and d["rows"]
+                and d["digits"] >= ROW_MIN_DIGITS and not d["toc"] and not d["stop"] and not d["note"]
             )
         pages: set[int] = set()
         for run in _runs(seeds):

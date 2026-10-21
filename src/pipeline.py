@@ -32,7 +32,7 @@ from pathlib import Path
 
 import pymupdf
 
-from src.extraction.locate import locate_statements
+from src.extraction.locate import locate_one_set
 from src.extraction.numbers import detect_unit
 from src.extraction.ocr import DEFAULT as DEFAULT_OCR
 from src.extraction.parser import parse_statements
@@ -74,7 +74,10 @@ Stage = Callable[[Result, Context], StageStatus]
 
 
 def stage_locate(result: Result, ctx: Context) -> StageStatus:
-    """CIPW-6: find the balance sheet and income statement pages (or take them from the options)."""
+    """CIPW-6: find the balance sheet and income statement pages (or take them from the options).
+
+    Group annual reports hold an individual and a consolidated set of statements: only one set is read (the
+    `scope` option, individual by default), so their numbers are never mixed."""
     if ctx.options.pages:
         n = ctx.doc.page_count
         outside = sorted({p for pages in ctx.options.pages.values() for p in pages if not 1 <= p <= n})
@@ -82,7 +85,15 @@ def stage_locate(result: Result, ctx: Context) -> StageStatus:
             raise StageFailed(f"pages {outside} out of range (the PDF has {n} pages)")
         result.pages = ctx.options.pages
     else:
-        result.pages = locate_statements(ctx.doc)
+        result.pages, result.consolidation, other = locate_one_set(ctx.doc, ctx.options.scope)
+        if result.consolidation != ctx.options.scope and result.consolidation is not None:
+            result.warnings.append(
+                f"locate: no {ctx.options.scope} statements found, read the {result.consolidation} ones"
+            )
+        elif any(other.values()):
+            pages = sorted({p for ps in other.values() for p in ps})
+            rest = "consolidated" if result.consolidation == "individual" else "individual"
+            result.warnings.append(f"locate: the PDF also has {rest} statements (pages {pages}), not read")
     if not any(result.pages.values()):
         raise StageFailed("no balance sheet or income statement found; pass the pages manually")
     return "ok"
@@ -235,6 +246,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--mode", choices=["auto", "text", "ocr"], default="auto", help="Reading mode")
     parser.add_argument("--dpi", type=int, default=300, help="OCR resolution")
     parser.add_argument("--skip-report", action="store_true", help="No LLM call (deterministic part only)")
+    parser.add_argument(
+        "--scope", choices=["individual", "consolidated"], default="individual", help="Statements to read"
+    )
     args = parser.parse_args(argv)
     for stream in (sys.stdout, sys.stderr):  # Windows consoles default to cp1250; never crash on output
         if hasattr(stream, "reconfigure"):
@@ -247,7 +261,7 @@ def main(argv: list[str] | None = None) -> int:
         print("No PDF files found.", file=sys.stderr)
         return 2
 
-    options = PipelineOptions(read_mode=args.mode, ocr_dpi=args.dpi, skip_report=args.skip_report)
+    options = PipelineOptions(read_mode=args.mode, ocr_dpi=args.dpi, skip_report=args.skip_report, scope=args.scope)
     failed = 0
     for pdf in files:
         try:

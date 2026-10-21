@@ -15,6 +15,7 @@ python -m src.pipeline data/raw/ --out outputs/          # every PDF in a folder
 | `--mode` | `auto` | `auto` = text layer when it is clean, OCR otherwise; `text`; `ocr` |
 | `--dpi` | 300 | OCR resolution of the reading stage (the page locator uses its own quick pass) |
 | `--skip-report` | off | deterministic part only: `report` and `check_numbers` are skipped, no LLM call |
+| `--scope` | `individual` | group annual reports hold an individual and a consolidated set of statements: only this one is read (the other one if the PDF has only that), so their numbers are never mixed. `Result.consolidation` says which set was read; a warning lists the pages of the other set |
 
 The CLI prints one line per file with the status of every stage, then the first error and all warnings. **Exit code 1** when a stage of any file failed (or a PDF could not be opened), 0 otherwise.
 

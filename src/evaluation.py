@@ -9,7 +9,7 @@ from typing import Literal
 
 import pymupdf
 
-from src.extraction.locate import locate_statements
+from src.extraction.locate import locate_one_set
 from src.extraction.ocr import DEFAULT, OcrConfig
 from src.extraction.parser import ParseLog, parse_statements
 from src.extraction.reading import read_page
@@ -80,7 +80,7 @@ def cached_read(doc: pymupdf.Document, file: str, page: int, config: OcrConfig =
 
 def extract(pdf: Path, config: OcrConfig = DEFAULT, log: ParseLog | None = None) -> tuple[FinancialStatements, dict]:
     with pymupdf.open(pdf) as doc:
-        pages = locate_statements(doc)
+        pages, _, _ = locate_one_set(doc)  # ground truth is the individual statement
         wanted = sorted({p for ps in pages.values() for p in ps})
         page_words = [cached_read(doc, pdf.name, p, config) for p in wanted]
     return parse_statements(page_words, pages, log=log), pages
