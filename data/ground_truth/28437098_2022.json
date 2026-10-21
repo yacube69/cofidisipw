@@ -1,0 +1,251 @@
+{
+  "file": "28437098_2022_statement.pdf",
+  "company_name": "DSC Art s.r.o.",
+  "ico": "28437098",
+  "period_end": "2022-12-31",
+  "scope": "full",
+  "unit_multiplier": 1000,
+  "pages": {
+    "balance_sheet": [
+      1,
+      2,
+      3
+    ],
+    "income_statement": [
+      4
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": {
+      "gross": 17790,
+      "adjustment": 2305,
+      "current": 15485,
+      "prior": 16680
+    },
+    "receivables_subscribed_capital": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": 0
+    },
+    "fixed_assets": {
+      "gross": 4446,
+      "adjustment": 2291,
+      "current": 2155,
+      "prior": 1246
+    },
+    "intangible_assets": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "tangible_assets": {
+      "gross": 4446,
+      "adjustment": 2291,
+      "current": 2155,
+      "prior": 1246
+    },
+    "financial_fixed_assets": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "current_assets": {
+      "gross": 12940,
+      "adjustment": 14,
+      "current": 12926,
+      "prior": 14616
+    },
+    "inventories": {
+      "gross": 3899,
+      "adjustment": 0,
+      "current": 3899,
+      "prior": 3899
+    },
+    "receivables": {
+      "gross": 3956,
+      "adjustment": 14,
+      "current": 3942,
+      "prior": 4971
+    },
+    "receivables_long_term": {
+      "gross": 2097,
+      "adjustment": 0,
+      "current": 2097,
+      "prior": 2057
+    },
+    "receivables_short_term": {
+      "gross": 1859,
+      "adjustment": 14,
+      "current": 1845,
+      "prior": 2914
+    },
+    "trade_receivables_short_term": {
+      "gross": 1310,
+      "adjustment": 14,
+      "current": 1296,
+      "prior": 2529
+    },
+    "short_term_financial_assets": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "cash": {
+      "gross": 5085,
+      "adjustment": 0,
+      "current": 5085,
+      "prior": 5746
+    },
+    "accruals_assets": {
+      "gross": 404,
+      "adjustment": 0,
+      "current": 404,
+      "prior": 818
+    },
+    "total_liabilities_equity": {
+      "current": 15485,
+      "prior": 16680
+    },
+    "equity": {
+      "current": 3429,
+      "prior": -6481
+    },
+    "share_capital": {
+      "current": 200,
+      "prior": 200
+    },
+    "share_premium_capital_funds": {
+      "current": 0,
+      "prior": 0
+    },
+    "funds_from_profit": {
+      "current": 0,
+      "prior": 0
+    },
+    "retained_earnings": {
+      "current": -6680,
+      "prior": -12059
+    },
+    "profit_current_period": {
+      "current": 9909,
+      "prior": 5378
+    },
+    "external_sources": {
+      "current": 11884,
+      "prior": 23079
+    },
+    "provisions": {
+      "current": 0,
+      "prior": 0
+    },
+    "liabilities": {
+      "current": 11884,
+      "prior": 23079
+    },
+    "liabilities_long_term": {
+      "current": 0,
+      "prior": 0
+    },
+    "bank_loans_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities_short_term": {
+      "current": 11884,
+      "prior": 23079
+    },
+    "bank_loans_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "trade_payables_short_term": {
+      "current": 2629,
+      "prior": 6510
+    },
+    "accruals_liabilities": {
+      "current": 172,
+      "prior": 82
+    }
+  },
+  "income_statement": {
+    "revenue_products_services": {
+      "current": 18035,
+      "prior": 19861
+    },
+    "revenue_goods": {
+      "current": 60559,
+      "prior": 28554
+    },
+    "cost_of_sales": {
+      "current": 64585,
+      "prior": 41321
+    },
+    "change_in_inventory": {
+      "current": null,
+      "prior": null
+    },
+    "capitalization": {
+      "current": null,
+      "prior": null
+    },
+    "personnel_costs": {
+      "current": 1233,
+      "prior": 782
+    },
+    "value_adjustments_operating": {
+      "current": 229,
+      "prior": 86
+    },
+    "depreciation": {
+      "current": 215,
+      "prior": 86
+    },
+    "other_operating_income": {
+      "current": 483,
+      "prior": 373
+    },
+    "other_operating_expenses": {
+      "current": 207,
+      "prior": 151
+    },
+    "operating_result": {
+      "current": 12823,
+      "prior": 6448
+    },
+    "interest_expense": {
+      "current": 0,
+      "prior": 0
+    },
+    "financial_result": {
+      "current": -516,
+      "prior": -87
+    },
+    "profit_before_tax": {
+      "current": 12307,
+      "prior": 6361
+    },
+    "income_tax": {
+      "current": 2398,
+      "prior": 983
+    },
+    "profit_after_tax": {
+      "current": 9909,
+      "prior": 5378
+    },
+    "profit_for_period": {
+      "current": 9909,
+      "prior": 5378
+    },
+    "net_turnover": {
+      "current": 79660,
+      "prior": 49048
+    }
+  },
+  "transcribed_by": "Claude (from the scanned PDF, read visually)",
+  "verified_by": null,
+  "notes": "Scan without text layer, 9 pages: balance sheet pp. 1-3, income statement p. 4, rest is the annex. Full scope, whole thousands CZK (header says 'v tisicich Kc'). Statement date 31.12.2022; the balance sheet column headers on p. 1 both read '31.12.21' (typo in the source, pp. 3-4 correctly show 31.12.22 / 31.12.21). Poorer scan quality: grey shaded total rows, right page edge cropped (address cut off), uneven print weight; every number was legible and all sub-totals add up, so no value is flagged as doubtful. Blank cells are null; prior-year zeros printed as 0 stored as 0. Bank loans lines are blank (null). Prior-year income-statement lines that are blank (change in inventory, capitalization) are null. Interest expense (J) printed as 0 / 0 in the shaded sub-total row."
+}
