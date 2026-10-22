@@ -1,0 +1,273 @@
+{
+  "file": "26210967_2025_statement.pdf",
+  "company_name": "SILMET Plus, s.r.o.",
+  "ico": "26210967",
+  "period_end": "2025-12-31",
+  "scope": "full",
+  "unit_multiplier": 1000,
+  "pages": {
+    "balance_sheet": [
+      1,
+      2
+    ],
+    "income_statement": []
+  },
+  "balance_sheet": {
+    "total_assets": {
+      "gross": 213094,
+      "adjustment": 15596,
+      "current": 197498,
+      "prior": 87809
+    },
+    "receivables_subscribed_capital": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "fixed_assets": {
+      "gross": 24067,
+      "adjustment": 15455,
+      "current": 8612,
+      "prior": 9692
+    },
+    "intangible_assets": {
+      "gross": 312,
+      "adjustment": 241,
+      "current": 71,
+      "prior": 0
+    },
+    "tangible_assets": {
+      "gross": 23755,
+      "adjustment": 15214,
+      "current": 8541,
+      "prior": 9692
+    },
+    "financial_fixed_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "current_assets": {
+      "gross": 189027,
+      "adjustment": 141,
+      "current": 188886,
+      "prior": 78117
+    },
+    "inventories": {
+      "gross": 27786,
+      "adjustment": 0,
+      "current": 27786,
+      "prior": 29954
+    },
+    "receivables": {
+      "gross": 151280,
+      "adjustment": 141,
+      "current": 151139,
+      "prior": 40225
+    },
+    "receivables_long_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "receivables_short_term": {
+      "gross": 149938,
+      "adjustment": 141,
+      "current": 149797,
+      "prior": 38779
+    },
+    "trade_receivables_short_term": {
+      "gross": 130433,
+      "adjustment": 141,
+      "current": 130292,
+      "prior": 18933
+    },
+    "trade_receivables_long_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "short_term_financial_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "cash": {
+      "gross": 9961,
+      "adjustment": 0,
+      "current": 9961,
+      "prior": 7938
+    },
+    "accruals_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "accruals_in_receivables": {
+      "gross": 1342,
+      "adjustment": 0,
+      "current": 1342,
+      "prior": 1446
+    },
+    "total_liabilities_equity": {
+      "current": 197498,
+      "prior": 87809
+    },
+    "equity": {
+      "current": 25930,
+      "prior": 25710
+    },
+    "share_capital": {
+      "current": 1200,
+      "prior": 1200
+    },
+    "share_premium_capital_funds": {
+      "current": null,
+      "prior": null
+    },
+    "funds_from_profit": {
+      "current": 120,
+      "prior": 120
+    },
+    "retained_earnings": {
+      "current": 24390,
+      "prior": 24459
+    },
+    "profit_current_period": {
+      "current": 220,
+      "prior": -69
+    },
+    "advance_profit_distribution": {
+      "current": null,
+      "prior": null
+    },
+    "external_sources": {
+      "current": 171568,
+      "prior": 62099
+    },
+    "provisions": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities": {
+      "current": 171568,
+      "prior": 62099
+    },
+    "liabilities_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "bank_loans_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities_short_term": {
+      "current": 168946,
+      "prior": 61241
+    },
+    "bank_loans_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "trade_payables_short_term": {
+      "current": 165095,
+      "prior": 58938
+    },
+    "trade_payables_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "accruals_liabilities": {
+      "current": null,
+      "prior": null
+    },
+    "accruals_in_liabilities": {
+      "current": 2622,
+      "prior": 858
+    }
+  },
+  "income_statement": {
+    "revenue_products_services": {
+      "current": null,
+      "prior": null
+    },
+    "revenue_goods": {
+      "current": null,
+      "prior": null
+    },
+    "cost_of_sales": {
+      "current": null,
+      "prior": null
+    },
+    "change_in_inventory": {
+      "current": null,
+      "prior": null
+    },
+    "capitalization": {
+      "current": null,
+      "prior": null
+    },
+    "personnel_costs": {
+      "current": null,
+      "prior": null
+    },
+    "value_adjustments_operating": {
+      "current": null,
+      "prior": null
+    },
+    "depreciation": {
+      "current": null,
+      "prior": null
+    },
+    "other_operating_income": {
+      "current": null,
+      "prior": null
+    },
+    "other_operating_expenses": {
+      "current": null,
+      "prior": null
+    },
+    "operating_result": {
+      "current": null,
+      "prior": null
+    },
+    "interest_expense": {
+      "current": null,
+      "prior": null
+    },
+    "financial_result": {
+      "current": null,
+      "prior": null
+    },
+    "profit_before_tax": {
+      "current": null,
+      "prior": null
+    },
+    "income_tax": {
+      "current": null,
+      "prior": null
+    },
+    "profit_after_tax": {
+      "current": null,
+      "prior": null
+    },
+    "profit_for_period": {
+      "current": null,
+      "prior": null
+    },
+    "net_turnover": {
+      "current": null,
+      "prior": null
+    }
+  },
+  "transcribed_by": "Claude (from the scanned PDF, read visually)",
+  "verified_by": null,
+  "partial": false,
+  "notes": "Scan without text layer, 2 pages: full-scope balance sheet only (pp. 1-2); the PDF contains no income statement, so all income_statement lines are null. Whole thousands CZK. The form prints only used lines: unprinted lines are null (no line D. Casove rozliseni aktiv / pasiv, no Rezervy, no long-term items, no A.II). Accruals are printed inside receivables (C.II.3., row 68: 1 342 / 1 446) and inside liabilities (C.III., row 63: 2 622 / 858), so they are in accruals_in_receivables / accruals_in_liabilities and accruals_assets / accruals_liabilities stay null. Line 'Ocenovaci rozdil k nabytemu majetku' (B.II.3.) is part of tangible_assets (5 571 net). No unreadable characters; the scan is clean and all sub-totals add up."
+}
