@@ -1,0 +1,277 @@
+{
+  "file": "60707968_2024_statement.pdf",
+  "company_name": "100Mega Distribution s.r.o.",
+  "ico": "60707968",
+  "period_end": "2024-12-31",
+  "scope": "full",
+  "unit_multiplier": 1000,
+  "pages": {
+    "balance_sheet": [
+      2,
+      3,
+      4,
+      5
+    ],
+    "income_statement": [
+      6
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": {
+      "gross": 870921,
+      "adjustment": -45891,
+      "current": 825030,
+      "prior": 808714
+    },
+    "receivables_subscribed_capital": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "fixed_assets": {
+      "gross": 69716,
+      "adjustment": -35149,
+      "current": 34567,
+      "prior": 37700
+    },
+    "intangible_assets": {
+      "gross": 3539,
+      "adjustment": -3539,
+      "current": 0,
+      "prior": 0
+    },
+    "tangible_assets": {
+      "gross": 61536,
+      "adjustment": -31610,
+      "current": 29926,
+      "prior": 31014
+    },
+    "financial_fixed_assets": {
+      "gross": 4641,
+      "adjustment": 0,
+      "current": 4641,
+      "prior": 6686
+    },
+    "current_assets": {
+      "gross": 799539,
+      "adjustment": -10742,
+      "current": 788797,
+      "prior": 769613
+    },
+    "inventories": {
+      "gross": 345695,
+      "adjustment": -8631,
+      "current": 337064,
+      "prior": 383554
+    },
+    "receivables": {
+      "gross": 423043,
+      "adjustment": -2111,
+      "current": 420932,
+      "prior": 375217
+    },
+    "receivables_long_term": {
+      "gross": 2545,
+      "adjustment": 0,
+      "current": 2545,
+      "prior": 1571
+    },
+    "receivables_short_term": {
+      "gross": 420498,
+      "adjustment": -2111,
+      "current": 418387,
+      "prior": 373646
+    },
+    "trade_receivables_short_term": {
+      "gross": 348717,
+      "adjustment": -2111,
+      "current": 346606,
+      "prior": 353330
+    },
+    "short_term_financial_assets": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "cash": {
+      "gross": 30801,
+      "adjustment": 0,
+      "current": 30801,
+      "prior": 10842
+    },
+    "accruals_assets": {
+      "gross": 1666,
+      "adjustment": 0,
+      "current": 1666,
+      "prior": 1401
+    },
+    "accruals_in_receivables": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "total_liabilities_equity": {
+      "current": 825030,
+      "prior": 808714
+    },
+    "equity": {
+      "current": 79289,
+      "prior": 68981
+    },
+    "share_capital": {
+      "current": 15800,
+      "prior": 15800
+    },
+    "share_premium_capital_funds": {
+      "current": 4347,
+      "prior": 6393
+    },
+    "funds_from_profit": {
+      "current": 1580,
+      "prior": 1580
+    },
+    "retained_earnings": {
+      "current": 45207,
+      "prior": 40571
+    },
+    "profit_current_period": {
+      "current": 12355,
+      "prior": 4637
+    },
+    "external_sources": {
+      "current": 745631,
+      "prior": 738766
+    },
+    "provisions": {
+      "current": 0,
+      "prior": 0
+    },
+    "liabilities": {
+      "current": 745631,
+      "prior": 738766
+    },
+    "liabilities_long_term": {
+      "current": 0,
+      "prior": 483
+    },
+    "bank_loans_long_term": {
+      "current": 0,
+      "prior": 0
+    },
+    "liabilities_short_term": {
+      "current": 745631,
+      "prior": 738283
+    },
+    "bank_loans_short_term": {
+      "current": 226154,
+      "prior": 155535
+    },
+    "trade_payables_short_term": {
+      "current": 279730,
+      "prior": 362473
+    },
+    "accruals_liabilities": {
+      "current": 110,
+      "prior": 967
+    },
+    "accruals_in_liabilities": {
+      "current": 0,
+      "prior": 0
+    },
+    "advance_profit_distribution": {
+      "current": 0,
+      "prior": 0
+    },
+    "trade_receivables_long_term": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "trade_payables_long_term": {
+      "current": 0,
+      "prior": 0
+    }
+  },
+  "income_statement": {
+    "revenue_products_services": {
+      "current": 244871,
+      "prior": 190920
+    },
+    "revenue_goods": {
+      "current": 2547013,
+      "prior": 2469724
+    },
+    "cost_of_sales": {
+      "current": 2615679,
+      "prior": 2506970
+    },
+    "change_in_inventory": {
+      "current": -3909,
+      "prior": 1486
+    },
+    "capitalization": {
+      "current": -10,
+      "prior": 0
+    },
+    "personnel_costs": {
+      "current": 128800,
+      "prior": 112488
+    },
+    "value_adjustments_operating": {
+      "current": 4538,
+      "prior": 280
+    },
+    "depreciation": {
+      "current": 3832,
+      "prior": 3695
+    },
+    "other_operating_income": {
+      "current": 2310,
+      "prior": 2144
+    },
+    "other_operating_expenses": {
+      "current": 19255,
+      "prior": 14285
+    },
+    "operating_result": {
+      "current": 29841,
+      "prior": 27279
+    },
+    "interest_expense": {
+      "current": 12206,
+      "prior": 16713
+    },
+    "financial_result": {
+      "current": -18766,
+      "prior": -21785
+    },
+    "profit_before_tax": {
+      "current": 11075,
+      "prior": 5494
+    },
+    "income_tax": {
+      "current": -1280,
+      "prior": 857
+    },
+    "profit_after_tax": {
+      "current": 12355,
+      "prior": 4637
+    },
+    "profit_for_period": {
+      "current": 12355,
+      "prior": 4637
+    },
+    "net_turnover": {
+      "current": 2791884,
+      "prior": null
+    }
+  },
+  "transcribed_by": "Claude (AI-assisted), from scan",
+  "verified_by": null,
+  "partial": false,
+  "notes": "Full-scope statements (Czech decree 500/2002), thousands CZK, scanned PDF read visually. Korekce printed negative. cost_of_sales = line A (Vykonova spotreba, row 03); change_in_inventory = B (row 07, -3909); capitalization = C (row 08, -10); depreciation = E.1 (row 15); interest_expense = J (row 43); other_operating_income = III (row 20), other_operating_expenses = F (row 24). bank_loans_short_term = C.II.2 'Zavazky k uverovym institucim' (row 130); trade_payables_short_term = row 132. accruals_in_receivables = C.II.3 (row 068) and accruals_in_liabilities = C.III (row 144), both 0. accruals_liabilities = D (row 147). net_turnover prior-year cell (row 56) is empty on the form -> null. No unreadable characters."
+}
