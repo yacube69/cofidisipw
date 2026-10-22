@@ -177,6 +177,8 @@ def _nearest_column(cx: float, x1: float, cols: list[Column], tol: float) -> Col
 _FORMULA = re.compile(r"\((?=[^()]*(?:\d|\+|součet|soucet|ř\.|až))[^()]*(?:\)|$)")  # also cut off at the line end
 # an označení that OCR garbled so the parser kept it in the label: "C.m.2.1. —", "c.n2.a.", "AIM.", "C.H.8.3. |"
 _LEAD_CODE = re.compile(r"^(?:[^\s]{1,12}?[.,](?=[\s|©!—–-])\s*(?:[|©!—–-]\s*)*)+(?=\S)")  # ends at a space
+# an označení printed without its last dot: "A.3 Služby", "C.II.1 Dlouhodobé pohledávky", "D.2 Náklady na …"
+_CODE_NO_LAST_DOT = re.compile(r"^[A-Za-z]{1,4}(?:[.,][A-Za-z0-9]{1,4})+(?=\s+\S)")
 
 
 _UPPER = "A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ"
@@ -189,7 +191,8 @@ _SHORT_CODE = re.compile(rf"^[A-Za-z0-9|]{{1,3}}\.?\s+(?:[^\w\s]+\s+)*(?=[{_UPPE
 
 def lead_code(label: str) -> str:
     """The garbled označení at the start of a label, '' when the label starts with a word."""
-    m = _LEAD_CODE.match(_HEAD_NOISE.sub("", label))
+    text = _HEAD_NOISE.sub("", label)
+    m = _LEAD_CODE.match(text) or _CODE_NO_LAST_DOT.match(text)
     if not m:
         return ""
     code = m.group(0).strip(" |©!—–-")
@@ -264,7 +267,10 @@ def continues(line: ParsedLine, above: ParsedLine | None = None) -> bool:
     return not has_code or (above is not None and not above.code and not lead_code(above.label))
 
 
-def identify(line: ParsedLine, candidates: list[LineDef], extra_label: str | None = None) -> list[Match]:
+def identify(
+    line: ParsedLine, candidates: list[LineDef], extra_label: str | None = None, rows: bool = True
+) -> list[Match]:
+    """Score every candidate line for this printed line. `rows=False` when the page numbers its rows its own way."""
     out = []
     for d in candidates:
         label = _label_score(line.label, d)
@@ -273,15 +279,18 @@ def identify(line: ParsedLine, candidates: list[LineDef], extra_label: str | Non
             # label of a shaded row whose own text is garbled. The second half alone must not win.
             combined = _label_score(f"{extra_label} {line.label}", d)
             label = combined if len(plain(line.label)) >= 8 else max(combined, _label_score(extra_label, d))
-        lead = "" if line.code else norm_code(lead_code(line.label))
-        printed = line.code or lead
+        lead = norm_code(lead_code(line.label))
+        # the označení in the label counts when the code column holds none, or holds less than the label (a side
+        # letter "A" printed before "C.II.3 Časové rozlišení aktiv")
+        use_lead = bool(lead) and (not line.code or _depth(lead) > _depth(line.code))
+        printed = lead if use_lead else line.code
         field_code = d.code
         if printed and d.code and not re.search(r"[A-Za-z]", printed):
             # a sub-line printed with its own number only ("4.", "2.1."): compare with the end of the field's code
             field_code = ".".join([p for p in d.code.split(".") if p][-_depth(printed) :]) + "."
         code = code_score(printed, field_code)
         row = None
-        if line.row and d.row:
+        if rows and line.row and d.row:
             row = 100.0 if line.row.lstrip("0") == d.row.lstrip("0") else 0.0
         # the label decides; code and row number confirm or contradict (both are often garbled by OCR)
         score = label
@@ -291,7 +300,7 @@ def identify(line: ParsedLine, candidates: list[LineDef], extra_label: str | Non
             score -= 4
         if code is not None:
             score += 6 if code >= 90 else (-6 if code < 50 else 0)
-        if lead and d.code and _depth(lead) > _depth(d.code):
+        if use_lead and d.code and _depth(lead) > _depth(d.code):
             score -= 8  # a garbled označení deeper than the field's (B.4.3. for B.II.): a sub-line of it, not the line
         # a garbled label on a shaded row: row number + code agreeing is enough evidence
         if label < 50 and row == 100.0 and (code is None or code >= 60):
@@ -409,6 +418,7 @@ def parse_statements(
     multiplier = fs.metadata.unit_multiplier
     best_score: dict[str, float] = {}
     templates: dict[str, tuple[float, list[Column]]] = {}  # kind -> (page width, columns of the fullest page)
+    sections: dict[str, list[str]] = {}  # kind -> keys identified so far: a continuation page stays in its section
 
     for statement, page_list in pages.items():
         for page_no in page_list:
@@ -431,7 +441,8 @@ def parse_statements(
                 side = None if kind == "income_statement" else kind
                 candidates = dictionary.for_statement(statement, side)  # type: ignore[arg-type]
                 target = fs.statement(statement)  # type: ignore[arg-type]
-                _parse_part(part, columns, pw, kind, candidates, target, best_score, multiplier, log)
+                seen = sections.setdefault(kind, [])
+                _parse_part(part, columns, pw, kind, candidates, target, best_score, multiplier, log, seen)
 
     full_only = {d.key for d in dictionary.lines if not d.abbreviated}
     if fs.metadata.scope is None and any(k in full_only for k in [*fs.balance_sheet, *fs.income_statement]):
@@ -452,12 +463,36 @@ def _with_template(columns: list[Column], template: tuple[float, list[Column]] |
     return [replace(c) for c in template[1]]
 
 
-def _parse_part(lines, columns, pw, kind, candidates, target, best_score, multiplier, log) -> None:
+def rows_follow_decree(parsed: list[ParsedLine], candidates: list[LineDef]) -> bool:
+    """Whether the row numbers printed on a page are the decree's. Software for abbreviated forms and some annual
+    reports numbers the rows its own way (1, 2, 3 …); there a row number says nothing about the line, and trusting
+    it gives a line another line's value ("L.2. Daň z příjmů odložená", row 42, taken for I., row 42 of the form).
+    Decided on the lines whose label alone names one line of the dictionary."""
+    agree = disagree = 0
+    for line in parsed:
+        if not line.row:
+            continue
+        scores = sorted(((_label_score(line.label, d), d) for d in candidates), key=lambda x: x[0], reverse=True)
+        if not scores or scores[0][0] < 95 or (len(scores) > 1 and scores[1][0] >= 95) or not scores[0][1].row:
+            continue  # unclear or a label printed in two sections
+        if line.row.lstrip("0") == scores[0][1].row.lstrip("0"):  # type: ignore[union-attr]
+            agree += 1
+        else:
+            disagree += 1
+    return agree >= disagree
+
+
+def _parse_part(lines, columns, pw, kind, candidates, target, best_score, multiplier, log, seen=None) -> None:
     first_col_x = min(c.x0 for c in columns)
     header_end = _header_end(lines, columns)
+    body = [split_line(line, columns, pw.page, kind) for line in lines if line.cy > header_end]
+    rows = rows_follow_decree([p for p in body if p.has_values], candidates)
     pending: ParsedLine | None = None
     parent = _parents(candidates)
-    seen: list[str] = []  # keys identified on this part, in page order (the current section is the latest parent)
+    codes = {d.key: d.code for d in candidates}
+    # keys identified on this side of the statement in page order, carried over to its next page (the current
+    # section is the latest parent)
+    seen = [] if seen is None else seen
     for line in lines:
         if line.cy <= header_end:
             continue
@@ -478,12 +513,23 @@ def _parse_part(lines, columns, pw, kind, candidates, target, best_score, multip
             if not parsed.code and pending.code:
                 parsed.code = pending.code
         pending = None
-        matches = identify(parsed, candidates, extra)
+        matches = identify(parsed, candidates, extra, rows)
         if not matches or matches[0].score < ACCEPT:
             log.unmatched.append((pw.page, parsed.code, parsed.label, parsed.row))
             continue
         best = matches[0]
-        ties = [m for m in matches if m.score >= best.score - 2]
+        # tied: nearly the same score, or the same name (C.I.9. and C.II.8. "Závazky ostatní") when the code does
+        # not clearly name one of them (an OCR-garbled "c. LLM 8."): then the section decides, not the garbled code
+        unsure_code = best.code_score is None or best.code_score < 90
+        name_floor = max(ACCEPT, best.label_score - 2)
+        # only parallel lines of two sections (C.I.9. and C.II.8.), not a line and a sub-line of another section
+        # named alike (D. and C.II.3. "Časové rozlišení aktiv"): there the code depth still tells them apart
+        same_name = [
+            m
+            for m in matches
+            if unsure_code and m.label_score >= name_floor and _depth(codes[m.key]) == _depth(codes[best.key])
+        ]
+        ties = [m for m in matches if m.score >= best.score - 2 or m in same_name]
         if len(ties) > 1:
             log.ambiguous.append((pw.page, parsed.label, [m.key for m in ties]))
             # lines with the same label (trade receivables under long-term C.II.1. and under short-term C.II.2.):
@@ -491,12 +537,19 @@ def _parse_part(lines, columns, pw, kind, candidates, target, best_score, multip
             in_section = [m for m in ties if parent.get(m.key) in seen]
             if in_section:  # latest section first; within one section a field still free
                 best = max(in_section, key=lambda m: (_last_index(seen, parent[m.key]), m.key not in target))
-            # no section line read: the dictionary order decides (the common short-term field before the rare
-            # long-term one), so a lone "Pohledávky z obchodních vztahů" is never taken for a long-term line
+            else:
+                # no section known: the first field still free in dictionary order (the common short-term field
+                # before the rare long-term one, so a lone "Pohledávky z obchodních vztahů" is short-term)
+                best = next((m for m in ties if m.key not in target), best)
             score = best.score - 10  # flag everything on an ambiguous line
         else:
             score = best.score
         seen.append(best.key)
+        if best.key in parent and len(ties) == 1:
+            # a sub-line with a name of its own ("Dlouhodobé přijaté zálohy", "Odložený daňový závazek") shows the
+            # section even when the section's own line was not read; later lines named alike in C.I. and C.II.
+            # ("Vydané dluhopisy", "Závazky - ovládaná nebo ovládající osoba") then go to that section
+            seen.append(parent[best.key])
         if best.key in target and best_score.get(best.key, 0) >= score:
             continue  # keep the earlier/better line (e.g. "Základní kapitál" A.I. before A.I.1.)
         item = LineItem(

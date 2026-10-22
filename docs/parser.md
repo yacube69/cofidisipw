@@ -26,6 +26,11 @@ Each rule describes how Czech statements are printed, not one file.
 | Numbers printed without a thousands separator ("3310", "6740") | a clean reading, not a segmentation doubt |
 | Company name in a header table ("Daňový subjekt:", "Účetní jednotka:", "Název účetní jednotky:"), IČO as "IČ / DIČ" | read like "Obchodní firma:" and "IČO:" |
 
+| Rows numbered the software's own way (1, 2, 3 … on abbreviated forms and in some annual reports) | the row number counts only on a page whose rows follow the decree, judged on the lines whose label alone names one dictionary line; otherwise "L.2. Daň z příjmů odložená" on row 42 would become I. (row 42 of the form) |
+| A sub-line named almost like a line of the dictionary (A.1. "Náklady vynaložené na prodané zboží" vs G. "… na prodané podíly") | the sub-line is in the dictionary too, so it takes its own match, not the line's |
+| Lines named alike in two sections (C.I.6. and C.II.6. "Závazky - ovládaná nebo ovládající osoba", C.I.9. and C.II.8. "Závazky ostatní") | the section decides, also when its own line was not read: a sub-line with a name of its own ("Dlouhodobé přijaté zálohy", "Krátkodobé směnky k úhradě") shows the section; the section carries over to the next page of the same side; with a garbled code (below 90) the section decides even if the code tips the score; with no section known, the first field still free |
+| An označení without its last dot ("A.3 Služby", "C.II.3 Časové rozlišení") or after a side letter ("A C.II.3 …") | read as the označení; the deeper code in the label wins over a side letter in the code column |
+
 After the parser, the accounting checks decide which values need review and restore lost minus signs (`src/validation/review.py`, see `docs/validation.md`).
 
 ## Results

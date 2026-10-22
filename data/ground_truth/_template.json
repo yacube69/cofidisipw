@@ -180,6 +180,58 @@
       "current": null,
       "prior": null
     },
+    "bonds_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "advances_received_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "bills_payable_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "group_payables_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "associate_payables_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "other_payables_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "bonds_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "advances_received_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "bills_payable_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "group_payables_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "associate_payables_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "deferred_tax_liability": {
+      "current": null,
+      "prior": null
+    },
+    "other_payables_long_term": {
+      "current": null,
+      "prior": null
+    },
     "accruals_liabilities": {
       "current": null,
       "prior": null
@@ -199,6 +251,18 @@
       "prior": null
     },
     "cost_of_sales": {
+      "current": null,
+      "prior": null
+    },
+    "cost_of_goods_sold": {
+      "current": null,
+      "prior": null
+    },
+    "materials_and_energy": {
+      "current": null,
+      "prior": null
+    },
+    "services": {
       "current": null,
       "prior": null
     },
@@ -222,6 +286,14 @@
       "current": null,
       "prior": null
     },
+    "value_adjustments_inventories": {
+      "current": null,
+      "prior": null
+    },
+    "value_adjustments_receivables": {
+      "current": null,
+      "prior": null
+    },
     "other_operating_income": {
       "current": null,
       "prior": null
@@ -234,7 +306,71 @@
       "current": null,
       "prior": null
     },
+    "income_from_shares": {
+      "current": null,
+      "prior": null
+    },
+    "income_from_shares_group": {
+      "current": null,
+      "prior": null
+    },
+    "other_income_from_shares": {
+      "current": null,
+      "prior": null
+    },
+    "cost_of_shares_sold": {
+      "current": null,
+      "prior": null
+    },
+    "income_other_fixed_financial_assets": {
+      "current": null,
+      "prior": null
+    },
+    "income_other_fixed_financial_assets_group": {
+      "current": null,
+      "prior": null
+    },
+    "other_income_other_fixed_financial_assets": {
+      "current": null,
+      "prior": null
+    },
+    "costs_other_fixed_financial_assets": {
+      "current": null,
+      "prior": null
+    },
+    "interest_income": {
+      "current": null,
+      "prior": null
+    },
+    "interest_income_group": {
+      "current": null,
+      "prior": null
+    },
+    "other_interest_income": {
+      "current": null,
+      "prior": null
+    },
+    "value_adjustments_financial": {
+      "current": null,
+      "prior": null
+    },
     "interest_expense": {
+      "current": null,
+      "prior": null
+    },
+    "interest_expense_group": {
+      "current": null,
+      "prior": null
+    },
+    "other_interest_expense": {
+      "current": null,
+      "prior": null
+    },
+    "other_financial_income": {
+      "current": null,
+      "prior": null
+    },
+    "other_financial_expenses": {
       "current": null,
       "prior": null
     },

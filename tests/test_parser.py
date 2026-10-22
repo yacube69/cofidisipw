@@ -16,6 +16,7 @@ from src.extraction.parser import (
     identify,
     norm_code,
     parse_statements,
+    rows_follow_decree,
 )
 from src.extraction.reading import read_page
 from src.extraction.types import PageWords
@@ -243,3 +244,17 @@ def test_continuation_page_keeps_the_columns_of_the_page_before():
     other_layout = [Column("current", 200, 230), Column("prior", 260, 290)]
     assert _with_template(other_layout, (595.0, full), 595.0) == other_layout  # columns elsewhere: keep them
     assert _with_template(sparse, (595.0, full), 842.0) == sparse  # another page size
+
+
+def test_row_numbers_count_only_when_the_page_uses_the_decree_numbering():
+    """09725351 numbers its income statement rows its own way (J. is row 31, not 43): its "L.2. Daň z příjmů odložená"
+    on row 42 must not become I. "Úpravy hodnot a rezervy ve finanční oblasti", row 42 of the form."""
+    income = load_dictionary().for_statement("income_statement")
+    own = [_line("Nákladové úroky a podobné náklady", "J.", "31"), _line("Ostatní finanční náklady", "K.", "33"),
+           _line("Finanční výsledek hospodaření", "*", "34")]  # fmt: skip
+    decree = [_line("Nákladové úroky a podobné náklady", "J.", "43"), _line("Ostatní finanční náklady", "K.", "47"),
+              _line("Finanční výsledek hospodaření", "*", "48")]  # fmt: skip
+    assert not rows_follow_decree(own, income)
+    assert rows_follow_decree(decree, income)
+    garbled = _line("Daň z příjmů odložená (+/-)", "L.2.", "42")
+    assert identify(garbled, income, rows=False)[0].key != "value_adjustments_financial"

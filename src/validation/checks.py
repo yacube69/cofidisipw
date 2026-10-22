@@ -47,11 +47,62 @@ SUM_CHECKS: list[tuple[str, str, list[Part], str]] = [
      ["revenue_products_services", "revenue_goods", ("cost_of_sales", -1), ("change_in_inventory", -1),
       ("capitalization", "raise"), ("personnel_costs", -1), ("value_adjustments_operating", -1),
       "other_operating_income", ("other_operating_expenses", -1)], "error"),
+    # the form's financial part (ř. 31 − 34 + 35 − 38 + 39 − 42 − 43 + 46 − 47 = 48)
+    ("Financial result: IV − G + V − H + VI − I − J + VII − K", "financial_result",
+     ["income_from_shares", ("cost_of_shares_sold", -1), "income_other_fixed_financial_assets",
+      ("costs_other_fixed_financial_assets", -1), "interest_income", ("value_adjustments_financial", -1),
+      ("interest_expense", -1), "other_financial_income", ("other_financial_expenses", -1)], "error"),
+    ("Value adjustments: E.1 + E.2 + E.3 = E", "value_adjustments_operating",
+     ["depreciation", "value_adjustments_inventories", "value_adjustments_receivables"], "error"),
+    ("Cost of sales: A.1 + A.2 + A.3 = A", "cost_of_sales", ["cost_of_goods_sold", "materials_and_energy", "services"],
+     "error"),
+    ("Income from shares: IV.1 + IV.2 = IV", "income_from_shares",
+     ["income_from_shares_group", "other_income_from_shares"], "error"),
+    ("Income from other financial assets: V.1 + V.2 = V", "income_other_fixed_financial_assets",
+     ["income_other_fixed_financial_assets_group", "other_income_other_fixed_financial_assets"], "error"),
+    ("Interest income: VI.1 + VI.2 = VI", "interest_income",
+     ["interest_income_group", "other_interest_income"], "error"),
+    ("Interest expense: J.1 + J.2 = J", "interest_expense",
+     ["interest_expense_group", "other_interest_expense"], "error"),
+    ("Long-term liabilities: C.I.1 + … + C.I.9 = C.I", "liabilities_long_term",
+     ["bonds_long_term", "bank_loans_long_term", "advances_received_long_term", "trade_payables_long_term",
+      "bills_payable_long_term", "group_payables_long_term", "associate_payables_long_term",
+      "deferred_tax_liability", "other_payables_long_term"], "error"),
+    ("Short-term liabilities: C.II.1 + … + C.II.8 = C.II", "liabilities_short_term",
+     ["bonds_short_term", "bank_loans_short_term", "advances_received_short_term", "trade_payables_short_term",
+      "bills_payable_short_term", "group_payables_short_term", "associate_payables_short_term",
+      "other_payables_short_term"], "error"),
+]  # fmt: skip
+
+# Lines added to the dictionary after the first ground truth files were transcribed (Oct 2026). A ground truth file
+# without them did not transcribe them (rather than "not printed"), so a check that needs them does not run on it.
+LATER_LINES = {
+    "income_from_shares", "cost_of_shares_sold", "income_other_fixed_financial_assets",
+    "costs_other_fixed_financial_assets", "interest_income", "value_adjustments_financial", "other_financial_income",
+    "other_financial_expenses", "value_adjustments_inventories", "value_adjustments_receivables",
+    "bonds_long_term", "advances_received_long_term", "bills_payable_long_term", "group_payables_long_term",
+    "associate_payables_long_term", "deferred_tax_liability", "other_payables_long_term",
+    "bonds_short_term", "advances_received_short_term", "bills_payable_short_term", "group_payables_short_term",
+    "associate_payables_short_term", "other_payables_short_term",
+    "cost_of_goods_sold", "materials_and_energy", "services", "income_from_shares_group", "other_income_from_shares",
+    "income_other_fixed_financial_assets_group", "other_income_other_fixed_financial_assets",
+    "interest_income_group", "other_interest_income", "interest_expense_group", "other_interest_expense",
+}  # fmt: skip
+
+# a part that is one of several lines of a section cannot be larger than the section (both printed positive)
+PART_OF_CHECKS: list[tuple[str, str, str]] = [
+    ("Trade receivables C.II.2.1 ≤ short-term receivables C.II.2", "trade_receivables_short_term",
+     "receivables_short_term"),
+    ("Trade receivables C.II.1.1 ≤ long-term receivables C.II.1", "trade_receivables_long_term",
+     "receivables_long_term"),
 ]  # fmt: skip
 
 # Some software prints the costs negative (Osobní náklady -1 230 126): then the printed lines simply add up to the
 # total. For these checks a plain sum of the printed parts is accepted as well.
-PLAIN_SUM_ACCEPTED = {"Operating result: I + II − A − B − C − D − E + III − F"}
+PLAIN_SUM_ACCEPTED = {
+    "Operating result: I + II − A − B − C − D − E + III − F",
+    "Financial result: IV − G + V − H + VI − I − J + VII − K",
+}
 
 # a = b (+ c …): both sides must be present. The 5th item says whether the check compares the same number
 # printed twice (exact, no tolerance) or a sum of separately rounded lines (rounding tolerance).
@@ -93,10 +144,19 @@ def _contribution(value: float, sign: Sign) -> float:
     return value * sign  # type: ignore[operator]
 
 
+def _untranscribed(fs: FinancialStatements, keys: Iterable[str]) -> bool:
+    """A ground truth file made before LATER_LINES existed: the lines it lacks were not transcribed."""
+    statement_keys = set(fs.balance_sheet) | set(fs.income_statement)
+    ground_truth = any(v.source == "ground_truth" for item in fs.balance_sheet.values() for v in item.values())
+    return ground_truth and any(k in LATER_LINES and k not in statement_keys for k in keys)
+
+
 def _sum_checks(fs: FinancialStatements, tol: float, periods: Iterable[Period]) -> list[CheckResult]:
     out = []
     for name, total_key, parts, severity in SUM_CHECKS:
         signed = [(p, 1) if isinstance(p, str) else p for p in parts]
+        if _untranscribed(fs, [p for p, _ in signed]):
+            continue
         for period in periods:
             total = _get(fs, total_key, period)
             values = {p: (_get(fs, p, period), sign) for p, sign in signed}
@@ -215,6 +275,30 @@ def _ocr_quality(fs: FinancialStatements) -> list[CheckResult]:
     return out
 
 
+def _part_of_checks(fs: FinancialStatements, tol: float, periods: Iterable[Period]) -> list[CheckResult]:
+    out = []
+    for name, part_key, whole_key in PART_OF_CHECKS:
+        for period in periods:
+            part, whole = _get(fs, part_key, period), _get(fs, whole_key, period)
+            if part is None or whole is None or part < 0 or whole < 0:
+                continue
+            passed = part <= whole + tol
+            out.append(
+                CheckResult(
+                    name=name,
+                    period=period,
+                    passed=passed,
+                    severity="error",
+                    expected=whole,
+                    actual=part,
+                    difference=part - whole if not passed else 0.0,
+                    fields=[part_key, whole_key],
+                    message="" if passed else f"the part is larger than the whole by {part - whole:,.0f} CZK",
+                )
+            )
+    return out
+
+
 def validate(fs: FinancialStatements, tolerance_units: float = 1.0) -> ValidationReport:
     """Run every check. Sums of rounded lines may differ by `tolerance_units` of the printed unit (±1 tis. Kč by
     default); the same number printed twice (assets = liabilities, P&L result = A.V.) must match exactly.
@@ -225,6 +309,7 @@ def validate(fs: FinancialStatements, tolerance_units: float = 1.0) -> Validatio
     checks = (
         _equality_checks(fs, tol, periods)
         + _sum_checks(fs, tol, periods)
+        + _part_of_checks(fs, tol, periods)
         + _net_checks(fs, tol)
         + _plausibility(fs)
         + _ocr_quality(fs)

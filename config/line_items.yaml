@@ -260,6 +260,97 @@ balance_sheet:
     labels: ["Závazky z obchodních vztahů"]
     abbreviated: false
     en: Trade payables (long-term)
+  - key: bonds_short_term
+    side: liabilities
+    code: "C.II.1."
+    row: "127"  # from the decree
+    labels: ["Vydané dluhopisy"]
+    abbreviated: false
+    en: Bonds issued (short-term)
+  - key: advances_received_short_term
+    side: liabilities
+    code: "C.II.3."
+    row: "131"  # from the decree
+    labels: ["Krátkodobé přijaté zálohy"]
+    abbreviated: false
+    en: Advances received (short-term)
+  - key: bills_payable_short_term
+    side: liabilities
+    code: "C.II.5."
+    row: "133"  # from the decree
+    labels: ["Krátkodobé směnky k úhradě"]
+    abbreviated: false
+    en: Bills of exchange payable (short-term)
+  - key: group_payables_short_term
+    side: liabilities
+    code: "C.II.6."
+    row: "134"  # from the decree
+    labels: ["Závazky - ovládaná nebo ovládající osoba"]
+    abbreviated: false
+    en: Payables to group companies (short-term)
+  - key: associate_payables_short_term
+    side: liabilities
+    code: "C.II.7."
+    row: "135"  # from the decree
+    labels: ["Závazky - podstatný vliv"]
+    abbreviated: false
+    en: Payables to associates (short-term)
+  - key: other_payables_short_term
+    side: liabilities
+    code: "C.II.8."
+    row: "136"  # from the decree
+    labels: ["Závazky ostatní", "Závazky - ostatní"]
+    abbreviated: false
+    en: Other payables (short-term)
+  - key: bonds_long_term
+    side: liabilities
+    code: "C.I.1."
+    row: "112"  # from the decree
+    labels: ["Vydané dluhopisy"]
+    abbreviated: false
+    en: Bonds issued (long-term)
+  - key: advances_received_long_term
+    side: liabilities
+    code: "C.I.3."
+    row: "116"  # from the decree
+    labels: ["Dlouhodobé přijaté zálohy"]
+    abbreviated: false
+    en: Advances received (long-term)
+  - key: bills_payable_long_term
+    side: liabilities
+    code: "C.I.5."
+    row: "118"  # from the decree
+    labels: ["Dlouhodobé směnky k úhradě"]
+    abbreviated: false
+    en: Bills of exchange payable (long-term)
+  - key: group_payables_long_term
+    side: liabilities
+    code: "C.I.6."
+    row: "119"  # from the decree
+    labels: ["Závazky - ovládaná nebo ovládající osoba"]
+    abbreviated: false
+    en: Payables to group companies (long-term)
+  - key: associate_payables_long_term
+    side: liabilities
+    code: "C.I.7."
+    row: "120"  # from the decree
+    labels: ["Závazky - podstatný vliv"]
+    abbreviated: false
+    en: Payables to associates (long-term)
+  - key: deferred_tax_liability
+    side: liabilities
+    code: "C.I.8."
+    row: "121"  # from the decree
+    labels: ["Odložený daňový závazek"]
+    abbreviated: false
+    en: Deferred tax liability
+  - key: other_payables_long_term
+    side: liabilities
+    code: "C.I.9."
+    row: "122"  # from the decree
+    labels: ["Závazky - ostatní", "Závazky ostatní"]
+    abbreviated: false
+    en: Other payables (long-term)
   - key: accruals_liabilities
     side: liabilities
     code: "D."
@@ -295,6 +386,24 @@ income_statement:
     labels: ["Výkonová spotřeba", "Výkonová spotřeba a náklady vynaložené na prodané zboží"]
     abbreviated: true
     en: Cost of sales (materials, energy, services, goods sold)
+  - key: cost_of_goods_sold
+    code: "A.1."
+    row: "04"  # from the decree
+    labels: ["Náklady vynaložené na prodané zboží"]
+    abbreviated: false
+    en: Cost of goods sold
+  - key: materials_and_energy
+    code: "A.2."
+    row: "05"  # from the decree
+    labels: ["Spotřeba materiálu a energie"]
+    abbreviated: false
+    en: Materials and energy consumed
+  - key: services
+    code: "A.3."
+    row: "06"  # from the decree
+    labels: ["Služby"]
+    abbreviated: false
+    en: Services
   - key: change_in_inventory
     code: "B."
     row: "07"  # verified
@@ -325,6 +434,18 @@ income_statement:
     labels: ["Úpravy hodnot dlouhodobého nehmotného a hmotného majetku"]
     abbreviated: false
     en: Depreciation and amortisation of fixed assets
+  - key: value_adjustments_inventories
+    code: "E.2."
+    row: "18"  # from the decree
+    labels: ["Úpravy hodnot zásob"]
+    abbreviated: false
+    en: Value adjustments of inventories
+  - key: value_adjustments_receivables
+    code: "E.3."
+    row: "19"  # from the decree
+    labels: ["Úpravy hodnot pohledávek"]
+    abbreviated: false
+    en: Value adjustments of receivables
   - key: other_operating_income
     code: "III."
     row: "20"  # verified
@@ -343,12 +464,108 @@ income_statement:
     labels: ["Provozní výsledek hospodaření (+/-)", "Provozní výsledek hospodaření"]
     abbreviated: true
     en: Operating result
+  - key: income_from_shares
+    code: "IV."
+    row: "31"  # from the decree
+    labels: ["Výnosy z dlouhodobého finančního majetku - podíly"]
+    abbreviated: true
+    en: Income from shares
+  - key: income_from_shares_group
+    code: "IV.1."
+    row: "32"  # from the decree
+    labels: ["Výnosy z podílů - ovládaná nebo ovládající osoba"]
+    abbreviated: false
+    en: Income from shares in group companies
+  - key: other_income_from_shares
+    code: "IV.2."
+    row: "33"  # from the decree
+    labels: ["Ostatní výnosy z podílů"]
+    abbreviated: false
+    en: Other income from shares
+  - key: cost_of_shares_sold
+    code: "G."
+    row: "34"  # from the decree
+    labels: ["Náklady vynaložené na prodané podíly"]
+    abbreviated: true
+    en: Cost of shares sold
+  - key: income_other_fixed_financial_assets
+    code: "V."
+    row: "35"  # from the decree
+    labels: ["Výnosy z ostatního dlouhodobého finančního majetku"]
+    abbreviated: true
+    en: Income from other long-term financial assets
+  - key: income_other_fixed_financial_assets_group
+    code: "V.1."
+    row: "36"  # from the decree
+    labels: ["Výnosy z ostatního dlouhodobého finančního majetku - ovládaná nebo ovládající osoba"]
+    abbreviated: false
+    en: Income from other long-term financial assets, group
+  - key: other_income_other_fixed_financial_assets
+    code: "V.2."
+    row: "37"  # from the decree
+    labels: ["Ostatní výnosy z ostatního dlouhodobého finančního majetku"]
+    abbreviated: false
+    en: Other income from other long-term financial assets
+  - key: costs_other_fixed_financial_assets
+    code: "H."
+    row: "38"  # from the decree
+    labels: ["Náklady související s ostatním dlouhodobým finančním majetkem"]
+    abbreviated: true
+    en: Costs of other long-term financial assets
+  - key: interest_income
+    code: "VI."
+    row: "39"  # from the decree
+    labels: ["Výnosové úroky a podobné výnosy"]
+    abbreviated: true
+    en: Interest income
+  - key: interest_income_group
+    code: "VI.1."
+    row: "40"  # from the decree
+    labels: ["Výnosové úroky a podobné výnosy - ovládaná nebo ovládající osoba"]
+    abbreviated: false
+    en: Interest income from group companies
+  - key: other_interest_income
+    code: "VI.2."
+    row: "41"  # from the decree
+    labels: ["Ostatní výnosové úroky a podobné výnosy"]
+    abbreviated: false
+    en: Other interest income
+  - key: value_adjustments_financial
+    code: "I."
+    row: "42"  # from the decree
+    labels: ["Úpravy hodnot a rezervy ve finanční oblasti"]
+    abbreviated: true
+    en: Value adjustments and provisions in financial activities
   - key: interest_expense
     code: "J."
     row: "43"  # verified
     labels: ["Nákladové úroky a podobné náklady"]
     abbreviated: true
     en: Interest expense
+  - key: interest_expense_group
+    code: "J.1."
+    row: "44"  # from the decree
+    labels: ["Nákladové úroky a podobné náklady - ovládaná nebo ovládající osoba"]
+    abbreviated: false
+    en: Interest expense to group companies
+  - key: other_interest_expense
+    code: "J.2."
+    row: "45"  # from the decree
+    labels: ["Ostatní nákladové úroky a podobné náklady"]
+    abbreviated: false
+    en: Other interest expense
+  - key: other_financial_income
+    code: "VII."
+    row: "46"  # from the decree
+    labels: ["Ostatní finanční výnosy"]
+    abbreviated: true
+    en: Other financial income
+  - key: other_financial_expenses
+    code: "K."
+    row: "47"  # from the decree
+    labels: ["Ostatní finanční náklady"]
+    abbreviated: true
+    en: Other financial expenses
   - key: financial_result
     code: "*"
     row: "48"  # verified

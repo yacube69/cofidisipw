@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 from src.evaluation import compare
+from src.line_items import load_dictionary
 from src.schema import FinancialStatements, GroundTruth, LineItem, Value
 from src.validation.checks import fields_in_failed_checks, validate
 from tests.test_parser import _from_fixtures
@@ -165,3 +166,64 @@ def test_a_missed_equity_line_is_now_an_error():
     fs = load()
     del fs.balance_sheet["retained_earnings"]
     assert "Equity: A.I + … + A.V − A.VI = A" in failed(fs)
+
+
+def failed_current(fs: FinancialStatements) -> set[str]:
+    return {c.name for c in validate(fs).errors if c.period == "current"}
+
+
+def _add(fs: FinancialStatements, key: str, current: float, source: str = "ground_truth") -> None:
+    statement = fs.income_statement if key in load_dictionary().keys("income_statement") else fs.balance_sheet
+    statement[key] = LineItem(key=key, current=Value(value=current * 1000, source=source))  # type: ignore[arg-type]
+
+
+def _financial_part(fs: FinancialStatements) -> None:
+    """Mondi 2025 financial part, made up to add up to its printed financial result −769 443 (= 507 009 − 1 276 452)."""
+    for key, value in [("income_from_shares", 0), ("cost_of_shares_sold", 0),
+                       ("income_other_fixed_financial_assets", 0), ("costs_other_fixed_financial_assets", 0),
+                       ("interest_income", 12_000),
+                       ("value_adjustments_financial", 0), ("other_financial_income", 50_000),
+                       ("other_financial_expenses", 33_750)]:  # fmt: skip
+        _add(fs, key, value)
+
+
+def test_financial_result_covers_interest_expense():
+    fs = load()
+    _financial_part(fs)
+    name = "Financial result: IV − G + V − H + VI − I − J + VII − K"
+    assert name not in failed_current(fs)
+    assert any(c.name == name and c.period == "current" for c in validate(fs).checks)
+    fs.income_statement["interest_expense"].current.value = 707_693_000  # 7 read as 0
+    assert name in failed_current(fs)
+
+
+def test_new_lines_missing_from_an_older_ground_truth_file_are_not_judged():
+    """The financial lines were added to the dictionary after the ground truth was transcribed: a file without
+    them did not transcribe them, so the financial result check does not run (no false alarm)."""
+    fs = load()
+    assert not any(c.name.startswith("Financial result:") for c in validate(fs).checks)
+    _financial_part(fs)  # once the file has the financial lines, the check runs
+    assert any(c.name.startswith("Financial result:") for c in validate(fs).checks)
+
+
+def test_extracted_statement_counts_unprinted_new_lines_as_zero():
+    fs = load()
+    for item in [*fs.balance_sheet.values(), *fs.income_statement.values()]:
+        for v in item.values():
+            v.source = "ocr"
+    # an extracted statement: lines the parser did not find are not printed; the financial result runs with J alone
+    checks = [c for c in validate(fs).checks if c.name.startswith("Financial result:") and c.period == "current"]
+    assert checks and not checks[0].passed  # −797 693 alone is not −769 443: a line was not read
+
+
+def test_short_term_liabilities_cover_bank_loans_and_trade_payables():
+    fs = load("07880383_2025")  # Skyport: C.II. 85 003 = bank loans 194 + trade payables 29 323 + the rest
+    rest = 85_003 - 194 - 29_323
+    _add(fs, "other_payables_short_term", rest)
+    for key in ("bonds_short_term", "advances_received_short_term", "bills_payable_short_term",
+                "group_payables_short_term", "associate_payables_short_term"):  # fmt: skip
+        _add(fs, key, 0)
+    name = "Short-term liabilities: C.II.1 + … + C.II.8 = C.II"
+    assert name not in failed_current(fs)
+    fs.balance_sheet["trade_payables_short_term"].current.value = 39_323_000
+    assert name in failed_current(fs)

@@ -22,10 +22,19 @@
 | Tax | profit before tax − income tax = profit after tax |
 | Result | operating result + financial result = profit before tax |
 | Net per asset line | net = gross + korekce |
+| Financial result | IV − G + V − H + VI − I − J + VII − K = * (ř. 31 − 34 + 35 − 38 + 39 − 42 − 43 + 46 − 47 = 48): covers interest expense |
+| Value adjustments | E.1 + E.2 + E.3 = E: covers depreciation |
+| Cost of sales | A.1 + A.2 + A.3 = A |
+| Financial sub-lines | IV.1 + IV.2 = IV, V.1 + V.2 = V, VI.1 + VI.2 = VI, J.1 + J.2 = J |
+| Long-term liabilities | C.I.1 + … + C.I.9 = C.I: covers long-term bank loans and trade payables |
+| Short-term liabilities | C.II.1 + … + C.II.8 = C.II: covers short-term bank loans and trade payables |
+| Trade receivables | C.II.1.1 ≤ C.II.1 and C.II.2.1 ≤ C.II.2 (a part of a section cannot exceed it) |
 
 **Warnings**: worth a look, not necessarily wrong: profit after tax = profit for the period (unless there is a line M.), negative values where none are expected, year-over-year change above 500 %, and every value the parser flagged ("Value needs review").
 
 **Tolerance:** sums of separately rounded lines allow ±1 printed unit (1 000 CZK for statements in tis. Kč); the same number printed twice must match exactly. A sum runs when its total and at least one part are present; missing parts count as 0, so a missed line fails the sum.
+
+**Lines added later (Oct 2026):** the financial lines (IV. – K. with their sub-lines), A.1.–A.3., E.2., E.3. and the sub-lines of C.I. and C.II. were added to the dictionary after the first ground truth files were transcribed. A ground truth file without them did not transcribe them (rather than "they are not printed"), so a check that needs them does not run on that file (`LATER_LINES`); it runs once the file has them. On extracted statements they count like every other line. Sub-lines named almost like a line of the dictionary are in it for a second reason: without them they would take that line's match (A.1. "Náklady vynaložené na prodané zboží" for G. "… na prodané podíly", V.2. for V.).
 
 **Signs as printed:** software differs, so each check accepts the readings that mean the same:
 
@@ -70,6 +79,24 @@ On the 96 collected statements with a PDF, where nothing was tuned: failed check
 
 ## How much they catch
 
+**Since the identities of Oct 2026** (financial result, value adjustments, cost of sales, C.I. and C.II. sub-lines): the ground truth files do not have the new lines yet, so the effect is measured on the 31 collected statements where every check passes, read by the parser (`scripts/mutation_test_checks.py --corpus`):
+
+| | before | now |
+| --- | --- | --- |
+| a digit misread | 66.7 % | **89.3 %** |
+| a digit dropped (÷10) | 71.2 % | **94.5 %** |
+| lost or extra minus | 70.6 % | **94.0 %** |
+| value missing | 47.2 % | **66.1 %** |
+| **all (7 770 corrupted statements)** | **63.4 %** | **85.3 %** |
+| interest expense | 0 % | **97.7 %** |
+| depreciation | 0 % | **87.0 %** |
+| short-term trade payables | 0 % | **97.7 %** |
+| short-term / long-term bank loans | 0 % | **89.7 % / 95.6 %** |
+
+"Before" is the same statements with the new identities left out. On the 15 ground truth files: no false alarm, the old result below unchanged (76.8 % on 14 complete files, 5 197 corrupted statements), extraction accuracy 94.1 % → 94.3 %, correct values flagged for review 55 → 52, values not found 66 → 63 (the parser rules in `docs/parser.md`).
+
+Before the Oct 2026 identities, on the ground truth:
+
 `python scripts/mutation_test_checks.py` corrupts every value of the complete, verified ground truth files in turn, the way OCR and the parser go wrong, and counts what the checks catch (`--warnings` counts warnings too). Result on 6 files, 2 228 corrupted statements (2026-10-21):
 
 | Error | Caught before | Caught now |
@@ -85,10 +112,10 @@ No false alarm on the correct ground truth. On the 99 collected statements the n
 
 **Not covered yet:** an error in these lines passes unnoticed, because no identity contains them:
 
-- E.1. depreciation (part of E.: needs E.2 and E.3 in the dictionary)
-- J. interest expense and the financial result (needs IV., G., V., H., VI., I., VII., K. in the dictionary and the ground truth)
-- net turnover (needs the same income lines)
-- bank loans (C.I.2., C.II.2.) and trade payables (C.II.4.): sub-lines of liabilities
+- net turnover (I. + II. + III. + IV. + V. + VI. + VII.; the lines are in the dictionary now, the identity is not)
+- the sub-lines of receivables C.II.2.2–C.II.2.4 (trade receivables are only checked against their section)
 - a missing total: a sum with no total does not run
+
+Covered since Oct 2026 (the table above): E.1. depreciation, J. interest expense and the financial result, bank loans and trade payables.
 
 Missing values are the weakest spot (49 %): when a total and all its parts are missing together, nothing fails. CIPW-11 (re-reading flagged rows) and the completeness of the parser matter more here than new checks.

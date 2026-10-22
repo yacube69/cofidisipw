@@ -6,6 +6,8 @@ checks run on the corrupted statement. Prints the share caught per error type an
 
     python scripts/mutation_test_checks.py            # errors only
     python scripts/mutation_test_checks.py --warnings # errors and plausibility warnings
+    python scripts/mutation_test_checks.py --corpus   # the collected statements where every check passes, as read
+                                                      # by the parser (outputs/ocr): lines the ground truth lacks
 """
 
 import collections
@@ -55,7 +57,40 @@ def mutations(v):
 stats = collections.defaultdict(lambda: [0, 0])  # kind -> [caught, total]
 by_field = collections.defaultdict(lambda: [0, 0])
 false_alarms = []
-for path in sorted(glob.glob(str(get_settings().paths.ground_truth / "[0-9]*.json"))):
+
+
+def _corpus() -> None:
+    """Every value of every collected statement whose checks all pass, corrupted in turn (current and prior)."""
+    from scripts.audit_helpers import load_pages
+    from src.extraction.parser import parse_statements
+
+    used = 0
+    for _, statements in sorted(load_pages(set()).items()):
+        pws = sorted((pw for p in statements.values() for pw in p), key=lambda pw: pw.page)
+        fs = parse_statements(pws, {k: [pw.page for pw in v] for k, v in statements.items()})
+        if errors(fs) or not validate(fs).checks:
+            continue
+        used += 1
+        unit = fs.metadata.unit_multiplier or 1
+        for statement in (fs.balance_sheet, fs.income_statement):
+            for key, item in statement.items():
+                for period in ("current", "prior"):
+                    v = getattr(item, period)
+                    if v is None or v.value is None:
+                        continue
+                    original = v.value
+                    for kind, new in mutations(round(original / unit)):
+                        v.value = None if new is None else new * unit
+                        caught = bool(errors(fs))
+                        v.value = original
+                        stats[kind][0] += caught
+                        stats[kind][1] += 1
+                        by_field[key][0] += caught
+                        by_field[key][1] += 1
+    print(f"collected statements where every check passes: {used}")
+
+
+for path in [] if "--corpus" in sys.argv else sorted(glob.glob(str(get_settings().paths.ground_truth / "[0-9]*.json"))):
     gt = GroundTruth.model_validate_json(open(path, encoding="utf-8").read())
     if gt.partial:
         continue
@@ -86,7 +121,10 @@ for path in sorted(glob.glob(str(get_settings().paths.ground_truth / "[0-9]*.jso
                 stats["current/prior swapped"][0] += caught
                 stats["current/prior swapped"][1] += 1
 
-print("false alarms on correct ground truth:", false_alarms or "none")
+if "--corpus" in sys.argv:
+    _corpus()
+else:
+    print("false alarms on correct ground truth:", false_alarms or "none")
 print("\nby error type")
 for kind, (c, t) in sorted(stats.items()):
     print(f"  {kind:28s} {c:4d}/{t:4d}  {100 * c / t:5.1f} %")

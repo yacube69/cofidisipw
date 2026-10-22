@@ -28,6 +28,10 @@ SIGNED = {
     "profit_current_period",
     "change_in_inventory",
     "capitalization",
+    "value_adjustments_operating",  # E., E.2., E.3., I.: a reversal of an impairment is negative
+    "value_adjustments_inventories",
+    "value_adjustments_receivables",
+    "value_adjustments_financial",
     "operating_result",
     "financial_result",
     "profit_before_tax",
