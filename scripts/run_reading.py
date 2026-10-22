@@ -41,7 +41,9 @@ def process_file(path: str) -> list[dict]:
     from src.extraction.layout import is_numeric
     from src.extraction.locate import locate_statements
     from src.extraction.reading import page_kind, read_page, save_debug, text_layer_ok
+    from src.settings import get_settings
 
+    get_settings().performance.ocr_workers = 1  # the files already run side by side, one per worker process
     name = Path(path).name
     rows: list[dict] = []
     try:

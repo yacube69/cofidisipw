@@ -39,6 +39,12 @@ reread:
   enabled: true
   dpi: 400
 
+# Reading scans faster (CIPW-50): pages OCR'd side by side and a light page locator with the full one as fallback
+performance:
+  ocr_workers: 0         # 0 = one per CPU core, 1 = one page at a time
+  tesseract_threads: 1   # threads per Tesseract process when pages run side by side (0 = Tesseract's default)
+  light_locator: true
+
 # Paths to Tesseract when it is not on PATH: set TESSERACT_CMD / TESSDATA_PREFIX in .env (they differ per computer)
 tesseract: {}
 

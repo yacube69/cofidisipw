@@ -16,6 +16,7 @@ import numpy as np
 import pymupdf
 import pytesseract
 
+from src.extraction.parallel import MUPDF, pixels
 from src.extraction.types import PageWords, Word
 from src.settings import get_settings
 
@@ -59,8 +60,7 @@ QUICK = OcrConfig(dpi=150, psm=3, deskew=False, binarize="none", remove_lines=Fa
 
 
 def render(page: pymupdf.Page, dpi: int) -> np.ndarray:
-    pix = page.get_pixmap(dpi=dpi, colorspace=pymupdf.csRGB, alpha=False)
-    return np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.height, pix.width, 3).copy()
+    return pixels(page, dpi)
 
 
 def shading_channel(rgb: np.ndarray) -> int | None:
@@ -181,12 +181,14 @@ def _ocr_pass(page: pymupdf.Page, rgb: np.ndarray, file: str, config: OcrConfig,
         x1, y1 = corners.max(axis=0) * scale
         words.append(Word(text=text, x0=x0, y0=y0, x1=x1, y1=y1, conf=conf))
 
+    with MUPDF:
+        number, width, height = page.number + 1, page.rect.width, page.rect.height
     return PageWords(
         file=file,
-        page=page.number + 1,
+        page=number,
         source="ocr",
-        width=page.rect.width,
-        height=page.rect.height,
+        width=width,
+        height=height,
         dpi=config.dpi,
         ocr_config=config.describe(),
         skew=round(angle, 3),

@@ -38,6 +38,7 @@ import pymupdf
 
 from src.extraction.locate import locate_one_set
 from src.extraction.numbers import detect_unit
+from src.extraction.parallel import pmap
 from src.extraction.parser import parse_statements
 from src.extraction.reading import read_page
 from src.extraction.reread import reread
@@ -96,7 +97,9 @@ def stage_locate(result: Result, ctx: Context) -> StageStatus:
             raise StageFailed(f"pages {outside} out of range (the PDF has {n} pages)")
         result.pages = ctx.options.pages
     else:
-        result.pages, result.consolidation, other = locate_one_set(ctx.doc, ctx.options.scope)
+        report: dict = {}
+        result.pages, result.consolidation, other = locate_one_set(ctx.doc, ctx.options.scope, report)
+        ctx.notes["locate"] = f"{report.get('locator', '')} locator"
         if result.consolidation != ctx.options.scope and result.consolidation is not None:
             result.warnings.append(
                 f"locate: no {ctx.options.scope} statements found, read the {result.consolidation} ones"
@@ -116,7 +119,8 @@ def stage_read(result: Result, ctx: Context) -> StageStatus:
     if ctx.options.ocr_dpi:
         config = replace(config, dpi=ctx.options.ocr_dpi)
     pages = sorted({p for pages in result.pages.values() for p in pages})
-    result.page_words = [read_page(ctx.doc, p, ctx.options.read_mode, config, ctx.pdf_path.name) for p in pages]
+    # pages side by side (CIPW-50): OCR of a scan takes ~15 s a page
+    result.page_words = pmap(lambda p: read_page(ctx.doc, p, ctx.options.read_mode, config, ctx.pdf_path.name), pages)
     empty = [pw.page for pw in result.page_words if not pw.words]
     if empty:
         hint = " (read mode 'text' on a scan? use --mode auto or ocr)" if ctx.options.read_mode == "text" else ""

@@ -48,6 +48,24 @@ Numbers found exactly anywhere on the page (simple recall, before the parser):
 
 Plain rows are read almost perfectly. The remaining misses are bold digits on shaded total rows (`24 967 588` → `24067 508`). They are caught by the accounting checks (CIPW-10) and re-read with other settings (CIPW-11); a grid search over more settings is CIPW-25.
 
+## Speed (CIPW-50)
+
+Almost all the time of a scan goes to Tesseract. Two changes, both with exactly the same output as before (the same pages, words and values on every file checked):
+
+1. **Pages side by side** (`src/extraction/parallel.py`): the page locator, the `read` stage and the re-read of doubted cells (CIPW-11) run Tesseract on several pages or cells at once. Threads are enough, because Tesseract runs as its own process; PyMuPDF is called under a lock, as it must not be used by two threads at once. Results keep the page order. On this PC (i5-8600K, 6 cores) 6 workers with 1 Tesseract thread each read the 6 statement pages of `27114147_2024` in 49.9 s; 3 workers × 2 threads 53.1 s, 2 workers 57.5 s, one page at a time 84.6 s.
+2. **Light page locator with the full one as the fallback** (`src/extraction/locate.py`): on a PDF with at least 10 scanned pages, the locator first OCRs only the top third of every page (titles, the column header, AKTIVA CELKEM). As soon as a top shows a statement, the whole page and its neighbours are read (while the other tops are still being read), then the pages next to what was found until the statements are complete. If the result is incomplete (no balance sheet, a balance sheet without its assets or liabilities, an income statement title not followed), the remaining pages are read whole and located again: that is the full locator as before, it decides whenever the light one is not sure. The stage note says which one decided ("light (9 of 37 scanned pages read whole)", "full (balance sheet without its assets after the light pass)").
+
+**Pipeline times** (`python -m src.pipeline … --skip-report`, offline):
+
+| PDF | before | now |
+| --- | --- | --- |
+| `27114147_2024`, scan without text layer, 37 pages | 193.7 s (locate 67.7, read 97.8, re-read 27.5) | **70.7 s** (locate 15.5, read 48.6, re-read 5.8) |
+| `26161516_2025`, scan with the scanner's text layer, 38 pages | 53.6 s | **24.6 s** |
+
+**Light vs full locator** on the 42 index PDFs with scanned pages: the same pages on all 42; the light one decided on 20, fell back 3 times, the other 19 have fewer than 10 scanned pages and are read whole at once. Index accuracy unchanged (67 of 68, the known Shoptet failure). On 6 cores both take about the same time in total (665 s vs 678 s): the light one wins on long PDFs (`60193336_2025`, 194 pages: 65 s vs 110 s) and loses a few seconds on mid-size scans and on a fallback. It reads 35 % less (the top third instead of whole pages), so it gains more on a machine with fewer cores, such as a small server running the Docker image.
+
+Settings (`config/fides.yaml`, `performance`): `ocr_workers` (0 = one per CPU core), `tesseract_threads` (1), `light_locator` (true). `scripts/run_reading.py` runs files in parallel processes and reads the pages of each one at a time.
+
 ## Batch run on all statements (`scripts/run_reading.py`)
 
 ```bash

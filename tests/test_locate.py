@@ -14,7 +14,16 @@ from pathlib import Path
 import pymupdf
 import pytest
 
-from src.extraction.locate import _fill_gaps, has_text_layer, locate_one_set, locate_statements, normalize
+from src.extraction.locate import (
+    _fill_gaps,
+    _incomplete,
+    has_text_layer,
+    locate_one_set,
+    locate_statements,
+    locate_statements_split,
+    normalize,
+)
+from src.settings import get_settings
 from tests.synthetic import ASSET_ROWS, asset_page_html, liability_page_html, make_digital_pdf, make_scanned_pdf
 from tests.test_reading import needs_ocr
 
@@ -198,3 +207,37 @@ def test_a_cover_page_or_another_statement_between_is_not_filled():
     info |= {4: _info(1, 5, is_title=True), 5: _info(2, 0)}
     found = {"balance_sheet": [1, 3, 5], "income_statement": [4]}
     assert _fill_gaps(found, info)["balance_sheet"] == [1, 3, 5]  # p2 a cover page, p4 the income statement
+
+
+@needs_ocr
+def test_light_and_full_locator_find_the_same_pages_on_a_scan(tmp_path, monkeypatch):
+    """CIPW-50: the light locator reads the top of each scanned page first; the result must equal the full read."""
+    monkeypatch.setattr("src.extraction.locate.LIGHT_MIN_PAGES", 1)  # the synthetic scan has 2 pages
+    scan = make_scanned_pdf(make_digital_pdf(tmp_path / "a.pdf"), tmp_path / "scan.pdf")
+    perf = get_settings().performance
+    found = {}
+    try:
+        for light in (True, False):
+            perf.light_locator = light
+            report: dict = {}
+            with pymupdf.open(scan) as d:
+                found[light] = locate_statements_split(d, report)
+            assert report["locator"].startswith("light" if light else "full")
+    finally:
+        perf.light_locator = True
+    assert found[True] == found[False]
+
+
+def test_light_result_is_trusted_only_when_the_statements_are_complete():
+    def page(text: str) -> dict:
+        return {"norm": text, "titles": {"balance_sheet": False, "income_statement": "vykaz zisku" in text},
+                "toc": False, "stop": False}  # fmt: skip
+
+    info = {1: page("rozvaha aktiva 100"), 2: page("pasiva 100 casove rozliseni 0"),
+            3: page("vykaz zisku a ztraty trzby 50"), 4: page("dan z prijmu 1 vysledek hospodareni 5")}  # fmt: skip
+    assert _incomplete({"balance_sheet": [1, 2], "income_statement": [3, 4]}, info) is None
+    assert _incomplete({"balance_sheet": [], "income_statement": [3, 4]}, info) == "no balance sheet"
+    assert _incomplete({"balance_sheet": [2], "income_statement": [3, 4]}, info) == "balance sheet without its assets"
+    assert _incomplete({"balance_sheet": [1], "income_statement": [3, 4]}, info).endswith("its liabilities")
+    assert _incomplete({"balance_sheet": [1, 2], "income_statement": [3]}, info).startswith("income statement without")
+    assert "but no income statement" in _incomplete({"balance_sheet": [1, 2], "income_statement": []}, info)

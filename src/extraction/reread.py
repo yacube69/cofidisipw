@@ -18,13 +18,13 @@ import time
 from dataclasses import dataclass
 
 import cv2
-import numpy as np
 import pymupdf
 import pytesseract
 from pydantic import BaseModel, Field
 
 from src.extraction.numbers import parse_number
 from src.extraction.ocr import binarize, remove_table_lines, to_gray
+from src.extraction.parallel import MUPDF, pixels, pmap
 from src.extraction.types import Word
 from src.schema import BBox, FinancialStatements, Period, Value
 from src.validation.checks import EQUALITY_CHECKS, SUM_CHECKS, validate
@@ -162,9 +162,9 @@ def targets(fs: FinancialStatements, report: ValidationReport, ocr_pages: set[in
 def read_strip(page: pymupdf.Page, x0: float, x1: float, dpi: int) -> list[Word]:
     """The value columns of a page read as numbers only: the right side of a statement holds no letters, so
     Tesseract may only answer digits, a minus and brackets ("U" is not a reading of 11, "o" not of 0)."""
-    clip = pymupdf.Rect(x0, 0, x1, page.rect.height) & page.rect
-    pix = page.get_pixmap(dpi=dpi, clip=clip, colorspace=pymupdf.csRGB, alpha=False)
-    rgb = np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.height, pix.width, 3)
+    with MUPDF:
+        clip = pymupdf.Rect(x0, 0, x1, page.rect.height) & page.rect
+    rgb = pixels(page, dpi, clip)
     img = remove_table_lines(binarize(to_gray(rgb, True), "otsu"))
     config = f"--psm 6 -c tessedit_char_whitelist={WHITELIST} -c preserve_interword_spaces=1"
     data = pytesseract.image_to_data(img, lang="eng", config=config, output_type="dict")
@@ -194,13 +194,13 @@ def strip_reading(words: list[Word], box: BBox, unit: int) -> Reading | None:
 
 def read_cell(page: pymupdf.Page, box: BBox, dpi: int, unit: int) -> list[Reading]:
     """The number in a cell, read with each attempt: a crop at `dpi`, digits only, one line."""
-    clip = pymupdf.Rect(box.x0, box.y0, box.x1, box.y1) & page.rect
+    with MUPDF:
+        clip = pymupdf.Rect(box.x0, box.y0, box.x1, box.y1) & page.rect
     if clip.is_empty:
         return []
     out = []
     for attempt in ATTEMPTS:
-        pix = page.get_pixmap(dpi=round(dpi * attempt.scale), clip=clip, colorspace=pymupdf.csRGB, alpha=False)
-        rgb = np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.height, pix.width, 3)
+        rgb = pixels(page, round(dpi * attempt.scale), clip)
         img = binarize(to_gray(rgb, False), attempt.binarize, block=attempt.block, offset=attempt.offset)
         img = cv2.copyMakeBorder(img, 20, 20, 20, 20, cv2.BORDER_CONSTANT, value=255)
         config = f"--psm 7 -c tessedit_char_whitelist={WHITELIST}"
@@ -352,14 +352,17 @@ def reread(doc: pymupdf.Document, fs: FinancialStatements, report: ValidationRep
     unit = fs.metadata.unit_multiplier or 1
     cells = []
     found = targets(fs, report, ocr_pages)
-    strips: dict[int, list[Word]] = {}
-    for page in {t[2] for t in found}:
+    with MUPDF:
+        pages = {page: doc[page - 1] for page in {t[2] for t in found}}
+
+    def strip(page: int) -> list[Word]:
         boxes = [t[3] for t in found if t[2] == page]
-        strips[page] = read_strip(doc[page - 1], min(b.x0 for b in boxes), max(b.x1 for b in boxes), dpi)
-    for key, period, page, box, doubt in found:
-        readings = [r for r in [strip_reading(strips[page], box, unit)] if r is not None]
-        if doubt:
-            readings += read_cell(doc[page - 1], box, dpi, unit)
+        return read_strip(pages[page], min(b.x0 for b in boxes), max(b.x1 for b in boxes), dpi)
+
+    strips = dict(zip(sorted(pages), pmap(strip, sorted(pages)), strict=True))
+    crops = pmap(lambda t: read_cell(pages[t[2]], t[3], dpi, unit) if t[4] else [], found)  # pages side by side
+    for (key, period, page, box, _), cropped in zip(found, crops, strict=True):
+        readings = [r for r in [strip_reading(strips[page], box, unit)] if r is not None] + cropped
         cells.append(Cell(key, period, page, box, readings))
         out.readings += len(readings)
     out.cells = len(cells)

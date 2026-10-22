@@ -26,6 +26,8 @@ import re
 import time
 import unicodedata
 import warnings
+from collections.abc import Iterable
+from concurrent.futures import Future, as_completed
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal
@@ -36,8 +38,13 @@ from PIL import Image
 from rapidfuzz import fuzz
 
 from src.extraction import ocr as _ocr  # noqa: F401  (points pytesseract at the configured Tesseract)
+from src.extraction.parallel import MUPDF, ocr_pool, pixels, pmap
+from src.settings import get_settings
 
 OCR_DPI = 150
+LIGHT_FRACTION = 3     # the light locator first reads the top third of a scanned page (CIPW-50)
+LIGHT_ROUNDS = 3       # times the light locator reads the pages next to what it found before it gives up
+LIGHT_MIN_PAGES = 10   # fewer scanned pages are read whole at once: with pages read side by side that is as fast
 OCR_RETRY_DPI = 300    # if the quick pass reads (almost) nothing, read the page again at this resolution
 HEADER_FRACTION = 4    # top 1/4 of the page is re-read on the red channel if no title was found (pink/red banners)
 OCR_MIN_CHARS = 150    # fewer readable characters than this = suspicious page
@@ -254,29 +261,38 @@ def _known_phrases(text: str) -> int:
     return sum(w in norm for w in words)
 
 
-def _page_text(page: pymupdf.Page) -> tuple[str, bool]:
-    """Return (text, used_ocr)."""
-    text = page.get_text(sort=True)
-    if has_text_layer(text):
+def _text_layer(page: pymupdf.Page) -> str | None:
+    """The page's text layer, None for a scan without one."""
+    with MUPDF:
+        text = page.get_text(sort=True)
+        if not has_text_layer(text):
+            return None
         # some scanned PDFs carry a text layer whose blocks get shuffled by sort=True: keep the reading order
         # that shows more of the statement's words (ties keep the sorted text)
         plain = page.get_text()
-        if _known_phrases(plain) > _known_phrases(text):
-            return plain, False
-        return text, False
-    pix = page.get_pixmap(dpi=OCR_DPI)
-    img = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
+        return plain if _known_phrases(plain) > _known_phrases(text) else text
+
+
+def _page_text(page: pymupdf.Page, top_only: bool = False) -> tuple[str, bool]:
+    """Return (text, used_ocr). A text layer is always read whole (it costs nothing). `top_only`: of a scan, OCR
+    only the top LIGHT_FRACTION (the light locator: titles, the column header, AKTIVA CELKEM)."""
+    layer = _text_layer(page)
+    if layer is not None:
+        return layer, False
+    with MUPDF:
+        rect = page.rect
+    clip = pymupdf.Rect(0, 0, rect.width, rect.height / LIGHT_FRACTION) if top_only else None
+    img = Image.fromarray(pixels(page, OCR_DPI, clip))
     try:
         text = pytesseract.image_to_string(img, lang="ces")
-        if len(_norm(text)) < OCR_MIN_CHARS:
-            pix = page.get_pixmap(dpi=OCR_RETRY_DPI)
-            img = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
-            retry = pytesseract.image_to_string(img, lang="ces")
+        if not top_only and len(_norm(text)) < OCR_MIN_CHARS:
+            retry = pytesseract.image_to_string(Image.fromarray(pixels(page, OCR_RETRY_DPI)), lang="ces")
             if len(_norm(retry)) > len(_norm(text)):
                 text = retry
         if not any(analyze_page(text, True)[1].values()) and not is_stop_page(text, True):
             # titles printed on a red/pink banner are lost in the normal read: the red channel makes them black on white
-            top = img.crop((0, 0, img.width, img.height // HEADER_FRACTION)).split()[0]
+            height = img.height * LIGHT_FRACTION // HEADER_FRACTION if top_only else img.height // HEADER_FRACTION
+            top = img.crop((0, 0, img.width, height)).split()[0]
             head = pytesseract.image_to_string(top, lang="ces")
             if any(analyze_page(head, True)[1].values()) or is_stop_page(head, True):
                 text = head + "\n" + text
@@ -615,14 +631,16 @@ def locate_statements(doc: pymupdf.Document | str | Path, return_scores: bool = 
         with pymupdf.open(doc) as opened:
             return locate_statements(opened, return_scores)
     start = time.perf_counter()
-    result, info = _locate(doc)
+    result, info, _ = _locate(doc)
     if return_scores:
         scores = [_page_score(p, d) for p, d in sorted(info.items())]
         return result, scores, round(time.perf_counter() - start, 2)
     return result
 
 
-def locate_statements_split(doc: pymupdf.Document | str | Path) -> dict[str, dict[str, list[int]]]:
+def locate_statements_split(
+    doc: pymupdf.Document | str | Path, report: dict | None = None
+) -> dict[str, dict[str, list[int]]]:
     """Same pages, split by scope: {"balance_sheet": {"individual": [...], "consolidated": [...]}, ...}.
 
     A page without any marker takes the scope of the previous page of the statement; with no marker at all it is
@@ -630,8 +648,10 @@ def locate_statements_split(doc: pymupdf.Document | str | Path) -> dict[str, dic
     """
     if not isinstance(doc, pymupdf.Document):
         with pymupdf.open(doc) as opened:
-            return locate_statements_split(opened)
-    flat, info = _locate(doc)
+            return locate_statements_split(opened, report)
+    flat, info, method = _locate(doc)
+    if report is not None:
+        report["locator"] = method
     out: dict[str, dict[str, list[int]]] = {}
     for stmt, pages in flat.items():
         groups: dict[str, list[int]] = {"individual": [], "consolidated": []}
@@ -650,14 +670,14 @@ Scope = Literal["individual", "consolidated"]
 
 
 def locate_one_set(
-    doc: pymupdf.Document | str | Path, prefer: Scope = "individual"
+    doc: pymupdf.Document | str | Path, prefer: Scope = "individual", report: dict | None = None
 ) -> tuple[dict[str, list[int]], Scope | None, dict[str, list[int]]]:
     """Pages of ONE set of statements, so the parser never mixes an individual and a consolidated statement.
 
     Returns (pages, scope used, pages of the other scope). The preferred scope is used when the PDF has any of its
     statement pages, the other one otherwise; scope is None when nothing was found.
     """
-    split = locate_statements_split(doc)
+    split = locate_statements_split(doc, report)
     other: Scope = "consolidated" if prefer == "individual" else "individual"
     for scope, rest in ((prefer, other), (other, prefer)):
         pages = {stmt: groups[scope] for stmt, groups in split.items()}
@@ -703,12 +723,88 @@ def _page_info(text: str, used_ocr: bool) -> dict:
     }
 
 
-def _locate(doc: pymupdf.Document):
-    info: dict[int, dict] = {}
-    for i, page in enumerate(doc, start=1):
-        text, used_ocr = _page_text(page)
-        info[i] = _page_info(text, used_ocr)
+def _locate(doc: pymupdf.Document) -> tuple[dict[str, list[int]], dict[int, dict], str]:
+    """(statement pages, page information, how they were found).
 
+    Scans without a text layer (CIPW-50), from LIGHT_MIN_PAGES scanned pages on: the light locator OCRs the top of
+    every page and, as soon as a top shows a statement, the whole page and its neighbours (while the other tops
+    are still being read); then the pages next to what it found until the statements are complete. If the result
+    is still incomplete (no balance sheet, a balance sheet without its assets or liabilities, an income statement
+    title not followed), every remaining page is read whole and the pages located again: the full locator, as
+    before, is the fallback and decides whenever the light one is not sure. A page read whole is read exactly as
+    the full locator reads it, so the light locator finds the same pages whenever it is sure."""
+    with MUPDF:
+        pages = {i: doc[i - 1] for i in range(1, doc.page_count + 1)}
+    layers = {i: _text_layer(pages[i]) for i in pages}
+    scanned = [i for i in pages if layers[i] is None]
+    info = {i: _page_info(layers[i], False) for i in pages if layers[i] is not None}
+    if not scanned:
+        return _classify(info), info, "text layer"
+    if not get_settings().performance.light_locator or len(scanned) < LIGHT_MIN_PAGES:
+        for i, text in zip(scanned, pmap(lambda i: _page_text(pages[i]), scanned), strict=True):
+            info[i] = _page_info(*text)
+        return _classify(info), info, "full"
+    whole: dict[int, Future] = {}  # pages read whole (submitted)
+    with ocr_pool() as pool:
+
+        def read_whole(wanted: Iterable[int]) -> None:
+            for q in wanted:
+                if q in layers and layers[q] is None and q not in whole:
+                    whole[q] = pool.submit(_page_text, pages[q])
+
+        tops = {pool.submit(_page_text, pages[i], True): i for i in scanned}
+        for done in as_completed(tops):
+            i = tops[done]
+            if i not in whole:
+                info[i] = _page_info(*done.result())
+                if _shows_statement(info, i):
+                    read_whole((i - 1, i, i + 1, i + 2))
+        for _ in range(LIGHT_ROUNDS + 1):
+            for q, future in whole.items():
+                info[q] = _page_info(*future.result())
+            nearby = {q for ps in _classify(info).values() for p in ps for q in (p - 1, p + 1, p + 2)}
+            if not nearby - set(whole):
+                break
+            read_whole(sorted(nearby))
+        result = _classify(info)
+        reason = _incomplete(result, info)
+        if reason is None:
+            return result, info, f"light ({len(whole)} of {len(scanned)} scanned pages read whole)"
+        read_whole(scanned)
+        for q, future in whole.items():
+            info[q] = _page_info(*future.result())
+    return _classify(info), info, f"full ({reason} after the light pass)"
+
+
+def _shows_statement(info: dict[int, dict], p: int) -> bool:
+    """The top of the page shows a statement: a title, its keywords, the column header, AKTIVA/PASIVA CELKEM."""
+    d = info[p]
+    if d["stop"] and not any(d["early"].values()):
+        return False
+    return (any(d["scores"].values()) or any(d["titles"].values()) or d["tablehdr"] or d["rowhdr"]
+            or _has(info, p, BS_ASSETS + BS_LIAB))  # fmt: skip
+
+
+def _incomplete(result: dict[str, list[int]], info: dict[int, dict]) -> str | None:
+    """Why a light result cannot be trusted; None when it can."""
+    bs, income = result.get("balance_sheet", []), result.get("income_statement", [])
+    if not bs:
+        return "no balance sheet"
+    # the totals are often shaded and lost by the quick OCR: the side headers say as much (AKTIVA … PASIVA)
+    if not any(_has(info, p, BS_ASSETS + ["aktiva"]) for p in bs):
+        return "balance sheet without its assets"
+    if not any(_has(info, p, BS_LIAB + BS_END + ["pasiva"]) for p in bs):
+        return "balance sheet without its liabilities"
+    if income and not any(_has(info, p, IS_END + IS_LATE_ROWS) for p in income):
+        return "income statement without its last rows"
+    titled = [p for p, d in info.items() if d["titles"]["income_statement"] and not (d["toc"] or d["stop"])]
+    if not income and titled:
+        return f"income statement title on page {titled[0]} but no income statement"
+    return None
+
+
+def _classify(info: dict[int, dict]) -> dict[str, list[int]]:
+    """Statement pages from the page information (keyword pass, continuation pages, structural pass)."""
     result = {}
     for stmt in KEYWORDS:
         seeds = sorted(
@@ -776,7 +872,7 @@ def _locate(doc: pymupdf.Document):
             pages.update(cluster)
         result[stmt] = sorted(pages)
     result = _structure_pass(result, info)
-    return _fill_gaps(result, info), info
+    return _fill_gaps(result, info)
 
 
 def _fill_gaps(result: dict[str, list[int]], info: dict) -> dict[str, list[int]]:
@@ -800,6 +896,7 @@ def _fill_gaps(result: dict[str, list[int]], info: dict) -> dict[str, list[int]]
                 filled.append(gap)
         out[stmt] = sorted(filled)
     return out
+
 
 
 if __name__ == "__main__":  # python -m src.extraction.locate file.pdf

@@ -32,6 +32,7 @@ Where a value comes from, highest first:
 | `paths.*` | `data/raw`, `data/ground_truth`, `data/fixtures`, `outputs`, `outputs/logs`, `config/line_items.yaml`, `prompts` | relative to the repository root (`/workspace` in the image) |
 | `ocr.*` | dpi 300, psm 6, adaptive 31/15, shading removal, deskew, line removal, grey second pass | tuned in CIPW-25, see `docs/ocr.md` |
 | `reread.enabled`, `reread.dpi` | true, 400 | re-read of the cells the checks doubt (CIPW-11, `docs/validation.md`); needs the `eng` Tesseract data |
+| `performance.ocr_workers`, `performance.tesseract_threads`, `performance.light_locator` | 0 (one per core), 1, true | pages read side by side and the light page locator (CIPW-50, `docs/ocr.md`) |
 | `tesseract.cmd`, `tesseract.tessdata_prefix` | – | set `TESSERACT_CMD`, `TESSDATA_PREFIX` in `.env` |
 | `llm.provider`, `llm.model` | anthropic, claude-sonnet-5-5 | |
 | `llm.max_cost_usd` | 0.50 | upper limit for one AI report (CIPW-16) |

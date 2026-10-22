@@ -21,6 +21,7 @@ import numpy as np
 import pymupdf
 
 from src.extraction.ocr import DEFAULT, OcrConfig, ocr_page, render
+from src.extraction.parallel import MUPDF
 from src.extraction.types import PageWords, Word
 
 Mode = Literal["auto", "text", "ocr"]
@@ -75,14 +76,11 @@ def read_page(
     doc: pymupdf.Document, page_no: int, mode: Mode = "auto", config: OcrConfig = DEFAULT, file: str = ""
 ) -> PageWords:
     """Words of one page (1-based `page_no`)."""
-    page = doc[page_no - 1]
-    file = file or Path(doc.name or "").name
-    if mode == "text":
-        return read_text_layer(page, file)
-    if mode == "ocr":
-        return ocr_page(page, file, config)
-    if page_kind(page) == "digital" and text_layer_ok(page):
-        return read_text_layer(page, file)
+    with MUPDF:  # the text layer and the page kind come from MuPDF; OCR runs outside the lock
+        page = doc[page_no - 1]
+        file = file or Path(doc.name or "").name
+        if mode == "text" or (mode == "auto" and page_kind(page) == "digital" and text_layer_ok(page)):
+            return read_text_layer(page, file)
     return ocr_page(page, file, config)
 
 

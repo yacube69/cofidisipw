@@ -84,6 +84,16 @@ class RereadSettings(BaseModel):
     dpi: int = Field(400, ge=150, le=600, description="Resolution of the cell crops.")
 
 
+class PerformanceSettings(BaseModel):
+    """How pages are read side by side (CIPW-50, src/extraction/parallel.py)."""
+
+    ocr_workers: int = Field(0, ge=0, description="Pages OCR'd at the same time; 0 = one per CPU core, 1 = one by one.")
+    tesseract_threads: int = Field(1, ge=0, description="Threads per Tesseract process when pages run side by side "
+                                   "(OMP_THREAD_LIMIT); 0 = Tesseract's own default.")
+    light_locator: bool = Field(True, description="Scans: find the statements from the top of each page first and "
+                                "read whole pages only where needed; the full read is the fallback.")
+
+
 class TesseractSettings(BaseModel):
     cmd: str | None = Field(None, description="Full path to the tesseract binary when it is not on PATH.")
     tessdata_prefix: str | None = Field(None, description="Folder with *.traineddata (Czech without admin rights).")
@@ -117,6 +127,7 @@ class Settings(BaseSettings):
     paths: Paths = Field(default_factory=Paths)
     ocr: OcrSettings = Field(default_factory=OcrSettings)
     reread: RereadSettings = Field(default_factory=RereadSettings)
+    performance: PerformanceSettings = Field(default_factory=PerformanceSettings)
     tesseract: TesseractSettings = Field(default_factory=TesseractSettings)
     llm: LlmSettings = Field(default_factory=LlmSettings)
     api: ApiSettings = Field(default_factory=ApiSettings)
