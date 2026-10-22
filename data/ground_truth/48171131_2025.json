@@ -1,0 +1,275 @@
+{
+  "file": "48171131_2025_statement.pdf",
+  "company_name": "Iveco Czech Republic, a. s.",
+  "ico": "48171131",
+  "period_end": "2025-12-31",
+  "scope": "full",
+  "unit_multiplier": 1000,
+  "pages": {
+    "balance_sheet": [
+      9,
+      10
+    ],
+    "income_statement": [
+      11
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": {
+      "gross": 40720423,
+      "adjustment": 6305993,
+      "current": 34414430,
+      "prior": 32009511
+    },
+    "receivables_subscribed_capital": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "fixed_assets": {
+      "gross": 10755760,
+      "adjustment": 6041825,
+      "current": 4713935,
+      "prior": 4269019
+    },
+    "intangible_assets": {
+      "gross": 4961771,
+      "adjustment": 2323023,
+      "current": 2638748,
+      "prior": 2316735
+    },
+    "tangible_assets": {
+      "gross": 5793806,
+      "adjustment": 3718802,
+      "current": 2075004,
+      "prior": 1952100
+    },
+    "financial_fixed_assets": {
+      "gross": 184,
+      "adjustment": null,
+      "current": 184,
+      "prior": 184
+    },
+    "current_assets": {
+      "gross": 29244648,
+      "adjustment": 264168,
+      "current": 28980480,
+      "prior": 27067957
+    },
+    "inventories": {
+      "gross": 2080239,
+      "adjustment": 250254,
+      "current": 1829985,
+      "prior": 3432445
+    },
+    "receivables": {
+      "gross": 27132219,
+      "adjustment": 13914,
+      "current": 27118305,
+      "prior": 23330277
+    },
+    "receivables_long_term": {
+      "gross": 201692,
+      "adjustment": null,
+      "current": 201692,
+      "prior": 152632
+    },
+    "receivables_short_term": {
+      "gross": 26930527,
+      "adjustment": 13914,
+      "current": 26916613,
+      "prior": 23177645
+    },
+    "trade_receivables_short_term": {
+      "gross": 5305746,
+      "adjustment": 13914,
+      "current": 5291832,
+      "prior": 5383783
+    },
+    "trade_receivables_long_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "short_term_financial_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "cash": {
+      "gross": 32190,
+      "adjustment": null,
+      "current": 32190,
+      "prior": 305235
+    },
+    "accruals_assets": {
+      "gross": 720015,
+      "adjustment": null,
+      "current": 720015,
+      "prior": 672535
+    },
+    "accruals_in_receivables": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "total_liabilities_equity": {
+      "current": 34414430,
+      "prior": 32009511
+    },
+    "equity": {
+      "current": 22514061,
+      "prior": 20113654
+    },
+    "share_capital": {
+      "current": 1065559,
+      "prior": 1065559
+    },
+    "share_premium_capital_funds": {
+      "current": 125874,
+      "prior": 122880
+    },
+    "funds_from_profit": {
+      "current": 231420,
+      "prior": 231418
+    },
+    "retained_earnings": {
+      "current": 17981319,
+      "prior": 16254986
+    },
+    "profit_current_period": {
+      "current": 3109889,
+      "prior": 2438811
+    },
+    "advance_profit_distribution": {
+      "current": null,
+      "prior": null
+    },
+    "external_sources": {
+      "current": 11184057,
+      "prior": 11232894
+    },
+    "provisions": {
+      "current": 1256643,
+      "prior": 1088773
+    },
+    "liabilities": {
+      "current": 9927414,
+      "prior": 10144121
+    },
+    "liabilities_long_term": {
+      "current": 348525,
+      "prior": 456283
+    },
+    "bank_loans_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities_short_term": {
+      "current": 9578889,
+      "prior": 9687838
+    },
+    "bank_loans_short_term": {
+      "current": 618,
+      "prior": null
+    },
+    "trade_payables_short_term": {
+      "current": 7825075,
+      "prior": 7621103
+    },
+    "trade_payables_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "accruals_liabilities": {
+      "current": 716312,
+      "prior": 662963
+    },
+    "accruals_in_liabilities": {
+      "current": null,
+      "prior": null
+    }
+  },
+  "income_statement": {
+    "revenue_products_services": {
+      "current": 28301932,
+      "prior": 23438832
+    },
+    "revenue_goods": {
+      "current": 8789272,
+      "prior": 8225208
+    },
+    "cost_of_sales": {
+      "current": 27692522,
+      "prior": 27285701
+    },
+    "change_in_inventory": {
+      "current": 1755070,
+      "prior": -1711107
+    },
+    "capitalization": {
+      "current": -33178,
+      "prior": -35096
+    },
+    "personnel_costs": {
+      "current": 3220540,
+      "prior": 2985677
+    },
+    "value_adjustments_operating": {
+      "current": 678672,
+      "prior": 383466
+    },
+    "depreciation": {
+      "current": 616416,
+      "prior": 385046
+    },
+    "other_operating_income": {
+      "current": 14619646,
+      "prior": 12782598
+    },
+    "other_operating_expenses": {
+      "current": 15184941,
+      "prior": 13119377
+    },
+    "operating_result": {
+      "current": 3212282,
+      "prior": 2418620
+    },
+    "interest_expense": {
+      "current": 14751,
+      "prior": 20101
+    },
+    "financial_result": {
+      "current": 740413,
+      "prior": 693178
+    },
+    "profit_before_tax": {
+      "current": 3952694,
+      "prior": 3111798
+    },
+    "income_tax": {
+      "current": 842806,
+      "prior": 672987
+    },
+    "profit_after_tax": {
+      "current": 3109889,
+      "prior": 2438811
+    },
+    "profit_for_period": {
+      "current": 3109889,
+      "prior": 2438811
+    },
+    "net_turnover": {
+      "current": 37150045,
+      "prior": 31703541
+    }
+  },
+  "transcribed_by": "Claude (from the PDF text layer)",
+  "verified_by": null,
+  "partial": false,
+  "notes": "Czech decree form, full scope, thousands CZK, from the 2025 annual report PDF (42 pages): balance sheet PDF pp. 9-10, profit and loss (druhove cleneni) p. 11; digital text layer. ICO printed as '481 71 131'. Korekce printed as positive numbers (e.g. 6 305 993) and entered as printed; cells left blank on the form (gross-only rows, prior-year blanks such as C.II.2 bank loans 2024, C.II.8.7 2025) are null, printed 0 is 0. Prior year only Netto, so prior gross/adjustment null. capitalization = line C 'Aktivace (-)' printed -33 178 / -35 096; change_in_inventory = line B printed +1 755 070 / -1 711 107 (as printed). bank_loans_short_term = C.II.2 'Zavazky k uverovym institucim' 618 (2024 blank). Lines not printed on this form (C.II.3 / C.III accrual lines, short-term financial assets C.III, long-term bank loans, trade payables long-term) -> null. The annual report also contains the notes (from p. 15) and cash flow / equity statements, not transcribed. No unreadable characters."
+}
