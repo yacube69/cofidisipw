@@ -11,6 +11,7 @@ import pymupdf
 
 from src.extraction.locate import locate_one_set
 from src.extraction.ocr import DEFAULT, OcrConfig
+from src.extraction.parallel import pmap
 from src.extraction.parser import ParseLog, parse_statements
 from src.extraction.reading import read_page
 from src.extraction.reread import RereadReport, reread
@@ -57,6 +58,8 @@ class FileReport:
     log: ParseLog | None = None
     sources: set[str] = field(default_factory=set)
     reread: RereadReport | None = None
+    ocr_pages: int = 0
+    ocr_seconds: float = 0.0  # of the first (uncached) read of the OCR pages
 
     def count(self, *outcomes: Outcome) -> int:
         return sum(1 for f in self.fields if f.outcome in outcomes)
@@ -86,7 +89,7 @@ def extract(pdf: Path, config: OcrConfig = DEFAULT, log: ParseLog | None = None)
     with pymupdf.open(pdf) as doc:
         pages, _, _ = locate_one_set(doc)  # ground truth is the individual statement
         wanted = sorted({p for ps in pages.values() for p in ps})
-        page_words = [cached_read(doc, pdf.name, p, config) for p in wanted]
+        page_words = pmap(lambda p: cached_read(doc, pdf.name, p, config), wanted)  # pages side by side
     return parse_statements(page_words, pages, log=log), pages
 
 
@@ -131,4 +134,8 @@ def evaluate_file(
     expected_pages = {k: v for k, v in gt.pages.items() if v}
     report.pages_ok = all(pages.get(k) == v for k, v in expected_pages.items())
     report.sources = set(fs.metadata.extraction_source.values())
+    with pymupdf.open(pdf) as doc:  # cached: the words of the pages just read, for the OCR time
+        read = [cached_read(doc, pdf.name, p, config) for p in sorted({p for ps in pages.values() for p in ps})]
+    report.ocr_pages = sum(pw.source == "ocr" for pw in read)
+    report.ocr_seconds = sum(pw.seconds or 0.0 for pw in read if pw.source == "ocr")
     return report

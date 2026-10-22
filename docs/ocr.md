@@ -20,7 +20,7 @@ Why the scanner's OCR layer is ignored: on `26161516_2025` (Adobe Paper Capture)
 3. **Deskew** from long horizontal lines (Hough); the angle is stored in `PageWords.skew`. Boxes are mapped back to the original page; the parser straightens them with `layout.straighten()`.
 4. **Adaptive threshold** (Gaussian, block 31, C 15).
 5. **Table-line removal** (morphological opening, horizontal and vertical).
-6. Tesseract `lang=ces`, `--psm 6`, `preserve_interword_spaces=1`.
+6. Tesseract `lang=ces`, `--psm 6`, `preserve_interword_spaces=1`, with the Czech model shipped in `models/tessdata/` (the official `tessdata` model; see the comparison below). The page locator reads with the same model.
 7. **Grey profile, second pass:** a page without coloured shading whose first reading is weak (mean confidence < 75) or which is more than 15 % mid-grey is read again with a median blur (5) and a wider, stricter adaptive window (51/25). This removes the halftone dots of grey-shaded total rows on scanned justice.cz forms. The reading with more numbers read at confidence ≥ 80 is kept, so the second pass never makes a page worse; it only costs time on weak pages.
 
 | Grey-shaded scanned form (`27114147_2024`, p. 9), 18 numbers on shaded rows | Found |
@@ -46,7 +46,31 @@ Numbers found exactly anywhere on the page (simple recall, before the parser):
 | red channel + adaptive, 400 DPI | 43 / 108 | 51.9 | 55 s |
 | red channel + adaptive, table lines kept | 67 / 108 | 36.8 | 31 s |
 
-Plain rows are read almost perfectly. The remaining misses are bold digits on shaded total rows (`24 967 588` → `24067 508`). They are caught by the accounting checks (CIPW-10) and re-read with other settings (CIPW-11); a grid search over more settings is CIPW-25.
+Plain rows are read almost perfectly. The remaining misses are bold digits on shaded total rows (`24 967 588` → `24067 508`). They are caught by the accounting checks (CIPW-10) and re-read with other settings (CIPW-11).
+
+## Comparison of settings through the whole pipeline (CIPW-25)
+
+`python scripts/ocr_grid.py --scans` reads the statement pages of every scanned, complete ground truth file with one setting, parses them, runs the checks and the re-read of doubted cells (as the pipeline does) and scores the values against the ground truth. Each setting changes one thing from the default, so its effect is clear. The settings were first compared on the four hardest scans (Mondi with shaded totals, `26915758` with a stamp over the liabilities, `28297580`, `28437098`), then the most promising ones on all nine scans.
+
+All 9 scanned ground truth files, 870 values (22 Oct 2026):
+
+| Setting | Values correct | Wrong, not flagged | Not found | s / page* |
+| --- | --- | --- | --- | --- |
+| **default: 300 DPI, adaptive threshold, line removal, deskew, psm 6, tessdata model** | **96.0 %** | 3 | 21 | 10.1 |
+| model `tessdata_fast` | 95.6 % | 2 | 25 | 15.6 |
+| model `tessdata_best` | 95.6 % | 3 | 21 | 19.5 |
+| 200 DPI | 94.3 % | 5 | 18 | 12.8 |
+| no deskew | 90.9 % | 10 | 44 | 3.5 |
+| psm 4 | 89.7 % | 2 | 77 | 22.6 |
+| Otsu threshold | 86.2 % | 12 | 100 | 14.3 |
+
+Only on the four hardest scans (415 values) and clearly worse there: 400 DPI (65.5 %), psm 11 (71.8 %), no binarisation (5.5 %), table lines kept (4.6 %). The fast model was the best one on these four (91.3 % against 90.6 %, 1 wrong value not flagged against 3), but not on all nine.
+
+\* first read of each page while the files run side by side; one page at a time, without other load, on `26915758` (3 pages): standard model 17.6 s, fast 13.4 s, best 20.0 s per page.
+
+**Decision:** the default stays as it was; the model is the official `tessdata` Czech model, now shipped in `models/tessdata/` (byte for byte the one installed with Tesseract 5.4 on Windows). Before, the Docker image and CI read with the `tessdata_fast` model of the Ubuntu/Debian package and Windows with `tessdata`, so the same PDF could be read differently (the page locator missed a page of `09704086` in CI only); now every machine reads with the same model. `models/tessdata/eng.traineddata` is used only for the digits of the re-read (CIPW-11). The folder is set once through `TESSDATA_PREFIX` (`ocr.tessdata` in `config/fides.yaml`), which also works with a path that contains spaces.
+
+What helped more than any OCR setting on the hard scans were three parser rules found during the comparison (`docs/parser.md`): the balance-sheet side told by its rows when PASIVA is not readable, a ruling after a number read as a bracket (`0)`), and row numbers read with the shift of the lines around them (a stamp over the first rows of the liabilities, a form version numbering its rows differently). `26915758` went from 53.6 % to 76.8 %, `28297580` from 87.0 % to 92.2 %.
 
 ## Speed (CIPW-50)
 

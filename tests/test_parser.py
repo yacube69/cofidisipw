@@ -16,7 +16,7 @@ from src.extraction.parser import (
     identify,
     norm_code,
     parse_statements,
-    rows_follow_decree,
+    row_offsets,
 )
 from src.extraction.reading import read_page
 from src.extraction.types import PageWords
@@ -246,15 +246,24 @@ def test_continuation_page_keeps_the_columns_of_the_page_before():
     assert _with_template(sparse, (595.0, full), 842.0) == sparse  # another page size
 
 
-def test_row_numbers_count_only_when_the_page_uses_the_decree_numbering():
-    """09725351 numbers its income statement rows its own way (J. is row 31, not 43): its "L.2. Daň z příjmů odložená"
-    on row 42 must not become I. "Úpravy hodnot a rezervy ve finanční oblasti", row 42 of the form."""
+def test_row_numbers_are_read_with_the_shift_of_the_lines_around_them():
+    """Forms number their rows in different versions. 09725351 prints J. on row 34 (43 in the dictionary): its
+    "L.2. Daň z příjmů odložená" on row 42 is row 52 of the form, never I. (row 42). 26915758 prints PASIVA
+    CELKEM on row 078 (082) under a stamp that garbles the label: the readable lines below give the shift."""
     income = load_dictionary().for_statement("income_statement")
-    own = [_line("Nákladové úroky a podobné náklady", "J.", "31"), _line("Ostatní finanční náklady", "K.", "33"),
-           _line("Finanční výsledek hospodaření", "*", "34")]  # fmt: skip
-    decree = [_line("Nákladové úroky a podobné náklady", "J.", "43"), _line("Ostatní finanční náklady", "K.", "47"),
-              _line("Finanční výsledek hospodaření", "*", "48")]  # fmt: skip
-    assert not rows_follow_decree(own, income)
-    assert rows_follow_decree(decree, income)
-    garbled = _line("Daň z příjmů odložená (+/-)", "L.2.", "42")
-    assert identify(garbled, income, rows=False)[0].key != "value_adjustments_financial"
+    page = [_line("Nákladové úroky a podobné náklady", "J.", "34"), _line("Ostatní finanční náklady", "K.", "37"),
+            _line("Finanční výsledek hospodaření", "*", "38"),
+            _line("Daň z příjmů odložená (+/-)", "L.2.", "42")]  # fmt: skip
+    offsets = row_offsets(page, income)
+    assert offsets[1:] == [-10, -10, -10]
+    assert identify(page[3], income, row_offset=offsets[3])[0].key != "value_adjustments_financial"
+
+    liabilities = load_dictionary().for_statement("balance_sheet", "liabilities")
+    page = [_line("k PAA ČELKÉM", "", "078"), _line('»Č;Áf""t_šž —Vigštní Kapital5 /', "", "079"),
+            _line("Fondy ze zisku", "A.III.", "092"),
+            _line("Výsledek hospodaření minulých let (+/-)", "A.IV.", "095")]  # fmt: skip
+    offsets = row_offsets(page, liabilities)
+    assert offsets == [-4, -4, -4, -4]
+    assert identify(page[0], liabilities, row_offset=-4)[0].key == "total_liabilities_equity"
+    assert identify(page[1], liabilities, row_offset=-4)[0].key == "equity"
+    assert identify(page[1], liabilities, row_offset=None)[0].score < 78  # without the row: not identified

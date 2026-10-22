@@ -59,6 +59,10 @@ def parse_number(text: str) -> float | None:
     if t is None:
         return None
     t = t.replace(" ", "")
+    if t.endswith((")", "]")) and not t.startswith("("):
+        t = t[:-1]  # a ruling after the number read as a bracket: "0)" is 0, "(1 234)" stays negative
+    if not t:
+        return None
     negative = False
     if t.startswith("(") and t.endswith(")"):
         negative, t = True, t[1:-1]

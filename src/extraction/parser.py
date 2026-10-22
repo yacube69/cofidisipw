@@ -123,6 +123,22 @@ def _split_sides(lines: list[Line]) -> list[tuple[StatementKind, list[Line]]]:
     return [("assets", lines)]
 
 
+def _reads_as_liabilities(lines: list[Line], dictionary) -> bool:
+    """A balance-sheet page without a readable PASIVA header: more of its lines name a liabilities row than an
+    assets row ("Vlastní kapitál", "Základní kapitál", "Závazky" against "Stálá aktiva", "Zásoby")."""
+    sides = {side: [plain(v) for d in dictionary.for_statement("balance_sheet", side) for v in d.labels]
+             for side in ("assets", "liabilities")}  # fmt: skip
+    votes = {"assets": 0, "liabilities": 0}
+    for line in lines:
+        text = plain(" ".join(w.text for w in line.words if not any(ch.isdigit() for ch in w.text)))
+        if len(text) < 6:
+            continue
+        best = {side: max(fuzz.partial_ratio(v, text) for v in labels) for side, labels in sides.items()}
+        if max(best.values()) >= 90 and best["assets"] != best["liabilities"]:
+            votes[max(best, key=best.get)] += 1  # type: ignore[arg-type]
+    return votes["liabilities"] > votes["assets"]
+
+
 def split_line(line: Line, columns: list[Column], page: int, kind: StatementKind) -> ParsedLine:
     value_cols = [c for c in columns if c.name != "row"]
     row_col = next((c for c in columns if c.name == "row"), None)
@@ -268,9 +284,11 @@ def continues(line: ParsedLine, above: ParsedLine | None = None) -> bool:
 
 
 def identify(
-    line: ParsedLine, candidates: list[LineDef], extra_label: str | None = None, rows: bool = True
+    line: ParsedLine, candidates: list[LineDef], extra_label: str | None = None, row_offset: int | None = 0
 ) -> list[Match]:
-    """Score every candidate line for this printed line. `rows=False` when the page numbers its rows its own way."""
+    """Score every candidate line for this printed line. `row_offset`: printed row number minus the decree's row
+    around this line (another version of the form numbers its rows shifted); None when it is not known, then the
+    printed row number is not used."""
     out = []
     for d in candidates:
         label = _label_score(line.label, d)
@@ -290,8 +308,12 @@ def identify(
             field_code = ".".join([p for p in d.code.split(".") if p][-_depth(printed) :]) + "."
         code = code_score(printed, field_code)
         row = None
-        if rows and line.row and d.row:
-            row = 100.0 if line.row.lstrip("0") == d.row.lstrip("0") else 0.0
+        if row_offset is not None and line.row and line.row.isdigit() and d.row and d.row.isdigit():
+            row = 100.0 if int(line.row) - row_offset == int(d.row) else 0.0
+            if row_offset and label >= ACCEPT:
+                # a shift inferred from the lines around (another numbering) only helps to name a garbled label;
+                # it drifts where the versions differ, so it never overrules a readable label and its code
+                row = None
         # the label decides; code and row number confirm or contradict (both are often garbled by OCR)
         score = label
         if row == 100.0:
@@ -305,6 +327,9 @@ def identify(
         # a garbled label on a shaded row: row number + code agreeing is enough evidence
         if label < 50 and row == 100.0 and (code is None or code >= 60):
             score = 82.0 if code is not None and code >= 80 else 78.0
+        elif label < 78 and row == 100.0 and row_offset and (code is None or code >= 60):
+            # a garbled label (a stamp over it, a shaded row) on its row, the shift confirmed by readable lines
+            score = max(score, 80.0)
         score = min(score, 100.0)
         out.append(Match(key=d.key, score=score, label_score=label, code_score=code, row_score=row))
     return sorted(out, key=lambda m: m.score, reverse=True)
@@ -428,6 +453,8 @@ def parse_statements(
             lines = group_lines(straighten(pw))
             if statement == "balance_sheet":
                 parts = _split_sides(lines)
+                if len(parts) == 1 and parts[0][0] == "assets" and _reads_as_liabilities(lines, dictionary):
+                    parts = [("liabilities", lines)]  # PASIVA not read (a tilted scan): the rows tell the side
             else:
                 parts = [("income_statement", lines)]
             for kind, part in parts:
@@ -463,40 +490,59 @@ def _with_template(columns: list[Column], template: tuple[float, list[Column]] |
     return [replace(c) for c in template[1]]
 
 
-def rows_follow_decree(parsed: list[ParsedLine], candidates: list[LineDef]) -> bool:
-    """Whether the row numbers printed on a page are the decree's. Software for abbreviated forms and some annual
-    reports numbers the rows its own way (1, 2, 3 …); there a row number says nothing about the line, and trusting
-    it gives a line another line's value ("L.2. Daň z příjmů odložená", row 42, taken for I., row 42 of the form).
-    Decided on the lines whose label alone names one line of the dictionary."""
-    agree = disagree = 0
+def row_offsets(parsed: list[ParsedLine], candidates: list[LineDef]) -> list[int | None]:
+    """For each line, its printed row number minus the decree's row (None: unknown, do not use the row number).
+
+    Forms come in versions that number their rows differently (PASIVA CELKEM is row 078 in one, 082 in another),
+    and some software numbers the rows its own way. The lines whose label alone names one line of the dictionary
+    are anchors: printed row minus that line's row is the shift around them. A line takes the shift of the two
+    anchors nearest to it when they agree (one above and one below, or the two nearest on one side), so a
+    garbled label (a stamp over it) is still identified by its row; where the anchors disagree (the numbering
+    changes in between) or there are none nearby, the row number says nothing. A page without any anchor keeps
+    the decree's numbering (shift 0), as before."""
+    anchors: list[tuple[int, int]] = []  # (printed row, shift)
     for line in parsed:
-        if not line.row:
+        if not (line.row and line.row.isdigit()):
             continue
         scores = sorted(((_label_score(line.label, d), d) for d in candidates), key=lambda x: x[0], reverse=True)
-        if not scores or scores[0][0] < 95 or (len(scores) > 1 and scores[1][0] >= 95) or not scores[0][1].row:
-            continue  # unclear or a label printed in two sections
-        if line.row.lstrip("0") == scores[0][1].row.lstrip("0"):  # type: ignore[union-attr]
-            agree += 1
+        best = scores[0][1] if scores else None
+        if not scores or scores[0][0] < 95 or (len(scores) > 1 and scores[1][0] >= 95):
+            continue  # unclear, or a label printed in two sections
+        if best is not None and best.row and best.row.isdigit():
+            anchors.append((int(line.row), int(line.row) - int(best.row)))
+    if not anchors:
+        return [0] * len(parsed)
+    anchors.sort()
+    out: list[int | None] = []
+    for line in parsed:
+        if not (line.row and line.row.isdigit()):
+            out.append(None)
+            continue
+        r = int(line.row)
+        above = [a for a in anchors if a[0] <= r]
+        below = [a for a in anchors if a[0] >= r]
+        if above and below:
+            pair = [above[-1], below[0]]
         else:
-            disagree += 1
-    return agree >= disagree
+            pair = (above[-2:] if above else below[:2])
+        shifts = {shift for _, shift in pair}
+        out.append(shifts.pop() if len(shifts) == 1 and len(pair) == 2 or (len(pair) == 1 and pair[0][0] == r)
+                   else None)  # fmt: skip
+    return out
 
 
 def _parse_part(lines, columns, pw, kind, candidates, target, best_score, multiplier, log, seen=None) -> None:
     first_col_x = min(c.x0 for c in columns)
     header_end = _header_end(lines, columns)
-    body = [split_line(line, columns, pw.page, kind) for line in lines if line.cy > header_end]
-    rows = rows_follow_decree([p for p in body if p.has_values], candidates)
+    body = [(line, split_line(line, columns, pw.page, kind)) for line in lines if line.cy > header_end]
+    offsets = dict(zip([id(p) for _, p in body], row_offsets([p for _, p in body], candidates), strict=True))
     pending: ParsedLine | None = None
     parent = _parents(candidates)
     codes = {d.key: d.code for d in candidates}
     # keys identified on this side of the statement in page order, carried over to its next page (the current
     # section is the latest parent)
     seen = [] if seen is None else seen
-    for line in lines:
-        if line.cy <= header_end:
-            continue
-        parsed = split_line(line, columns, pw.page, kind)
+    for line, parsed in body:
         if not parsed.has_values:
             # a label without numbers: may be the first half of a wrapped label or a garbled shaded row label
             if parsed.label and any(w.x1 < first_col_x for w in line.words):
@@ -513,7 +559,7 @@ def _parse_part(lines, columns, pw, kind, candidates, target, best_score, multip
             if not parsed.code and pending.code:
                 parsed.code = pending.code
         pending = None
-        matches = identify(parsed, candidates, extra, rows)
+        matches = identify(parsed, candidates, extra, offsets[id(parsed)])
         if not matches or matches[0].score < ACCEPT:
             log.unmatched.append((pw.page, parsed.code, parsed.label, parsed.row))
             continue

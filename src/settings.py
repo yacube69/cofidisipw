@@ -70,11 +70,15 @@ class OcrSettings(BaseModel):
     median: int = 0
     grey_profile: bool = True
     remove_lines: bool = True
+    tessdata: str = Field("", description="Folder with the Czech model; '' = the one installed with Tesseract.")
 
     def config(self):
         from src.extraction.ocr import OcrConfig  # local import: settings must not depend on OpenCV at import
 
-        return OcrConfig(**self.model_dump())
+        values = self.model_dump()
+        if values["tessdata"] and not Path(values["tessdata"]).is_absolute():
+            values["tessdata"] = str(ROOT / values["tessdata"])  # relative to the repository, like `paths`
+        return OcrConfig(**values)
 
 
 class RereadSettings(BaseModel):
@@ -180,6 +184,11 @@ class Settings(BaseSettings):
             pytesseract.pytesseract.tesseract_cmd = self.tesseract.cmd
         if self.tesseract.tessdata_prefix:
             os.environ["TESSDATA_PREFIX"] = self.tesseract.tessdata_prefix
+        if self.ocr.tessdata:
+            # the models shipped with Fides (models/tessdata: ces for the pages, eng for the digits of the re-read)
+            # are used on every machine; an environment variable takes a path with spaces, --tessdata-dir does not
+            folder = Path(self.ocr.tessdata)
+            os.environ["TESSDATA_PREFIX"] = str(folder if folder.is_absolute() else ROOT / folder)
 
 
 class _FamiliarNames(PydanticBaseSettingsSource):

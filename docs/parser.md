@@ -31,6 +31,10 @@ Each rule describes how Czech statements are printed, not one file.
 | Lines named alike in two sections (C.I.6. and C.II.6. "Závazky - ovládaná nebo ovládající osoba", C.I.9. and C.II.8. "Závazky ostatní") | the section decides, also when its own line was not read: a sub-line with a name of its own ("Dlouhodobé přijaté zálohy", "Krátkodobé směnky k úhradě") shows the section; the section carries over to the next page of the same side; with a garbled code (below 90) the section decides even if the code tips the score; with no section known, the first field still free |
 | An označení without its last dot ("A.3 Služby", "C.II.3 Časové rozlišení") or after a side letter ("A C.II.3 …") | read as the označení; the deeper code in the label wins over a side letter in the code column |
 
+| A balance-sheet page whose PASIVA header is not readable (a stamp over it) | the side is told by its rows: more lines name a liabilities row ("Vlastní kapitál", "Závazky") than an assets row |
+| Row numbers of another version of the form (PASIVA CELKEM on row 078 instead of 082) or of the software | each line takes the shift of the two nearest lines whose label alone names one dictionary line, when they agree; a garbled label on its row is then still identified (score 80, flagged for review) |
+| A ruling after a number read as a bracket ("0)", "1 234]") | the bracket is dropped; "(1 234)" stays negative |
+
 After the parser, the accounting checks decide which values need review and restore lost minus signs (`src/validation/review.py`, see `docs/validation.md`).
 
 ## Results

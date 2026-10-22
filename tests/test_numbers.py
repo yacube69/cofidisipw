@@ -209,3 +209,11 @@ def test_columns_on_saved_real_pages(stem):
 
 def test_every_saved_page_is_tested():
     assert {p.stem for p in (ROOT / "tests/fixtures/pagewords").glob("*.json")} == set(SAVED)
+
+
+def test_a_ruling_after_a_number_is_not_part_of_it():
+    """OCR reads the vertical rule after a number as a bracket: "0)" is 0 (28297580), a bracketed number stays
+    negative."""
+    assert parse_number("0)") == 0
+    assert parse_number("1 234]") == 1234
+    assert parse_number("(1 234)") == -1234

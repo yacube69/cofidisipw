@@ -33,6 +33,7 @@ ocr:
   median: 0
   grey_profile: true
   remove_lines: true
+  tessdata: models/tessdata   # the Czech model shipped with Fides (official tessdata, CIPW-25): the same everywhere
 
 # Cells the accounting checks doubt are read again from a crop at this resolution, digits only (CIPW-11)
 reread:

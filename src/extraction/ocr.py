@@ -8,8 +8,10 @@ text layer of digital PDFs and can be drawn on the page in the app.
 from __future__ import annotations
 
 import math
+import os
 import time
 from dataclasses import dataclass, field, replace
+from pathlib import Path
 
 import cv2
 import numpy as np
@@ -39,11 +41,25 @@ class OcrConfig:
     median: int = 0  # median blur kernel before binarizing (0 = off); removes halftone dots of grey shading
     grey_profile: bool = True  # weak pages without coloured shading get a second pass with GREY (see ocr_page)
     remove_lines: bool = True
+    tessdata: str = ""  # folder with the language model (tessdata_fast / tessdata_best); "" = the installed one
     extra: tuple[str, ...] = field(default=("-c", "preserve_interword_spaces=1"))
 
     @property
+    def model_args(self) -> str:
+        """`--tessdata-dir …` for a model folder other than the configured default (the default is set once through
+        TESSDATA_PREFIX by `Settings.apply_tesseract`, which also takes paths with spaces); else ''."""
+        if not self.tessdata:
+            return ""
+        folder = Path(self.tessdata).resolve()
+        if os.environ.get("TESSDATA_PREFIX") and Path(os.environ["TESSDATA_PREFIX"]).resolve() == folder:
+            return ""
+        # no quotes: pytesseract splits the config on Windows without removing them (the path must have no spaces)
+        return f"--tessdata-dir {folder.as_posix()}"
+
+    @property
     def tesseract_config(self) -> str:
-        return " ".join((f"--psm {self.psm}", *self.extra))
+        model = (self.model_args,) if self.model_args else ()
+        return " ".join((f"--psm {self.psm}", *model, *self.extra))
 
     def describe(self) -> str:
         return (
@@ -52,6 +68,7 @@ class OcrConfig:
             f"{self.threshold if self.binarize == 'fixed' else ''}"
             f"{f'{self.block}/{self.offset}' if self.binarize == 'adaptive' else ''} "
             f"lines={'removed' if self.remove_lines else 'kept'}"
+            f"{f' model={Path(self.tessdata).name}' if self.tessdata else ''}"
         )
 
 

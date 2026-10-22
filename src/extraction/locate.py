@@ -261,6 +261,11 @@ def _known_phrases(text: str) -> int:
     return sum(w in norm for w in words)
 
 
+def _model() -> str:
+    """The Czech model of the reading stage (`ocr.tessdata`), so the locator reads with the same one."""
+    return get_settings().ocr.config().model_args
+
+
 def _text_layer(page: pymupdf.Page) -> str | None:
     """The page's text layer, None for a scan without one."""
     with MUPDF:
@@ -284,16 +289,17 @@ def _page_text(page: pymupdf.Page, top_only: bool = False) -> tuple[str, bool]:
     clip = pymupdf.Rect(0, 0, rect.width, rect.height / LIGHT_FRACTION) if top_only else None
     img = Image.fromarray(pixels(page, OCR_DPI, clip))
     try:
-        text = pytesseract.image_to_string(img, lang="ces")
+        text = pytesseract.image_to_string(img, lang="ces", config=_model())
         if not top_only and len(_norm(text)) < OCR_MIN_CHARS:
-            retry = pytesseract.image_to_string(Image.fromarray(pixels(page, OCR_RETRY_DPI)), lang="ces")
+            sharper = Image.fromarray(pixels(page, OCR_RETRY_DPI))
+            retry = pytesseract.image_to_string(sharper, lang="ces", config=_model())
             if len(_norm(retry)) > len(_norm(text)):
                 text = retry
         if not any(analyze_page(text, True)[1].values()) and not is_stop_page(text, True):
             # titles printed on a red/pink banner are lost in the normal read: the red channel makes them black on white
             height = img.height * LIGHT_FRACTION // HEADER_FRACTION if top_only else img.height // HEADER_FRACTION
             top = img.crop((0, 0, img.width, height)).split()[0]
-            head = pytesseract.image_to_string(top, lang="ces")
+            head = pytesseract.image_to_string(top, lang="ces", config=_model())
             if any(analyze_page(head, True)[1].values()) or is_stop_page(head, True):
                 text = head + "\n" + text
         return text, True

@@ -30,7 +30,7 @@ Where a value comes from, highest first:
 | `offline` | false | no LLM call at all: the AI report step is skipped, everything else runs; needs no API key |
 | `log_runs` | true | JSON-lines log of every run in `paths.logs` |
 | `paths.*` | `data/raw`, `data/ground_truth`, `data/fixtures`, `outputs`, `outputs/logs`, `config/line_items.yaml`, `prompts` | relative to the repository root (`/workspace` in the image) |
-| `ocr.*` | dpi 300, psm 6, adaptive 31/15, shading removal, deskew, line removal, grey second pass | tuned in CIPW-25, see `docs/ocr.md` |
+| `ocr.*` | dpi 300, psm 6, adaptive 31/15, shading removal, deskew, line removal, grey second pass, `tessdata: models/tessdata` | compared in CIPW-25, see `docs/ocr.md`; the model folder is set through `TESSDATA_PREFIX` |
 | `reread.enabled`, `reread.dpi` | true, 400 | re-read of the cells the checks doubt (CIPW-11, `docs/validation.md`); needs the `eng` Tesseract data |
 | `performance.ocr_workers`, `performance.tesseract_threads`, `performance.light_locator` | 0 (one per core), 1, true | pages read side by side and the light page locator (CIPW-50, `docs/ocr.md`) |
 | `tesseract.cmd`, `tesseract.tessdata_prefix` | – | set `TESSERACT_CMD`, `TESSDATA_PREFIX` in `.env` |
