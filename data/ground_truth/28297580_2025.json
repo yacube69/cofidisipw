@@ -1,0 +1,278 @@
+{
+  "file": "28297580_2025_statement.pdf",
+  "company_name": "TRAIS GOLD s.r.o.",
+  "ico": "28297580",
+  "period_end": "2025-12-31",
+  "scope": "full",
+  "unit_multiplier": 1000,
+  "pages": {
+    "balance_sheet": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "income_statement": [
+      5,
+      6
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": {
+      "gross": 46105,
+      "adjustment": 956,
+      "current": 45149,
+      "prior": 38158
+    },
+    "receivables_subscribed_capital": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "fixed_assets": {
+      "gross": 995,
+      "adjustment": 956,
+      "current": 39,
+      "prior": 39
+    },
+    "intangible_assets": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "tangible_assets": {
+      "gross": 995,
+      "adjustment": 956,
+      "current": 39,
+      "prior": 39
+    },
+    "financial_fixed_assets": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "current_assets": {
+      "gross": 45110,
+      "adjustment": 0,
+      "current": 45110,
+      "prior": 38070
+    },
+    "inventories": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "receivables": {
+      "gross": 386,
+      "adjustment": 0,
+      "current": 386,
+      "prior": 839
+    },
+    "receivables_long_term": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "receivables_short_term": {
+      "gross": 386,
+      "adjustment": 0,
+      "current": 386,
+      "prior": 839
+    },
+    "trade_receivables_short_term": {
+      "gross": -367,
+      "adjustment": null,
+      "current": -367,
+      "prior": -368
+    },
+    "trade_receivables_long_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "short_term_financial_assets": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "cash": {
+      "gross": 44724,
+      "adjustment": 0,
+      "current": 44724,
+      "prior": 37231
+    },
+    "accruals_assets": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 49
+    },
+    "accruals_in_receivables": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "total_liabilities_equity": {
+      "current": 45149,
+      "prior": 38158
+    },
+    "equity": {
+      "current": 28716,
+      "prior": 21838
+    },
+    "share_capital": {
+      "current": 200,
+      "prior": 200
+    },
+    "share_premium_capital_funds": {
+      "current": 0,
+      "prior": 0
+    },
+    "funds_from_profit": {
+      "current": 0,
+      "prior": 0
+    },
+    "retained_earnings": {
+      "current": 21638,
+      "prior": 15205
+    },
+    "profit_current_period": {
+      "current": 6878,
+      "prior": 6433
+    },
+    "advance_profit_distribution": {
+      "current": null,
+      "prior": null
+    },
+    "external_sources": {
+      "current": 16433,
+      "prior": 16320
+    },
+    "provisions": {
+      "current": 0,
+      "prior": 0
+    },
+    "liabilities": {
+      "current": 16433,
+      "prior": 16320
+    },
+    "liabilities_long_term": {
+      "current": 0,
+      "prior": 0
+    },
+    "bank_loans_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities_short_term": {
+      "current": 16433,
+      "prior": 16320
+    },
+    "bank_loans_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "trade_payables_short_term": {
+      "current": -114,
+      "prior": -75
+    },
+    "trade_payables_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "accruals_liabilities": {
+      "current": 0,
+      "prior": 0
+    },
+    "accruals_in_liabilities": {
+      "current": null,
+      "prior": null
+    }
+  },
+  "income_statement": {
+    "revenue_products_services": {
+      "current": null,
+      "prior": null
+    },
+    "revenue_goods": {
+      "current": null,
+      "prior": null
+    },
+    "cost_of_sales": {
+      "current": 4629,
+      "prior": 6807
+    },
+    "change_in_inventory": {
+      "current": null,
+      "prior": null
+    },
+    "capitalization": {
+      "current": null,
+      "prior": null
+    },
+    "personnel_costs": {
+      "current": 7932,
+      "prior": 7734
+    },
+    "value_adjustments_operating": {
+      "current": 0,
+      "prior": 0
+    },
+    "depreciation": {
+      "current": 0,
+      "prior": 0
+    },
+    "other_operating_income": {
+      "current": 0,
+      "prior": 0
+    },
+    "other_operating_expenses": {
+      "current": 19,
+      "prior": 25
+    },
+    "operating_result": {
+      "current": -12580,
+      "prior": -14566
+    },
+    "interest_expense": {
+      "current": 0,
+      "prior": 0
+    },
+    "financial_result": {
+      "current": 21286,
+      "prior": 22709
+    },
+    "profit_before_tax": {
+      "current": 8706,
+      "prior": 8143
+    },
+    "income_tax": {
+      "current": 1828,
+      "prior": 1710
+    },
+    "profit_after_tax": {
+      "current": 6878,
+      "prior": 6433
+    },
+    "profit_for_period": {
+      "current": 6878,
+      "prior": 6433
+    },
+    "net_turnover": {
+      "current": 23553,
+      "prior": 30968
+    }
+  },
+  "transcribed_by": "Claude (from the scanned PDF, read visually)",
+  "verified_by": null,
+  "partial": false,
+  "notes": "Scan with a noisy OCR text layer (not used), 6 pages: balance sheet pp. 1-4, income statement pp. 5-6, full scope, whole thousands CZK. ICO printed '28 29 75 80'. Company has no sales revenue (lines I. and II. blank, null): the operating result is negative and the profit comes from other financial income (VII. 23 553 / 30 968); net turnover equals that line. Negative balances printed as they are: trade receivables -367 / -368 (C.II.2.1.) and trade payables -114 / -75 (C.II.4.). Korekce printed positive (956), stored as printed. Blank cells are null (e.g. income-statement lines without values, bank loans, long-term liabilities detail); zeros printed as 0 stored as 0. This form has neither C.II.3. nor C.III. accrual lines, so accruals_in_receivables and accruals_in_liabilities are null. No unreadable digits; all sub-totals add up."
+}
