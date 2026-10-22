@@ -13,6 +13,7 @@ from src.extraction.locate import locate_one_set
 from src.extraction.ocr import DEFAULT, OcrConfig
 from src.extraction.parser import ParseLog, parse_statements
 from src.extraction.reading import read_page
+from src.extraction.reread import RereadReport, reread
 from src.extraction.types import PageWords
 from src.schema import FinancialStatements, GroundTruth
 from src.settings import get_settings
@@ -55,6 +56,7 @@ class FileReport:
     pages_ok: bool = True
     log: ParseLog | None = None
     sources: set[str] = field(default_factory=set)
+    reread: RereadReport | None = None
 
     def count(self, *outcomes: Outcome) -> int:
         return sum(1 for f in self.fields if f.outcome in outcomes)
@@ -112,12 +114,20 @@ def compare(gt: GroundTruth, fs: FinancialStatements) -> list[FieldResult]:
     return out
 
 
-def evaluate_file(gt_path: Path, raw_dir: Path | None = None, config: OcrConfig = DEFAULT) -> FileReport:
+def evaluate_file(
+    gt_path: Path, raw_dir: Path | None = None, config: OcrConfig = DEFAULT, reread_cells: bool = True
+) -> FileReport:
     gt = GroundTruth.model_validate_json(gt_path.read_text(encoding="utf-8"))
     log = ParseLog()
-    fs, pages = extract((raw_dir or get_settings().paths.raw) / gt.file, config, log)
-    validate_and_review(fs)  # review flags as the app shows them: values of failed checks, confirmed values
-    report = FileReport(file=gt.file, fields=compare(gt, fs), log=log)
+    pdf = (raw_dir or get_settings().paths.raw) / gt.file
+    fs, pages = extract(pdf, config, log)
+    checks, _ = validate_and_review(fs)
+    rereads = None
+    if reread_cells:  # the pipeline's next stage (CIPW-11), then the review flags as the app shows them
+        with pymupdf.open(pdf) as doc:
+            rereads = reread(doc, fs, checks, get_settings().reread.dpi)
+        validate_and_review(fs)
+    report = FileReport(file=gt.file, fields=compare(gt, fs), log=log, reread=rereads)
     expected_pages = {k: v for k, v in gt.pages.items() if v}
     report.pages_ok = all(pages.get(k) == v for k, v in expected_pages.items())
     report.sources = set(fs.metadata.extraction_source.values())

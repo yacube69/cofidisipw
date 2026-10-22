@@ -34,6 +34,11 @@ ocr:
   grey_profile: true
   remove_lines: true
 
+# Cells the accounting checks doubt are read again from a crop at this resolution, digits only (CIPW-11)
+reread:
+  enabled: true
+  dpi: 400
+
 # Paths to Tesseract when it is not on PATH: set TESSERACT_CMD / TESSDATA_PREFIX in .env (they differ per computer)
 tesseract: {}
 

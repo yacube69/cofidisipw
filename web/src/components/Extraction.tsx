@@ -204,6 +204,7 @@ function Detail({ row, unit }: { row: ValueRow; unit: number | null }) {
         {row.failedChecks.length > 0 && (<><dt>Failed checks</dt><dd>{row.failedChecks.join("; ")}</dd></>)}
         {v.confirmed_by && row.failedChecks.length === 0 && (<><dt>Confirmed by</dt><dd>{v.confirmed_by}</dd></>)}
         {v.note && (<><dt>Note</dt><dd>{v.note}</dd></>)}
+        {v.candidates.length > 0 && (<><dt>Other readings</dt><dd className="num">{v.candidates.map((c) => formatNumber(c)).join("; ")}</dd></>)}
         {v.needs_review && (<><dt>Flagged</dt><dd>The parser is not sure about this value</dd></>)}
       </dl>
     </div>

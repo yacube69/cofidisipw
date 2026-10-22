@@ -40,7 +40,8 @@ def test_cli_fails_when_a_stage_fails(tmp_path):
 
 def test_stubs_return_mock_data(tiny_pdf):
     result = run_pipeline(tiny_pdf)
-    assert set(result.stubbed_stages) == {"reread", "bankruptcy", "benchmarks", "report", "check_numbers"}
+    assert set(result.stubbed_stages) == {"bankruptcy", "benchmarks", "report", "check_numbers"}
+    assert {s.stage: s.status for s in result.stages}["reread"] == "skipped"  # a text layer is read exactly
     assert result.bankruptcy["in05"]["zone"] in ("safe", "grey", "distress")
     assert result.benchmarks["ratios"]["current_ratio"]["light"] == "red"
     assert result.report["summary"] and result.report["rating"]["value"] in ("low", "medium", "high")

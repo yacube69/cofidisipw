@@ -32,16 +32,16 @@ After the parser, the accounting checks decide which values need review and rest
 
 Field accuracy against the ground truth (`python scripts/evaluate_extraction.py`), and on the 99 collected statements without ground truth (`python scripts/audit_helpers.py`, the accounting checks as the measure). The rules were developed on the ground truth files and then checked on the 99 statements, where they were not tuned.
 
-| | before (2026-10-21) | parser rules (2026-10-22) | + review by the checks |
-| --- | --- | --- | --- |
-| ground truth: values correct | 79.0 % | 92.4 % | **92.4 %** |
-| ground truth: wrong and not flagged | 18 (2.9 %) | 12 (1.9 %) | **1 (0.2 %)** |
-| ground truth: correct but flagged for review | | 132 | **92** |
-| ground truth: not found | 93 | 21 | **21** |
-| 99 statements: values read | 6 691 | 7 394 | **7 597** |
-| 99 statements: values the app asks to review | | 41.0 % | **26.7 %** |
-| 99 statements: checks failed | 485 | 475 | **470** |
-| 99 statements: every check passes | | 33 | **35** |
+| | before (2026-10-21) | parser rules (2026-10-22) | + review by the checks | + re-read (CIPW-11) |
+| --- | --- | --- | --- | --- |
+| ground truth: values correct | 79.0 % | 92.4 % | 92.4 % | **95.5 %** |
+| ground truth: wrong and not flagged | 18 (2.9 %) | 12 (1.9 %) | 1 (0.2 %) | **1 (0.2 %)** |
+| ground truth: correct but flagged for review | | 132 | 92 | **33** |
+| ground truth: not found | 93 | 21 | 21 | **17** |
+| 99 statements: values read | 6 691 | 7 394 | 7 597 | |
+| 99 statements: values the app asks to review | | 41.0 % | 26.7 % | **18 %** (96 with a PDF) |
+| 99 statements: checks failed | 485 | 475 | 470 | **343** (96 with a PDF, 460 before) |
+| 99 statements: every check passes | | 33 | 35 | |
 
 The last column counts values to review as the app shows them: flagged by the parser, OCR confidence below 75 without a confirming check, or part of a failed check.
 
@@ -51,4 +51,4 @@ Per ground truth file: digital 100 %, Skyport 96 %, 09704086 98 %, 27587908 97 %
 
 - Forms that print the numbers above a wrapped label (25083341) assign values one line off; the equity and liabilities checks flag it.
 - Notes columns read as gross values in annual reports ("Zásoby 15 …"): the net check flags it.
-- Shaded scans (Mondi): misread digits, flagged by the checks; CIPW-11 (re-reading) is the fix.
+- Shaded scans (Mondi): misread digits. The re-read of doubted cells (CIPW-11, `docs/validation.md`) corrects most; the rest stay flagged with every reading as a candidate.

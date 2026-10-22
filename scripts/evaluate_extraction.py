@@ -30,6 +30,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("files", nargs="*", help="ground truth names (without .json); default: all")
     parser.add_argument("--details", action="store_true")
+    parser.add_argument("--no-reread", action="store_true", help="skip the targeted re-read of doubted cells (CIPW-11)")
     args = parser.parse_args(argv)
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(errors="replace")
@@ -41,15 +42,22 @@ def main(argv: list[str] | None = None) -> int:
     total = {"fields": 0, "correct": 0, "wrong": 0, "missing": 0, "flagged_correct": 0, "flagged_wrong": 0}
     print(
         f"{'file':32} {'src':6} {'pages':5} {'fields':>6} {'acc':>6} {'ok':>4} {'flag+':>5} {'flag-':>5} "
-        f"{'WRONG':>5} {'miss':>4}"
+        f"{'WRONG':>5} {'miss':>4} {'reread':>13}"
     )
+    rereads = {"cells": 0, "changes": 0, "failed_before": 0, "failed_after": 0, "seconds": 0.0}
     for path in paths:
-        r = evaluate_file(path)
+        r = evaluate_file(path, reread_cells=not args.no_reread)
+        rr = r.reread
+        if rr is not None:
+            for k in ("cells", "failed_before", "failed_after", "seconds"):
+                rereads[k] += getattr(rr, k)
+            rereads["changes"] += len(rr.changes)
         src = "ocr" if "ocr" in r.sources else "text"
         print(
             f"{r.file:32} {src:6} {'ok' if r.pages_ok else 'BAD':5} {len(r.fields):6d} {r.accuracy:6.1%} "
             f"{r.count('correct'):4d} {r.count('flagged_correct'):5d} {r.count('flagged_wrong'):5d} "
-            f"{r.count('wrong'):5d} {r.count('missing'):4d}"
+            f"{r.count('wrong'):5d} {r.count('missing'):4d} "
+            f"{f'{len(rr.changes)}/{rr.cells} {rr.failed_before}>{rr.failed_after}' if rr else '-':>13}"
         )
         total["fields"] += len(r.fields)
         for k in ("correct", "wrong", "missing", "flagged_correct", "flagged_wrong"):
@@ -70,6 +78,11 @@ def main(argv: list[str] | None = None) -> int:
             f"\nALL: {total['fields']} values, accuracy {acc:.1%}, silent errors {total['wrong']}, "
             f"caught {total['flagged_wrong']}, missing {total['missing']}"
         )
+        if not args.no_reread:
+            print(
+                f"re-read: {rereads['cells']} cells, {rereads['changes']} corrected, failed checks "
+                f"{rereads['failed_before']} -> {rereads['failed_after']}, {rereads['seconds']:.0f} s"
+            )
     return 0
 
 

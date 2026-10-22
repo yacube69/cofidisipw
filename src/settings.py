@@ -77,6 +77,13 @@ class OcrSettings(BaseModel):
         return OcrConfig(**self.model_dump())
 
 
+class RereadSettings(BaseModel):
+    """Targeted re-read of the cells the accounting checks doubt (CIPW-11)."""
+
+    enabled: bool = True
+    dpi: int = Field(400, ge=150, le=600, description="Resolution of the cell crops.")
+
+
 class TesseractSettings(BaseModel):
     cmd: str | None = Field(None, description="Full path to the tesseract binary when it is not on PATH.")
     tessdata_prefix: str | None = Field(None, description="Folder with *.traineddata (Czech without admin rights).")
@@ -109,6 +116,7 @@ class Settings(BaseSettings):
     log_runs: bool = Field(True, description="Write a JSON-lines log of every pipeline run to paths.logs.")
     paths: Paths = Field(default_factory=Paths)
     ocr: OcrSettings = Field(default_factory=OcrSettings)
+    reread: RereadSettings = Field(default_factory=RereadSettings)
     tesseract: TesseractSettings = Field(default_factory=TesseractSettings)
     llm: LlmSettings = Field(default_factory=LlmSettings)
     api: ApiSettings = Field(default_factory=ApiSettings)

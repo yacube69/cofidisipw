@@ -40,6 +40,7 @@ from src.extraction.locate import locate_one_set
 from src.extraction.numbers import detect_unit
 from src.extraction.parser import parse_statements
 from src.extraction.reading import read_page
+from src.extraction.reread import reread
 from src.line_items import load_dictionary
 from src.ratios.engine import compute_ratios
 from src.result import Audit, PipelineOptions, Result, StageRun, StageStatus
@@ -150,7 +151,21 @@ def stage_validate(result: Result, ctx: Context) -> StageStatus:
 
 
 def stage_reread(result: Result, ctx: Context) -> StageStatus:
-    return "stub"
+    """CIPW-11: read the cells the checks doubt again at higher resolution; take readings the checks support."""
+    if not ctx.settings.reread.enabled:
+        ctx.notes["reread"] = "disabled in the settings"
+        return "skipped"
+    result.reread = reread(ctx.doc, result.statements, result.validation, ctx.settings.reread.dpi)
+    if not result.reread.cells:
+        ctx.notes["reread"] = "nothing to re-read"
+        return "skipped"
+    result.validation, notes = validate_and_review(result.statements)
+    result.warnings.extend(f"reread: {c.key} {c.period}: {c.old_text!r} read again as {c.new_text!r}"
+                           for c in result.reread.changes)  # fmt: skip
+    result.warnings.extend(f"validate: {note}" for note in notes)
+    r = result.reread
+    ctx.notes["reread"] = f"{r.cells} cells, {len(r.changes)} corrected, failing {r.failed_before}→{r.failed_after}"
+    return "ok"
 
 
 def stage_ratios(result: Result, ctx: Context) -> StageStatus:

@@ -46,7 +46,7 @@ CHECK_PERIODS: dict[str | None, tuple[Period, ...]] = {
 NET_CHECK = "Net = gross"  # net = gross + korekce: brutto, korekce and netto of the current year
 
 
-def _periods(check: CheckResult) -> tuple[Period, ...]:
+def periods_of(check: CheckResult) -> tuple[Period, ...]:
     return ("gross", "adjustment", "current") if check.name.startswith(NET_CHECK) else CHECK_PERIODS[check.period]
 
 
@@ -70,7 +70,7 @@ def restore_signs(fs: FinancialStatements, report: ValidationReport) -> tuple[Va
             for check in report.errors
             for key in check.fields
             if key in SIGNED
-            for period, value in _values(fs, key, _periods(check))
+            for period, value in _values(fs, key, periods_of(check))
             if value.value
         }
         for key, value in candidates.values():
@@ -97,7 +97,7 @@ def review_by_checks(fs: FinancialStatements, report: ValidationReport) -> None:
         if check.severity != "error":
             continue
         for key in check.fields:
-            for period, _ in _values(fs, key, _periods(check)):
+            for period, _ in _values(fs, key, periods_of(check)):
                 if not check.passed:
                     failed.add((key, period))
                 elif abs(check.difference or 0) < 0.5:

@@ -35,7 +35,7 @@ jobs:
       - name: Install Tesseract with Czech data
         run: |
           sudo apt-get update
-          sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-ces
+          sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-ces tesseract-ocr-eng
           tesseract --version | head -1
           tesseract --list-langs | grep -x ces
 

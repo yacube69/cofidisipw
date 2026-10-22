@@ -44,6 +44,30 @@
 
 On the 99 collected statements this lowers the values to review from 41 % to 27 % and restored 11 minus signs, each one checked on the page. On the ground truth the wrong values that are not flagged fall from 12 to 1 (`docs/parser.md`).
 
+## Re-read of doubted cells (CIPW-11)
+
+`src/extraction/reread.py`, pipeline stage `reread` (after `validate`, before `ratios`; `reread.enabled` and `reread.dpi` in `config/fides.yaml`). Only on OCR pages: a text layer is read exactly.
+
+1. **The value columns as numbers only.** The right side of a statement holds no letters, so each OCR page's value columns are read once more at 400 dpi with Tesseract allowed only `0-9 - ( )` ("U" cannot be a reading of 11, "o" not of 0). This gives a second reading of every cell.
+2. **Doubted cells, one by one.** The current and prior values of every failed check, and the empty cells of lines a check uses (the parser found the line, OCR gave no number), are also read from a crop of the cell (its row, the width of its column), one line, digits only. Two attempts: the grey crop as it is, and a 1.5× finer crop with adaptive thresholding. They were chosen by reading the misread cells of the ground truth scans with 36 settings: together they find the right number for 20 of 25. A dash a ruling adds before or after the number is also tried without it.
+3. **What is taken.** A reading replaces a value only when the checks agree better with it: fewer checks fail and none that held fails, or an empty cell makes a check run and pass. One cell at a time, then two cells of the same failed check together (two misread values in one sum are fixed only together).
+4. **Never silent.** A taken reading keeps a note ("re-read at higher resolution: '2575872' read as '7575872', the checks agree"), the old reading stays among `Value.candidates`, the result lists every change (`Result.reread`) and its warnings name them.
+5. **What stays in doubt.** The values of checks that still fail stay flagged for review with every reading as a candidate, plus the value that would make the check pass (derived from the sum: offered, never applied). The app shows them as "Other readings"; picking one is CIPW-42.
+
+**Results.** Ground truth (`python scripts/evaluate_extraction.py`, `--no-reread` for the comparison):
+
+| | without re-read | with re-read |
+| --- | --- | --- |
+| values correct | 92.4 % | **95.5 %** |
+| wrong and not flagged | 1 | **1** |
+| correct but flagged for review | 92 | **33** |
+| not found | 21 | **17** |
+| failed checks | 34 | **14** |
+
+Mondi 2025 (shaded scan) goes from 84 % to 93.5 %, its failed checks from 17 to 5.
+
+On the 96 collected statements with a PDF, where nothing was tuned: failed checks 460 → 343, 110 cells corrected, values to review 18 % of 7 476, about 4.5 s per statement (most of it on scans with many failed checks; nothing is read again when every check passes and no cell is empty). The column strips add 8 of the 110 corrections for 0.9 s per statement; on shaded scans they read little, the cell crops do the work there. Corrections checked on the page include share capital 400 119 read as "-", fixed assets 68 990 read as 3 500, receivables 10 113 read as 210 113.
+
 ## How much they catch
 
 `python scripts/mutation_test_checks.py` corrupts every value of the complete, verified ground truth files in turn, the way OCR and the parser go wrong, and counts what the checks catch (`--warnings` counts warnings too). Result on 6 files, 2 228 corrupted statements (2026-10-21):

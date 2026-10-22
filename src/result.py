@@ -7,6 +7,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+from src.extraction.reread import RereadReport
 from src.extraction.types import PageWords
 from src.ratios.models import RatioReport
 from src.schema import FinancialStatements
@@ -88,6 +89,7 @@ class Result(BaseModel):
     page_words: list[PageWords] = Field(default_factory=list)
     statements: FinancialStatements = Field(default_factory=FinancialStatements)
     validation: ValidationReport | None = None
+    reread: RereadReport | None = Field(None, description="Cells read again because the checks doubted them (CIPW-11).")
     ratios: RatioReport | None = None
     bankruptcy: dict[str, Any] | None = None
     benchmarks: dict[str, Any] | None = None
