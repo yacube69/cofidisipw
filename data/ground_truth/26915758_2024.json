@@ -1,0 +1,275 @@
+{
+  "file": "26915758_2024_statement.pdf",
+  "company_name": "EFKO - karton, s.r.o.",
+  "ico": "26915758",
+  "period_end": "2024-03-31",
+  "scope": "full",
+  "unit_multiplier": 1000,
+  "pages": {
+    "balance_sheet": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "income_statement": []
+  },
+  "balance_sheet": {
+    "total_assets": {
+      "gross": 164926,
+      "adjustment": -67141,
+      "current": 97785,
+      "prior": 104907
+    },
+    "receivables_subscribed_capital": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "fixed_assets": {
+      "gross": 99005,
+      "adjustment": -65744,
+      "current": 33261,
+      "prior": 36033
+    },
+    "intangible_assets": {
+      "gross": 3753,
+      "adjustment": -3279,
+      "current": 474,
+      "prior": 576
+    },
+    "tangible_assets": {
+      "gross": 88857,
+      "adjustment": -62465,
+      "current": 26392,
+      "prior": 29077
+    },
+    "financial_fixed_assets": {
+      "gross": 6395,
+      "adjustment": null,
+      "current": 6395,
+      "prior": 6380
+    },
+    "current_assets": {
+      "gross": 65532,
+      "adjustment": -1397,
+      "current": 64135,
+      "prior": 67655
+    },
+    "inventories": {
+      "gross": 48779,
+      "adjustment": -388,
+      "current": 48391,
+      "prior": 45756
+    },
+    "receivables": {
+      "gross": 15565,
+      "adjustment": -1009,
+      "current": 14556,
+      "prior": 17928
+    },
+    "receivables_long_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": 4000
+    },
+    "receivables_short_term": {
+      "gross": 15565,
+      "adjustment": -1009,
+      "current": 14556,
+      "prior": 13928
+    },
+    "trade_receivables_short_term": {
+      "gross": 13405,
+      "adjustment": -1009,
+      "current": 12396,
+      "prior": 11105
+    },
+    "trade_receivables_long_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "short_term_financial_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "cash": {
+      "gross": 1188,
+      "adjustment": null,
+      "current": 1188,
+      "prior": 3971
+    },
+    "accruals_assets": {
+      "gross": 389,
+      "adjustment": null,
+      "current": 389,
+      "prior": 1219
+    },
+    "accruals_in_receivables": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "total_liabilities_equity": {
+      "current": 97785,
+      "prior": 104907
+    },
+    "equity": {
+      "current": 76522,
+      "prior": 80176
+    },
+    "share_capital": {
+      "current": 200,
+      "prior": 200
+    },
+    "share_premium_capital_funds": {
+      "current": null,
+      "prior": 135
+    },
+    "funds_from_profit": {
+      "current": null,
+      "prior": null
+    },
+    "retained_earnings": {
+      "current": 75137,
+      "prior": 73041
+    },
+    "profit_current_period": {
+      "current": 1185,
+      "prior": 6800
+    },
+    "advance_profit_distribution": {
+      "current": null,
+      "prior": null
+    },
+    "external_sources": {
+      "current": 21085,
+      "prior": 24324
+    },
+    "provisions": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities": {
+      "current": 21085,
+      "prior": 24324
+    },
+    "liabilities_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "bank_loans_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities_short_term": {
+      "current": 21085,
+      "prior": 24324
+    },
+    "bank_loans_short_term": {
+      "current": 5591,
+      "prior": 11895
+    },
+    "trade_payables_short_term": {
+      "current": 10317,
+      "prior": 8412
+    },
+    "trade_payables_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "accruals_liabilities": {
+      "current": 178,
+      "prior": 407
+    },
+    "accruals_in_liabilities": {
+      "current": null,
+      "prior": null
+    }
+  },
+  "income_statement": {
+    "revenue_products_services": {
+      "current": null,
+      "prior": null
+    },
+    "revenue_goods": {
+      "current": null,
+      "prior": null
+    },
+    "cost_of_sales": {
+      "current": null,
+      "prior": null
+    },
+    "change_in_inventory": {
+      "current": null,
+      "prior": null
+    },
+    "capitalization": {
+      "current": null,
+      "prior": null
+    },
+    "personnel_costs": {
+      "current": null,
+      "prior": null
+    },
+    "value_adjustments_operating": {
+      "current": null,
+      "prior": null
+    },
+    "depreciation": {
+      "current": null,
+      "prior": null
+    },
+    "other_operating_income": {
+      "current": null,
+      "prior": null
+    },
+    "other_operating_expenses": {
+      "current": null,
+      "prior": null
+    },
+    "operating_result": {
+      "current": null,
+      "prior": null
+    },
+    "interest_expense": {
+      "current": null,
+      "prior": null
+    },
+    "financial_result": {
+      "current": null,
+      "prior": null
+    },
+    "profit_before_tax": {
+      "current": null,
+      "prior": null
+    },
+    "income_tax": {
+      "current": null,
+      "prior": null
+    },
+    "profit_after_tax": {
+      "current": null,
+      "prior": null
+    },
+    "profit_for_period": {
+      "current": null,
+      "prior": null
+    },
+    "net_turnover": {
+      "current": null,
+      "prior": null
+    }
+  },
+  "transcribed_by": "Claude (from the scanned PDF, deskewed and read visually)",
+  "verified_by": null,
+  "partial": false,
+  "notes": "Poor scan, 4 pages, no text layer: full-scope balance sheet only (pp. 1-4, form 'Rozvaha-Efko plny rozsah'), no income statement in the file, so all income_statement lines are null. Whole thousands CZK. Balance sheet date printed as 31.03.2024 (not 31.12.), period_end set accordingly. Pages 2 and 4 are tilted about 2 degrees so labels sit lower than their numbers: values were assigned by the row numbers (cislo radku) after deskewing, and every sub-total adds up. Auditor stamp overlaps the header of p. 3 and p. 1 (labels only, no numbers). Korekce printed negative (stored as printed). Blank cells are null, also in the prior-year column. This form has no C.II.3 accruals line (row 068 is C.III.), so accruals_in_receivables is null; accruals in liabilities appear only as D. (row 141). Long-term receivables exist only in the prior year (4 000). 'Sestaveno dne' is empty. No unreadable digits."
+}
