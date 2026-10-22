@@ -56,6 +56,10 @@ jobs:
       - name: Tests (pytest)
         run: pytest -q --junitxml=reports/junit.xml
 
+      - name: Failing tests as annotations
+        if: failure()
+        run: python scripts/junit_annotations.py reports/junit.xml
+
       - name: Upload test report
         if: always()
         uses: actions/upload-artifact@v7
