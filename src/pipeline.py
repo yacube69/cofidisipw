@@ -45,7 +45,7 @@ from src.ratios.engine import compute_ratios
 from src.result import Audit, PipelineOptions, Result, StageRun, StageStatus
 from src.runlog import RunLog
 from src.settings import ROOT, Settings, get_settings
-from src.validation.checks import validate
+from src.validation.review import validate_and_review
 from src.version import file_version, git_info, package_version, python_version, tesseract_version
 
 MOCK_NAME = "mock_26161516_2025.json"  # in settings.paths.fixtures
@@ -142,8 +142,10 @@ def stage_parse(result: Result, ctx: Context) -> StageStatus:
 
 
 def stage_validate(result: Result, ctx: Context) -> StageStatus:
-    """CIPW-10: accounting identity checks, plausibility and OCR-quality warnings."""
-    result.validation = validate(result.statements)
+    """CIPW-10: accounting identity checks, plausibility and OCR-quality warnings; the checks restore lost minus
+    signs and decide which values need review (src/validation/review.py)."""
+    result.validation, notes = validate_and_review(result.statements)
+    result.warnings.extend(f"validate: {note}" for note in notes)
     return "ok"
 
 

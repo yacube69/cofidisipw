@@ -363,6 +363,19 @@
           "title": "Needs Review",
           "type": "boolean"
         },
+        "confirmed_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "An accounting check that passed with this value: no review needed even if OCR was unsure.",
+          "title": "Confirmed By"
+        },
         "candidates": {
           "description": "Alternative readings (CIPW-11).",
           "items": {

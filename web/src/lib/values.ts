@@ -16,8 +16,10 @@ export const PERIOD_LABEL: Record<Period, string> = {
 
 /** Confident: text layer or clean OCR. Review: flagged by the parser or poor OCR. Check: everything between. */
 export function confidence(value: Value, inFailedCheck = false): Confidence {
-  if (value.needs_review || (value.ocr_conf !== null && value.ocr_conf < LOW_CONF)) return "review";
   if (inFailedCheck) return "review";
+  // a sum that adds up confirms its numbers, however unsure OCR was of the digits
+  if (value.confirmed_by) return "high";
+  if (value.needs_review || (value.ocr_conf !== null && value.ocr_conf < LOW_CONF)) return "review";
   if (value.ocr_conf === null || value.ocr_conf >= HIGH_CONF) return "high";
   return "check";
 }

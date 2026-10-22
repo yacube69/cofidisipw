@@ -16,6 +16,7 @@ from src.extraction.reading import read_page
 from src.extraction.types import PageWords
 from src.schema import FinancialStatements, GroundTruth
 from src.settings import get_settings
+from src.validation.review import validate_and_review
 
 ROOT = Path(__file__).resolve().parents[1]
 CACHE = get_settings().paths.outputs / "cache" / "pagewords"
@@ -115,6 +116,7 @@ def evaluate_file(gt_path: Path, raw_dir: Path | None = None, config: OcrConfig 
     gt = GroundTruth.model_validate_json(gt_path.read_text(encoding="utf-8"))
     log = ParseLog()
     fs, pages = extract((raw_dir or get_settings().paths.raw) / gt.file, config, log)
+    validate_and_review(fs)  # review flags as the app shows them: values of failed checks, confirmed values
     report = FileReport(file=gt.file, fields=compare(gt, fs), log=log)
     expected_pages = {k: v for k, v in gt.pages.items() if v}
     report.pages_ok = all(pages.get(k) == v for k, v in expected_pages.items())

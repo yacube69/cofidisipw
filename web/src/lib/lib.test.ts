@@ -65,6 +65,11 @@ describe("confidence", () => {
     expect(confidence(value({ needs_review: true }))).toBe("review");
     expect(confidence(value(), true)).toBe("review"); // breaks an accounting identity
   });
+  it("trusts a value a passing accounting check confirms, unless another check fails", () => {
+    const confirmed = value({ ocr_conf: 30, source: "ocr", needs_review: true, confirmed_by: "Assets" });
+    expect(confidence(confirmed)).toBe("high");
+    expect(confidence(confirmed, true)).toBe("review");
+  });
 });
 
 describe("checks", () => {

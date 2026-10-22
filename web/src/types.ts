@@ -21,6 +21,7 @@ export interface Value {
   match_score: number | null; // 0-100
   source: Source | null;
   needs_review: boolean;
+  confirmed_by?: string | null; // a passing accounting check that includes this value
   candidates: number[];
   note: string | null;
 }

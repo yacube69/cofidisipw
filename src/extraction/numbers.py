@@ -193,18 +193,27 @@ def detect_scope(text: str) -> Literal["full", "abbreviated"] | None:
 
 
 def detect_ico(text: str) -> str | None:
-    """IČO: the 8-digit number after 'IČ', 'IČO' or 'Identifikační číslo' (OCR-noisy labels allowed)."""
-    m = re.search(r"(?:\bic\s*o?\b|\bi\w{4,12}\s+c\w{3,5})\W{0,5}(\d{8})\b", _plain(text))
+    """IČO: the 8-digit number after 'IČ', 'IČO', 'IČ / DIČ' or 'Identifikační číslo' (OCR-noisy labels allowed,
+    "1Č/DIČ")."""
+    m = re.search(r"(?:\b[i1l]c\s*o?\b(?:\s*/\s*d[i1l]c\b)?|\bi\w{4,12}\s+c\w{3,5})\W{0,5}(\d{8})\b", _plain(text))
     return m.group(1) if m else None
 
 
+# the label in front of the company name: "Obchodní firma:", "Firma:" (OCR: "Fima:", "Finna:"), "Daňový subjekt:",
+# "Účetní jednotka:", "Název účetní jednotky:"
+_COMPANY_LABEL = re.compile(
+    r"(?:(?:Obchodn[ií]\s+)?\b[FfA][iíl1]?[rn]{0,2}[mn]?n?a|Da[nň]ov[ýy]\s+subjekt|[ÚU][čc]etn[ií]\s+jednotka"
+    r"|N[áa]zev(?:\s+[úu][čc]etn[ií]\s+jednotky)?)\s*:\s*(.+)"
+)
+
+
 def detect_company(text: str) -> str | None:
-    """Name after 'Firma:' / 'Obchodní firma:' (tolerant to OCR noise such as 'Fima:', 'Finna:')."""
-    m = re.search(r"(?:Obchodn[ií]\s+)?\b[FfA][iíl1]?[rn]{0,2}[mn]?n?a\s*:\s*(.+)", text)
+    """Name after the company label; it ends at a column gap, a ruling ("|", "—") or the next label (IČ)."""
+    m = _COMPANY_LABEL.search(text)
     if not m:
         return None
-    name = re.split(r"\s{2,}|\n", m.group(1).strip())[0]
-    return name.strip(" .,:;") or None
+    name = re.split(r"\s{2,}|\n|\s[|—–]|\s[1Il]Č", m.group(1).strip())[0]
+    return name.strip(" .,:;„“\"'") or None
 
 
 # ------------------------------------------------------------------------------------------- columns

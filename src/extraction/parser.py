@@ -179,9 +179,17 @@ _FORMULA = re.compile(r"\((?=[^()]*(?:\d|\+|součet|soucet|ř\.|až))[^()]*(?:\)
 _LEAD_CODE = re.compile(r"^(?:[^\s]{1,12}?[.,](?=[\s|©!—–-])\s*(?:[|©!—–-]\s*)*)+(?=\S)")  # ends at a space
 
 
+_UPPER = "A-ZÁČĎÉĚÍŇÓŘŠŤÚŮÝŽ"
+# noise OCR puts in front of the označení: punctuation and pieces of rulings ("! D.", ": cI", "„Daň"), or a lone
+# small letter before a capital ("i C.l1.2.", "j C.JI.4.")
+_HEAD_NOISE = re.compile(rf"^(?:[^\w*]+|[a-z]\s+(?=[{_UPPER}]))+")
+# an označení OCR read without its dots, before a capitalised name: "cI Zásoby", "CH Pohledávky", "RIr Dlouhodobý"
+_SHORT_CODE = re.compile(rf"^[A-Za-z0-9|]{{1,3}}\.?\s+(?:[^\w\s]+\s+)*(?=[{_UPPER}])")
+
+
 def lead_code(label: str) -> str:
     """The garbled označení at the start of a label, '' when the label starts with a word."""
-    m = _LEAD_CODE.match(label)
+    m = _LEAD_CODE.match(_HEAD_NOISE.sub("", label))
     if not m:
         return ""
     code = m.group(0).strip(" |©!—–-")
@@ -189,11 +197,26 @@ def lead_code(label: str) -> str:
     return code if sum(ch.isalpha() for ch in code) <= 4 else ""
 
 
+def _noise(word: str) -> bool:
+    """A word at the end of a label that is not part of the name: OCR specks and ruling pieces ("í", "nA", "A:",
+    "|"). A parenthesis ("(+/-)", "(-)") and a number (a note reference in annual reports) are kept."""
+    if word.startswith("("):
+        return False
+    letters = re.sub(r"\W", "", word)
+    return len(letters) <= 2 and not letters.isdigit()
+
+
 def clean_label(label: str) -> str:
-    """The name alone: without a garbled označení in front and formulas in parentheses."""
-    text = label[len(lead_code(label)) :] if lead_code(label) else label
-    text = _FORMULA.sub(" ", text.strip(" |©!—–-"))
-    return " ".join(text.split())
+    """The name alone: without noise and a garbled označení in front, formulas in parentheses and specks at the
+    end."""
+    text = _HEAD_NOISE.sub("", label)
+    code = lead_code(text)
+    text = _HEAD_NOISE.sub("", text[len(code) :] if code else text)
+    text = _HEAD_NOISE.sub("", _SHORT_CODE.sub("", text))
+    words = _FORMULA.sub(" ", text).split()
+    while len(words) > 1 and _noise(words[-1]):
+        words.pop()
+    return " ".join(words)
 
 
 def _label_score(label: str, definition: LineDef) -> float:
@@ -323,7 +346,8 @@ def _value(tokens: list[NumberToken | Word], unit: int, pw: PageWords, score: fl
     confs = [w.conf for w in words if w.conf is not None]
     conf = min(confs) if confs else None
     review = number is None or score < REVIEW or (conf is not None and conf < LOW_CONF)
-    clean = re.fullmatch(r"-?\d{1,3}( \d{3})*", raw.replace("−", "-"))
+    # "1 234" or "1234" (many statements print no thousands separator); "12 34" is a segmentation doubt
+    clean = re.fullmatch(r"-?(\d{1,3}( \d{3})*|\d+)", raw.replace("−", "-"))
     if number is not None and not clean and (pw.source == "ocr" or len(numbers) > 1):
         review = True  # OCR digits that do not form a clean thousands pattern: segmentation is unsure
     return Value(

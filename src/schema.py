@@ -48,6 +48,9 @@ class Value(BaseModel):
     match_score: float | None = Field(None, ge=0, le=100, description="How sure the parser is about the line.")
     source: Source | None = None
     needs_review: bool = False
+    confirmed_by: str | None = Field(
+        None, description="An accounting check that passed with this value: no review needed even if OCR was unsure."
+    )
     candidates: list[float] = Field(default_factory=list, description="Alternative readings (CIPW-11).")
     note: str | None = None
 

@@ -138,6 +138,11 @@ def test_detect_ico_and_company():
     assert detect_ico("PASIVA CELKEM 21486058") is None
     assert detect_company("Firma: Mondi Štětí a.s.\nIdentifikační číslo") == "Mondi Štětí a.s"
     assert detect_company("Obchodní firma: Testovací firma s.r.o.") == "Testovací firma s.r.o"
+    # a header table "Daňový subjekt: … | IČ / DIČ: …" (OCR reads IČ as 1Č)
+    header = "„Daňový subjekt: Lidová zahrada, s.r.o. — | 1Č/DIČ: 25400223 / CZ25400223 : Sídlo účetní jednotky: …"
+    assert detect_company(header) == "Lidová zahrada, s.r.o"
+    assert detect_ico(header) == "25400223"
+    assert detect_company("Název položky běžné účetní období") is None
 
 
 def _word(text, x1, y):

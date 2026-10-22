@@ -17,6 +17,16 @@ def test_group_lines_keeps_rows_apart_and_sorts_words():
     assert [line.text for line in lines] == ["Zásoby 038 700", "Materiál"]
 
 
+def test_tall_or_flat_marks_do_not_join_rows():
+    """A code OCR merged with a table border ("!L." 23 pt high on 8 pt rows) and a piece of a ruling ("|" 0.5 pt
+    high) must not join two rows or take the words of the row below."""
+    words = [w("Daň", 80, 100), w("0", 300, 100), w("!L.", 40, 98, h=23), w("Výsledek", 80, 112), w("11", 300, 112)]
+    assert [line.text for line in group_lines(words)] == ["!L. Daň 0", "Výsledek 11"]
+    words = [w("|", 40, 99.6, h=0.5), w("Vlastní", 80, 98, h=16), w("kapitál", 125, 98, h=16), w("-189", 300, 101)]
+    words += [w("Základní", 80, 116), w("6740", 300, 116), w("0", 330, 130), w("0", 360, 140), w("0", 390, 150)]
+    assert [line.text for line in group_lines(words)][0] == "| Vlastní kapitál -189"
+
+
 def test_merge_joins_thousands_groups_but_not_columns():
     # "46 863 840" in one column, "-17 406 042" in the next one (gap 40 pt)
     words = [w("46", 300, 0), w("863", 315, 0), w("840", 336, 0), w("-17", 397, 0), w("406", 418, 0), w("042", 439, 0)]

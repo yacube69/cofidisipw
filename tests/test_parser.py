@@ -7,11 +7,21 @@ import pymupdf
 import pytest
 
 from src.evaluation import compare
-from src.extraction.parser import ParsedLine, ParseLog, code_key, continues, identify, norm_code, parse_statements
+from src.extraction.parser import (
+    ParsedLine,
+    ParseLog,
+    clean_label,
+    code_key,
+    continues,
+    identify,
+    norm_code,
+    parse_statements,
+)
 from src.extraction.reading import read_page
 from src.extraction.types import PageWords
 from src.line_items import load_dictionary
 from src.schema import GroundTruth
+from src.validation.review import validate_and_review
 from tests.synthetic import make_digital_pdf, make_scanned_pdf
 from tests.test_reading import needs_ocr
 
@@ -122,13 +132,15 @@ def _from_fixtures(stem: str, pages: dict[str, list[int]]):
 @pytest.mark.parametrize(
     "stem, pages, min_accuracy, max_silent",
     [
-        ("26161516_2025", {"balance_sheet": [20, 21], "income_statement": [22]}, 0.84, 8),
+        ("26161516_2025", {"balance_sheet": [20, 21], "income_statement": [22]}, 0.84, 1),
     ],
 )
 def test_real_statements_regression(stem, pages, min_accuracy, max_silent):
-    """Frozen OCR output of real statements vs ground truth. Raise the bar when the parser improves."""
+    """Frozen OCR output of real statements vs ground truth, flagged as the app shows it (after the checks).
+    Raise the bar when the parser improves."""
     gt = GroundTruth.model_validate_json((ROOT / f"data/ground_truth/{stem}.json").read_text(encoding="utf-8"))
     fs, _ = _from_fixtures(stem, pages)
+    validate_and_review(fs)
     fields = compare(gt, fs)
     accuracy = sum(f.correct for f in fields) / len(fields)
     silent = sum(f.outcome == "wrong" for f in fields)
@@ -171,6 +183,23 @@ def test_garbled_code_in_front_of_the_label_is_ignored():
     # a garbled sub-line code (B.4.3.) does not win the line it belongs to (B.II.)
     sub = identify(_line("B.4.3. | Jiný dlouhodobý hmotný majetek"), assets)[0]
     assert sub.key != "tangible_assets" or sub.score < 86
+
+
+def test_ocr_noise_around_the_label_does_not_lower_the_match():
+    """Codes read without dots ("cI", "CH", "CN"), punctuation in front and specks at the end ("í í nA")."""
+    assets = load_dictionary().for_statement("balance_sheet", "assets")
+    liabilities = load_dictionary().for_statement("balance_sheet", "liabilities")
+    for label, key, lines in [(": cI Zásoby", "inventories", assets),
+                              ("i CH — Pohledávky", "receivables", assets),
+                              ("RIr Dlouhodobý hmotný majetek", "tangible_assets", assets),
+                              ("! D. Časové rozlišení aktiv *", "accruals_assets", assets),
+                              ("CN Krátkodobé závazky |", "liabilities_short_term", liabilities),
+                              ("Závazky í í nA", "liabilities", liabilities),
+                              ("; A.III. © Fondy ze získu 0000", "funds_from_profit", liabilities)]:  # fmt: skip
+        best = identify(_line(label), lines)[0]
+        assert best.key == key and best.score >= 86, (label, best)
+    # a note reference in an annual report stays: it is not noise
+    assert clean_label("Dlouhodobý hmotný majetek, netto 3") == "Dlouhodobý hmotný majetek, netto 3"
 
 
 def test_only_a_real_continuation_joins_the_label_above():

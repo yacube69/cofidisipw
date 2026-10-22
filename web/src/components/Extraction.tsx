@@ -202,6 +202,8 @@ function Detail({ row, unit }: { row: ValueRow; unit: number | null }) {
         <dt>Source</dt><dd>page {v.page}, {v.source === "ocr" ? `OCR, confidence ${v.ocr_conf?.toFixed(0) ?? "–"}` : "text layer"}</dd>
         <dt>Line match</dt><dd>{v.match_score?.toFixed(0) ?? "–"} / 100</dd>
         {row.failedChecks.length > 0 && (<><dt>Failed checks</dt><dd>{row.failedChecks.join("; ")}</dd></>)}
+        {v.confirmed_by && row.failedChecks.length === 0 && (<><dt>Confirmed by</dt><dd>{v.confirmed_by}</dd></>)}
+        {v.note && (<><dt>Note</dt><dd>{v.note}</dd></>)}
         {v.needs_review && (<><dt>Flagged</dt><dd>The parser is not sure about this value</dd></>)}
       </dl>
     </div>

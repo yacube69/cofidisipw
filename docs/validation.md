@@ -34,6 +34,16 @@
 - C. Aktivace always raises the operating result, printed positive or negative.
 - Costs printed negative (some software): the printed lines then simply add up to the operating result, which is accepted as well.
 
+## What the checks decide
+
+`src/validation/review.py` (`validate_and_review`, run by the pipeline stage `validate`):
+
+1. **Lost minus.** OCR drops a minus printed apart from the number ("- 17 602") or reads it as "+" or nothing. When turning the sign of one value of a failed check makes that check pass, and fewer checks fail overall, the value takes the sign; `Value.note` and the result warnings say so. Only lines that can be negative are turned: equity, share premium and capital funds, results ("(+/-)" in the form), change in inventory, capitalisation. A misread digit is never "fixed" this way: a sign change closes the gap only when the gap is exactly twice the value.
+2. **Failed check → review.** Every value of a failed check is flagged for review.
+3. **Passing check → confirmed.** A value that only passing checks involve, at least one of them adding up exactly, needs no review even when OCR was unsure of a digit or the label matched loosely; `Value.confirmed_by` names the check. A pass within the ±1 rounding tolerance confirms nothing: a last digit read one off passes the same way. The net check (net = gross + korekce) confirms all three amounts of its line.
+
+On the 99 collected statements this lowers the values to review from 41 % to 27 % and restored 11 minus signs, each one checked on the page. On the ground truth the wrong values that are not flagged fall from 12 to 1 (`docs/parser.md`).
+
 ## How much they catch
 
 `python scripts/mutation_test_checks.py` corrupts every value of the complete, verified ground truth files in turn, the way OCR and the parser go wrong, and counts what the checks catch (`--warnings` counts warnings too). Result on 6 files, 2 228 corrupted statements (2026-10-21):

@@ -50,10 +50,10 @@ On the 99 collected statements (`outputs/ocr`, read and parsed as in `scripts/au
 
 | flag | values |
 | --- | --- |
-| ok | 585 |
-| unreliable | 752 |
-| not_meaningful | 62 |
-| missing | 977 |
+| ok | 841 |
+| unreliable | 574 |
+| not_meaningful | 65 |
+| missing | 896 |
 
 `missing` comes mostly from files whose statements are not in the Czech form (IFRS annual reports, banks) or were not located; 14 files have no ratio at all. `unreliable` follows the failed accounting checks of the parser (CIPW-32) and the values to review on scans. Of the values outside a plausible range, those flagged `ok` are real: negative equity (debt ratio above 100 %), a holding with group receivables far above its revenue, a firm with almost no interest.
 

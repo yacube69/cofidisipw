@@ -83,16 +83,28 @@ class Line:
 
 
 def group_lines(words: list[Word], overlap: float = 0.5) -> list[Line]:
-    """Assign each word to the line whose vertical span it overlaps by at least `overlap` of its height."""
+    """Assign each word to the line whose vertical span it overlaps by at least `overlap` of its height.
+
+    Marks much taller or flatter than the text are placed last, into the line they overlap most, and never start
+    a line: an označení OCR merged with a table border ("!L." 23 pt high on 9 pt rows) would join two rows, and a
+    piece of a ruling ("|" 0.5 pt high) would take the words of the row below it.
+    """
+    heights = [w.height for w in words if w.height > 0]
+    typical = statistics.median(heights) if heights else 0.0
+
+    def mark(w: Word) -> bool:
+        return bool(heights) and not 0.35 * typical <= w.height <= 2.5 * typical
+
     lines: list[Line] = []
-    for w in sorted(words, key=lambda w: (w.cy, w.x0)):
-        best, best_overlap = None, 0.0
-        for line in lines[-6:]:  # only recent lines can overlap, words are sorted by y
-            top, bottom = max(line.y0, w.y0), min(line.y1, w.y1)
-            ov = (bottom - top) / max(min(w.height, line.height), 1e-6)
-            if ov > best_overlap:
-                best, best_overlap = line, ov
+    for w in sorted((w for w in words if not mark(w)), key=lambda w: (w.cy, w.x0)):
+        best, best_overlap = _best_line(w, lines[-6:])  # only recent lines can overlap, words are sorted by y
         if best is not None and best_overlap >= overlap:
+            best.words.append(w)
+        else:
+            lines.append(Line(words=[w]))
+    for w in (w for w in words if mark(w)):
+        best, best_overlap = _best_line(w, lines)
+        if best is not None and best_overlap > 0:
             best.words.append(w)
         else:
             lines.append(Line(words=[w]))
@@ -100,6 +112,19 @@ def group_lines(words: list[Word], overlap: float = 0.5) -> list[Line]:
         line.words.sort(key=lambda w: w.x0)
     lines.sort(key=lambda line: line.cy)
     return lines
+
+
+def _best_line(w: Word, lines: list[Line]) -> tuple[Line | None, float]:
+    """The line whose span overlaps the word most. The span is the one most of its words share (median top and
+    bottom), so a mark on the page edge that sits between two rows does not stretch a line over the next row."""
+    best, best_overlap = None, 0.0
+    for line in lines:
+        y0, y1 = statistics.median(v.y0 for v in line.words), statistics.median(v.y1 for v in line.words)
+        top, bottom = max(y0, w.y0), min(y1, w.y1)
+        ov = (bottom - top) / max(min(w.height, y1 - y0), 1e-6)
+        if ov > best_overlap:
+            best, best_overlap = line, ov
+    return best, best_overlap
 
 
 def is_numeric(text: str) -> bool:
