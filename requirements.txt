@@ -22,5 +22,5 @@ python-multipart>=0.0.9
 
 # Dev
 httpx>=0.27  # FastAPI test client
-pytest>=8.0
+pytest>=9.1.1
 ruff>=0.16.10
