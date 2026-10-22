@@ -776,7 +776,30 @@ def _locate(doc: pymupdf.Document):
             pages.update(cluster)
         result[stmt] = sorted(pages)
     result = _structure_pass(result, info)
-    return result, info
+    return _fill_gaps(result, info), info
+
+
+def _fill_gaps(result: dict[str, list[int]], info: dict) -> dict[str, list[int]]:
+    """A single page between two pages of the same statement belongs to it when it reads like that statement: its
+    keywords outweigh the other statement's and it carries no other title. The quick OCR may find almost no digits
+    on such a page (a liabilities page of a scan at 0.5 % digits), which the continuation rules need. A cover or
+    divider page between the two sides has no statement keywords and stays out, as `_bridge` intends."""
+    out = {}
+    for stmt, pages in result.items():
+        claimed = {p for other, ps in result.items() if other != stmt for p in ps}
+        filled = list(pages)
+        for before, after in zip(pages, pages[1:], strict=False):
+            gap = before + 1
+            if after - before != 2 or gap in claimed or gap not in info:
+                continue
+            d = info[gap]
+            own = d["scores"][stmt]
+            rival = max(v for k, v in d["scores"].items() if k != stmt)
+            other_title = any(t for k, t in d["titles"].items() if k != stmt)
+            if own >= 2 and own > rival and not other_title and not (d["stop"] or d["toc"] or d["note"]):
+                filled.append(gap)
+        out[stmt] = sorted(filled)
+    return out
 
 
 if __name__ == "__main__":  # python -m src.extraction.locate file.pdf

@@ -14,7 +14,7 @@ from pathlib import Path
 import pymupdf
 import pytest
 
-from src.extraction.locate import has_text_layer, locate_one_set, locate_statements, normalize
+from src.extraction.locate import _fill_gaps, has_text_layer, locate_one_set, locate_statements, normalize
 from tests.synthetic import ASSET_ROWS, asset_page_html, liability_page_html, make_digital_pdf, make_scanned_pdf
 from tests.test_reading import needs_ocr
 
@@ -178,3 +178,23 @@ def test_real_files_match_index(row):
         if not matches(found, expected):
             pytest.xfail(row["notes"])
     assert matches(found, expected), f"expected {expected}, found {found}"
+
+
+def _info(bs: int, is_: int, bs_title: bool = False, is_title: bool = False, stop: bool = False) -> dict:
+    return {"scores": {"balance_sheet": bs, "income_statement": is_},
+            "titles": {"balance_sheet": bs_title, "income_statement": is_title},
+            "stop": stop, "toc": False, "note": False}  # fmt: skip
+
+
+def test_a_page_between_two_pages_of_a_statement_is_filled_when_it_reads_like_it():
+    """Andel Czech 2024 on Linux Tesseract: the liabilities page (p3) was read with 0.5 % digits and skipped."""
+    info = {1: _info(6, 1, bs_title=True), 2: _info(2, 0), 3: _info(2, 0), 4: _info(2, 0)}
+    found = {"balance_sheet": [1, 2, 4], "income_statement": []}
+    assert _fill_gaps(found, info) == {"balance_sheet": [1, 2, 3, 4], "income_statement": []}
+
+
+def test_a_cover_page_or_another_statement_between_is_not_filled():
+    info = {1: _info(6, 0, bs_title=True), 2: _info(0, 0), 3: _info(3, 0)}
+    info |= {4: _info(1, 5, is_title=True), 5: _info(2, 0)}
+    found = {"balance_sheet": [1, 3, 5], "income_statement": [4]}
+    assert _fill_gaps(found, info)["balance_sheet"] == [1, 3, 5]  # p2 a cover page, p4 the income statement
