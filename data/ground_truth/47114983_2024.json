@@ -1,0 +1,275 @@
+{
+  "file": "47114983_2024_statement.pdf",
+  "company_name": "Česká pošta, s.p.",
+  "ico": "47114983",
+  "period_end": "2024-12-31",
+  "scope": "full",
+  "unit_multiplier": 1000000,
+  "pages": {
+    "balance_sheet": [
+      21,
+      22
+    ],
+    "income_statement": [
+      23
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": {
+      "gross": 32669,
+      "adjustment": -14622,
+      "current": 18047,
+      "prior": 16080
+    },
+    "receivables_subscribed_capital": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "fixed_assets": {
+      "gross": 21405,
+      "adjustment": -14440,
+      "current": 6965,
+      "prior": 7314
+    },
+    "intangible_assets": {
+      "gross": 2144,
+      "adjustment": -1853,
+      "current": 291,
+      "prior": 322
+    },
+    "tangible_assets": {
+      "gross": 19198,
+      "adjustment": -12587,
+      "current": 6611,
+      "prior": 6931
+    },
+    "financial_fixed_assets": {
+      "gross": 63,
+      "adjustment": 0,
+      "current": 63,
+      "prior": 61
+    },
+    "current_assets": {
+      "gross": 11095,
+      "adjustment": -182,
+      "current": 10913,
+      "prior": 8569
+    },
+    "inventories": {
+      "gross": 182,
+      "adjustment": -54,
+      "current": 128,
+      "prior": 131
+    },
+    "receivables": {
+      "gross": 6100,
+      "adjustment": -128,
+      "current": 5972,
+      "prior": 4604
+    },
+    "receivables_long_term": {
+      "gross": 23,
+      "adjustment": 0,
+      "current": 23,
+      "prior": 22
+    },
+    "receivables_short_term": {
+      "gross": 6077,
+      "adjustment": -128,
+      "current": 5949,
+      "prior": 4582
+    },
+    "trade_receivables_short_term": {
+      "gross": 1282,
+      "adjustment": -46,
+      "current": 1236,
+      "prior": 1733
+    },
+    "trade_receivables_long_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "short_term_financial_assets": {
+      "gross": 0,
+      "adjustment": 0,
+      "current": 0,
+      "prior": 0
+    },
+    "cash": {
+      "gross": 4813,
+      "adjustment": 0,
+      "current": 4813,
+      "prior": 3834
+    },
+    "accruals_assets": {
+      "gross": 169,
+      "adjustment": 0,
+      "current": 169,
+      "prior": 197
+    },
+    "accruals_in_receivables": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "total_liabilities_equity": {
+      "current": 18047,
+      "prior": 16080
+    },
+    "equity": {
+      "current": 2774,
+      "prior": 4111
+    },
+    "share_capital": {
+      "current": 3588,
+      "prior": 3588
+    },
+    "share_premium_capital_funds": {
+      "current": 72,
+      "prior": 908
+    },
+    "funds_from_profit": {
+      "current": 363,
+      "prior": 371
+    },
+    "retained_earnings": {
+      "current": null,
+      "prior": null
+    },
+    "profit_current_period": {
+      "current": -1249,
+      "prior": -756
+    },
+    "advance_profit_distribution": {
+      "current": null,
+      "prior": null
+    },
+    "external_sources": {
+      "current": 14874,
+      "prior": 11540
+    },
+    "provisions": {
+      "current": 559,
+      "prior": 667
+    },
+    "liabilities": {
+      "current": 14315,
+      "prior": 10873
+    },
+    "liabilities_long_term": {
+      "current": 127,
+      "prior": 183
+    },
+    "bank_loans_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities_short_term": {
+      "current": 14188,
+      "prior": 10690
+    },
+    "bank_loans_short_term": {
+      "current": 4104,
+      "prior": 1589
+    },
+    "trade_payables_short_term": {
+      "current": 6064,
+      "prior": 5106
+    },
+    "trade_payables_long_term": {
+      "current": 127,
+      "prior": 183
+    },
+    "accruals_liabilities": {
+      "current": 399,
+      "prior": 429
+    },
+    "accruals_in_liabilities": {
+      "current": null,
+      "prior": null
+    }
+  },
+  "income_statement": {
+    "revenue_products_services": {
+      "current": 15372,
+      "prior": 16369
+    },
+    "revenue_goods": {
+      "current": 54,
+      "prior": 124
+    },
+    "cost_of_sales": {
+      "current": 5979,
+      "prior": 6205
+    },
+    "change_in_inventory": {
+      "current": null,
+      "prior": null
+    },
+    "capitalization": {
+      "current": -22,
+      "prior": -21
+    },
+    "personnel_costs": {
+      "current": 11529,
+      "prior": 11801
+    },
+    "value_adjustments_operating": {
+      "current": 615,
+      "prior": 683
+    },
+    "depreciation": {
+      "current": 628,
+      "prior": 707
+    },
+    "other_operating_income": {
+      "current": 2821,
+      "prior": 2544
+    },
+    "other_operating_expenses": {
+      "current": 1287,
+      "prior": 1166
+    },
+    "operating_result": {
+      "current": -1141,
+      "prior": -797
+    },
+    "interest_expense": {
+      "current": 170,
+      "prior": 101
+    },
+    "financial_result": {
+      "current": -108,
+      "prior": 41
+    },
+    "profit_before_tax": {
+      "current": -1249,
+      "prior": -756
+    },
+    "income_tax": {
+      "current": null,
+      "prior": null
+    },
+    "profit_after_tax": {
+      "current": -1249,
+      "prior": -756
+    },
+    "profit_for_period": {
+      "current": -1249,
+      "prior": -756
+    },
+    "net_turnover": {
+      "current": 15426,
+      "prior": null
+    }
+  },
+  "transcribed_by": "Claude (from the PDF text layer)",
+  "verified_by": null,
+  "partial": false,
+  "notes": "INDIVIDUAL statements of Ceska posta, s.p. (state enterprise) from its annual report 2024 (83-page PDF), Czech decree form, full scope, in MILLIONS of CZK (unit_multiplier 1000000, not thousands). Assets PDF p. 21, liabilities p. 22, profit and loss p. 23 (digital text layer; printed page numbers 'Strana 21-23/83'). The CONSOLIDATED statements (PDF pp. 54-58) are not transcribed. Korekce printed negative, entered as printed; prior year only Netto, so prior gross/adjustment null. 'z toho svereni prostredky' (entrusted funds, e.g. 4 819 of liabilities) are memo lines and not part of any schema line. A.IV (retained earnings of previous years) is not printed (equity = 3 588 + 72 + 363 - 1 249 = 2 774) -> retained_earnings null. capitalization = line C 'Aktivace' printed -22 / -21 (negative as printed). net_turnover 2023 is printed '*' (not comparable, methodology change) -> null. income_tax not printed (result before and after tax are equal) -> null. Lines not printed on the form (goods/receivables subscribed capital, C.II.3 and C.III accrual lines, change in inventory, long-term bank loans) -> null. trade_payables_long_term = C.I.4. Balance sheet identity and operating result reconcile exactly. No unreadable characters."
+}
