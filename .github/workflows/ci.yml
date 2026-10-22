@@ -39,7 +39,7 @@ jobs:
           tesseract --version | head -1
           tesseract --list-langs | grep -x ces
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
