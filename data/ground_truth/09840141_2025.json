@@ -1,0 +1,275 @@
+{
+  "file": "09840141_2025_statement.pdf",
+  "company_name": "ZEVO Vráto, a.s.",
+  "ico": "09840141",
+  "period_end": "2025-12-31",
+  "scope": "full",
+  "unit_multiplier": 1000,
+  "pages": {
+    "balance_sheet": [
+      1,
+      2
+    ],
+    "income_statement": [
+      3
+    ]
+  },
+  "balance_sheet": {
+    "total_assets": {
+      "gross": 338224,
+      "adjustment": 200663,
+      "current": 137561,
+      "prior": 132256
+    },
+    "receivables_subscribed_capital": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "fixed_assets": {
+      "gross": 336149,
+      "adjustment": 200663,
+      "current": 135486,
+      "prior": 125823
+    },
+    "intangible_assets": {
+      "gross": 903,
+      "adjustment": 903,
+      "current": 0,
+      "prior": 0
+    },
+    "tangible_assets": {
+      "gross": 335246,
+      "adjustment": 199760,
+      "current": 135486,
+      "prior": 125823
+    },
+    "financial_fixed_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "current_assets": {
+      "gross": 1890,
+      "adjustment": 0,
+      "current": 1890,
+      "prior": 6431
+    },
+    "inventories": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "receivables": {
+      "gross": 981,
+      "adjustment": 0,
+      "current": 981,
+      "prior": 4433
+    },
+    "receivables_long_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "receivables_short_term": {
+      "gross": 981,
+      "adjustment": 0,
+      "current": 981,
+      "prior": 4433
+    },
+    "trade_receivables_short_term": {
+      "gross": 759,
+      "adjustment": null,
+      "current": 759,
+      "prior": 872
+    },
+    "trade_receivables_long_term": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "short_term_financial_assets": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "cash": {
+      "gross": 909,
+      "adjustment": 0,
+      "current": 909,
+      "prior": 1998
+    },
+    "accruals_assets": {
+      "gross": 185,
+      "adjustment": 0,
+      "current": 185,
+      "prior": 2
+    },
+    "accruals_in_receivables": {
+      "gross": null,
+      "adjustment": null,
+      "current": null,
+      "prior": null
+    },
+    "total_liabilities_equity": {
+      "current": 137561,
+      "prior": 132256
+    },
+    "equity": {
+      "current": 62148,
+      "prior": 60761
+    },
+    "share_capital": {
+      "current": 2000,
+      "prior": 2000
+    },
+    "share_premium_capital_funds": {
+      "current": 55518,
+      "prior": 55518
+    },
+    "funds_from_profit": {
+      "current": null,
+      "prior": null
+    },
+    "retained_earnings": {
+      "current": 3243,
+      "prior": 1967
+    },
+    "profit_current_period": {
+      "current": 1387,
+      "prior": 1276
+    },
+    "advance_profit_distribution": {
+      "current": null,
+      "prior": null
+    },
+    "external_sources": {
+      "current": 75413,
+      "prior": 71495
+    },
+    "provisions": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities": {
+      "current": 75413,
+      "prior": 71495
+    },
+    "liabilities_long_term": {
+      "current": 779,
+      "prior": 838
+    },
+    "bank_loans_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "liabilities_short_term": {
+      "current": 74634,
+      "prior": 70657
+    },
+    "bank_loans_short_term": {
+      "current": null,
+      "prior": null
+    },
+    "trade_payables_short_term": {
+      "current": 1393,
+      "prior": 6922
+    },
+    "trade_payables_long_term": {
+      "current": null,
+      "prior": null
+    },
+    "accruals_liabilities": {
+      "current": 0,
+      "prior": 0
+    },
+    "accruals_in_liabilities": {
+      "current": null,
+      "prior": null
+    }
+  },
+  "income_statement": {
+    "revenue_products_services": {
+      "current": 5559,
+      "prior": 5799
+    },
+    "revenue_goods": {
+      "current": null,
+      "prior": null
+    },
+    "cost_of_sales": {
+      "current": 2822,
+      "prior": 3258
+    },
+    "change_in_inventory": {
+      "current": null,
+      "prior": null
+    },
+    "capitalization": {
+      "current": null,
+      "prior": null
+    },
+    "personnel_costs": {
+      "current": null,
+      "prior": null
+    },
+    "value_adjustments_operating": {
+      "current": 304,
+      "prior": 316
+    },
+    "depreciation": {
+      "current": 304,
+      "prior": 316
+    },
+    "other_operating_income": {
+      "current": null,
+      "prior": null
+    },
+    "other_operating_expenses": {
+      "current": 670,
+      "prior": 600
+    },
+    "operating_result": {
+      "current": 1763,
+      "prior": 1625
+    },
+    "interest_expense": {
+      "current": null,
+      "prior": null
+    },
+    "financial_result": {
+      "current": -7,
+      "prior": -10
+    },
+    "profit_before_tax": {
+      "current": 1756,
+      "prior": 1615
+    },
+    "income_tax": {
+      "current": 369,
+      "prior": 339
+    },
+    "profit_after_tax": {
+      "current": 1387,
+      "prior": 1276
+    },
+    "profit_for_period": {
+      "current": 1387,
+      "prior": 1276
+    },
+    "net_turnover": {
+      "current": 5559,
+      "prior": 5799
+    }
+  },
+  "transcribed_by": "Claude (from the PDF text layer)",
+  "verified_by": null,
+  "partial": false,
+  "notes": "3-page statement export (balance sheet pp. 1-2, profit and loss p. 3), full scope, thousands CZK, digital text layer; checked against a rendering of page 1. The document prints only 'IC: 9840141' (entered as 08-digit 09840141) and NO company name, so company_name is null (not found in data/index.csv either); please add it from the commercial register. Korekce printed as positive numbers, entered as printed; blank korekce cells are null, printed 0 is 0. Prior year only Netto, so prior gross/adjustment null. Only lines printed on the form are filled; the PDF omits all-zero/empty lines (intangibles B.I.3, financial fixed assets, inventories, provisions, bank loans, personnel costs, interest, other operating income, accrual lines C.II.3 / C.III) -> null. Blank prior-year cell C.II.8.6 (Dohadne ucty pasivni) is not a schema line. Balance sheet identity and operating result reconcile exactly."
+}
