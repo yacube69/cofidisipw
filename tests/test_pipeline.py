@@ -40,19 +40,19 @@ def test_cli_fails_when_a_stage_fails(tmp_path):
 
 def test_stubs_return_mock_data(tiny_pdf):
     result = run_pipeline(tiny_pdf)
-    assert set(result.stubbed_stages) == {"bankruptcy", "benchmarks", "report", "check_numbers"}
+    assert set(result.stubbed_stages) == {"benchmarks", "report", "check_numbers"}
     assert {s.stage: s.status for s in result.stages}["reread"] == "skipped"  # a text layer is read exactly
-    assert result.bankruptcy["in05"]["zone"] in ("safe", "grey", "distress")
     assert result.benchmarks["ratios"]["current_ratio"]["light"] == "red"
     assert result.report["summary"] and result.report["rating"]["value"] in ("low", "medium", "high")
     assert result.number_check["passed"] is True
-    assert all(d["mock"] for d in (result.bankruptcy, result.benchmarks, result.report, result.number_check))
+    assert all(d["mock"] for d in (result.benchmarks, result.report, result.number_check))
 
 
 def test_mock_data_is_a_fresh_copy(tiny_pdf):
     first = run_pipeline(tiny_pdf, PipelineOptions(skip_report=True))
-    first.bankruptcy["in05"]["score"] = -1
-    assert run_pipeline(tiny_pdf, PipelineOptions(skip_report=True)).bankruptcy["in05"]["score"] != -1
+    first.benchmarks["ratios"]["current_ratio"]["light"] = "green"
+    again = run_pipeline(tiny_pdf, PipelineOptions(skip_report=True))
+    assert again.benchmarks["ratios"]["current_ratio"]["light"] == "red"
 
 
 def test_requires_names_real_stages():

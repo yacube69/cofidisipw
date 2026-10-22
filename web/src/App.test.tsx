@@ -60,7 +60,11 @@ describe("App", () => {
 
     fireEvent.click(within(steps).getByText("Ratios"));
     expect(await screen.findByText("Liquidity")).toBeTruthy();
-    expect(screen.getByText(/mock data of one real company/)).toBeTruthy();
+    // real ratios and bankruptcy scores (CIPW-12, CIPW-13): no mock banner; Mondi 2025 is in distress in both models
+    expect(screen.queryByText(/mock data of one real company/)).toBeNull();
+    expect(screen.getByText("IN05 (Neumaierová & Neumaier)")).toBeTruthy();
+    expect(screen.getByText("Altman Z′ (private companies)")).toBeTruthy();
+    expect(screen.getAllByText("Distress zone").length).toBe(2);
 
     fireEvent.click(within(steps).getByText("AI report"));
     expect(await screen.findByText("Strengths")).toBeTruthy();

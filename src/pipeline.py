@@ -42,6 +42,7 @@ from src.extraction.parser import parse_statements
 from src.extraction.reading import read_page
 from src.extraction.reread import reread
 from src.line_items import load_dictionary
+from src.ratios.bankruptcy import compute_bankruptcy
 from src.ratios.engine import compute_ratios
 from src.result import Audit, PipelineOptions, Result, StageRun, StageStatus
 from src.runlog import RunLog
@@ -175,9 +176,9 @@ def stage_ratios(result: Result, ctx: Context) -> StageStatus:
 
 
 def stage_bankruptcy(result: Result, ctx: Context) -> StageStatus:
-    """CIPW-13 (stub): mock IN05 and Altman Z' scores."""
-    result.bankruptcy = mock("bankruptcy")
-    return "stub"
+    """CIPW-13: IN05 and Altman Z' for both years, on the ratio engine's definitions."""
+    result.bankruptcy = compute_bankruptcy(result.statements, result.validation)
+    return "ok"
 
 
 def stage_benchmarks(result: Result, ctx: Context) -> StageStatus:

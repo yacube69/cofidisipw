@@ -62,45 +62,68 @@ The formulas are reviewed in CIPW-15.
 ---
 
 
-# Bankruptcy Prediction Models
+# Bankruptcy models (CIPW-13)
 
-## IN05 Model (Neumaierová & Neumaier, 2005)
-Designed specifically for the Czech market, reflecting local accounting standards and economic conditions.
+`src/ratios/bankruptcy.py` computes IN05 and Altman Z′ for the current and the prior year (`compute_bankruptcy(fs, validation)`, pipeline stage `bankruptcy`, `Result.bankruptcy`). Both use the definitions of the ratio engine above: **EBIT = profit before tax + interest expense**, **revenue = I. + II.**, end-of-period balances, and the same rules for real statements (a missing part of a sum counts as 0 with a note, costs printed with a minus count by size).
 
-**Formula:**
-IN05 = (0.13 * V1) + (0.04 * V2) + (3.97 * V3) + (0.21 * V4) + (0.09 * V5)
+Every score keeps its variables, the input amounts and a flag, like a ratio: `ok`, `unreliable` (an input to review or in a failed check), `not_meaningful` (zero or negative total assets or external sources, score None), `missing` (an input not in the statement, score None). The zone (`safe`, `grey`, `distress`) is given only with a score.
 
-**Variables:**
-* **V1** = Total Assets / Total Liabilities (External Sources)
-* **V2** = EBIT / Interest Expense
-  * *Note: According to the original paper, if the company has zero or near-zero interest expense, cap this ratio at a maximum value of 9.*
-* **V3** = EBIT / Total Assets
-* **V4** = Revenue (Sales) / Total Assets
-* **V5** = Current Assets / (Short-term Liabilities + Short-term Bank Loans)
-  * *Note: Ensure bank loans are not double-counted if they are already included in short-term liabilities.*
+## IN05
 
-**Interpretation Zones:**
-* **Safe:** IN05 > 1.6 (Company creates value)
-* **Grey:** 0.9 <= IN05 <= 1.6 (Grey zone)
-* **Distress:** IN05 < 0.9 (Company destroys value, high risk of bankruptcy)
+Neumaierová, I., Neumaier, I. (2005). *Index IN05.* In: Sborník příspěvků z mezinárodní vědecké konference Evropské finanční systémy. Brno: Masarykova univerzita, pp. 143–148.
 
----
+IN05 = 0.13 · V1 + 0.04 · V2 + 3.97 · V3 + 0.21 · V4 + 0.09 · V5
 
-## Altman Z'-score (For Private / Non-listed Companies)
-A variant of the traditional Altman Z-score adapted for private, non-listed entities by replacing the market value of equity with the book value.
+| | variable | statement lines |
+| --- | --- | --- |
+| V1 | assets / external sources | `total_assets` / `external_sources` (B. + C. of liabilities) |
+| V2 | EBIT / interest expense, at most 9 | (`profit_before_tax` + `interest_expense`) / `interest_expense` (J.) |
+| V3 | EBIT / assets | EBIT / `total_assets` |
+| V4 | revenue / assets | (I. + II.) / `total_assets` |
+| V5 | current assets / (short-term liabilities + short-term bank loans) | `current_assets` / `liabilities_short_term` (C.II.) |
 
-**Formula:**
-Z' = (0.717 * X1) + (0.847 * X2) + (3.107 * X3) + (0.420 * X4) + (0.998 * X5)
+- **Zones:** above 1.6 the firm creates value (safe), 0.9–1.6 grey zone, below 0.9 it destroys value (distress).
+- **V2 cap:** the authors cap EBIT / interest at 9, so a firm with almost no interest does not get an unlimited score. Without any interest expense a profitable firm gets 9 and a loss-making one 0: the cap rewards the ability to pay interest, not the absence of loans in a loss.
+- **V5, no double counting:** since 2016 (Vyhláška 500/2002 Sb.) short-term bank loans are C.II.2., a part of C.II. short-term liabilities. Adding them again would count them twice, so V5 uses C.II. alone.
+- **V1 has no cap:** a holding with almost no external sources gets a very high V1 and IN05 (07506546: V1 338, IN05 46). The score is right by the formula; the model was not built for such firms.
+- **V4:** the paper relates the firm's revenues (výnosy) to assets. Fides uses revenue from sales (I. + II.), the same revenue as the ratio engine, which every statement prints; net turnover (all income lines) is not printed by every firm. Other operating and financial income would raise V4 slightly (weight 0.21).
 
-**Variables:**
-* **X1** = Working Capital / Total Assets
-  * *(Working Capital = Current Assets - Current Liabilities)*
-* **X2** = Retained Earnings / Total Assets
-* **X3** = EBIT / Total Assets
-* **X4** = Book Value of Equity / Total Liabilities
-* **X5** = Revenue (Sales) / Total Assets
+## Altman Z′ (private companies)
 
-**Interpretation Zones:**
-* **Safe:** Z' > 2.9 (Safe zone)
-* **Grey:** 1.23 <= Z' <= 2.9 (Grey zone)
-* **Distress:** Z' < 1.23 (Distress zone, high risk of bankruptcy)
+Altman, E. I. (1983). *Corporate Financial Distress: A Complete Guide to Predicting, Avoiding, and Dealing with Bankruptcy.* New York: Wiley. Altman, E. I. (2000). *Predicting Financial Distress of Companies: Revisiting the Z-Score and ZETA Models.* New York University, Stern School of Business.
+
+Z′ is the variant of the Z-score for companies without listed shares: the book value of equity replaces the market value.
+
+Z′ = 0.717 · X1 + 0.847 · X2 + 3.107 · X3 + 0.420 · X4 + 0.998 · X5
+
+| | variable | statement lines |
+| --- | --- | --- |
+| X1 | working capital / assets | (`current_assets` − `liabilities_short_term`) / `total_assets` |
+| X2 | retained earnings / assets | (`equity` − `share_capital` − `share_premium_capital_funds`) / `total_assets` |
+| X3 | EBIT / assets | EBIT / `total_assets` |
+| X4 | book value of equity / total liabilities | `equity` / `external_sources` |
+| X5 | sales / assets | (I. + II.) / `total_assets` |
+
+- **Zones:** above 2.9 safe, 1.23–2.9 grey zone, below 1.23 distress.
+- **Retained earnings (X2):** the equity the firm earned itself, not the capital its owners paid in: A. equity − A.I. share capital − A.II. share premium and capital funds. This equals A.III. funds from profit + A.IV. retained earnings of prior years + A.V. profit of the year − A.VI. advance profit distribution. It includes the current year's profit, as retained earnings on a US balance sheet do. Taking A.IV. alone would miss the funds from profit and the year's result.
+- **Negative equity** is not "not meaningful" here: X2 and X4 turn negative and the score falls, which is what the model is for.
+
+On the 99 collected statements: IN05 for 44, Z′ for 44 (the others have no income statement, mostly balance-sheet-only filings, or are not in the Czech form); the two models give the same zone for 32 of 43.
+
+## Hand calculation
+
+Computed by hand from the printed statements (tis. Kč) and checked against the code in `tests/test_bankruptcy.py`:
+
+| | Mondi Štětí 2025 | Mondi 2024 | Skyport 2025 | Skyport 2024 |
+| --- | --- | --- | --- | --- |
+| EBIT | 507 009 + 797 693 = 1 304 702 | 1 334 961 + 635 640 = 1 970 601 | 69 387 + 443 = 69 830 | 5 515 + 495 = 6 010 |
+| V1 · V2 · V3 · V4 · V5 | 1.371 · 1.636 · 0.044 · 0.527 · 0.223 | 1.363 · 3.100 · 0.069 · 0.509 · 0.216 | 2.297 · 9 (157.6) · 0.293 · 2.223 · 2.396 | 2.329 · 9 (12.1) · 0.046 · 2.137 · 2.986 |
+| **IN05** | **0.550 distress** | **0.703 distress** | **2.505 safe** | **1.561 grey** |
+| X1 · X2 · X3 · X4 · X5 | −0.526 · 0.199 · 0.044 · 0.371 · 0.527 | −0.535 · 0.192 · 0.069 · 0.363 · 0.509 | 0.498 · 0.230 · 0.293 · 1.296 · 2.223 | 0.583 · −0.851 · 0.046 · 1.327 · 2.137 |
+| **Z′** | **0.610 distress** | **0.655 distress** | **4.225 safe** | **2.529 grey** |
+
+Mondi is in distress in both models although it is a profitable manufacturer: 16.5 bn CZK of its 20 bn CZK short-term liabilities are owed within the Mondi group, which turns working capital and V5 negative. The analyst has to read the scores with the notes; the models do not know about group financing.
+
+## For the presentation: why IN05
+
+IN05 was built by Inka and Ivan Neumaier on the financial statements of Czech industrial companies and published in 2005, so its weights reflect Czech accounting (Vyhláška 500/2002), Czech capital structures and Czech interest levels rather than those of US listed firms in the 1960s. It joins the creditor's view (bankruptcy risk) with the owner's view (whether the firm creates value), and it is widely taught and used in Czech financial analysis, so a Cofidis analyst can compare a Fides result with what they already know. Altman Z′ is computed next to it as the internationally known reference.

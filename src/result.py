@@ -9,6 +9,7 @@ from pydantic import BaseModel, Field
 
 from src.extraction.reread import RereadReport
 from src.extraction.types import PageWords
+from src.ratios.bankruptcy import BankruptcyReport
 from src.ratios.models import RatioReport
 from src.schema import FinancialStatements
 from src.validation.models import ValidationReport
@@ -91,7 +92,7 @@ class Result(BaseModel):
     validation: ValidationReport | None = None
     reread: RereadReport | None = Field(None, description="Cells read again because the checks doubted them (CIPW-11).")
     ratios: RatioReport | None = None
-    bankruptcy: dict[str, Any] | None = None
+    bankruptcy: BankruptcyReport | None = None
     benchmarks: dict[str, Any] | None = None
     report: dict[str, Any] | None = None
     number_check: dict[str, Any] | None = None

@@ -76,7 +76,7 @@ export interface ValidationReport {
 
 export interface RatioValue {
   value: number | null;
-  flag: "ok" | "unreliable" | "not_meaningful" | "missing";
+  flag: Flag;
   reason: string | null;
   inputs: Record<string, number | null>;
 }
@@ -95,13 +95,33 @@ export type Light = "green" | "amber" | "red";
 export type Zone = "safe" | "grey" | "distress";
 export type Rating = "low" | "medium" | "high";
 
-// bankruptcy, benchmarks, report and number_check are free-form dicts in Python until CIPW-13/14/16/17 fix them
-export interface Bankruptcy {
-  mock?: boolean;
-  in05?: { score: number; zone: Zone };
-  altman_z_prime?: { score: number; zone: Zone };
-  note?: string;
+export type Flag = "ok" | "unreliable" | "not_meaningful" | "missing";
+
+// src/ratios/bankruptcy.py (CIPW-13)
+export interface BankruptcyScore {
+  score: number | null;
+  zone: Zone | null;
+  flag: Flag;
+  reason: string | null;
+  variables: { key: string; formula: string; weight: number; value: number | null }[];
+  inputs: Record<string, number | null>;
 }
+
+export interface BankruptcyModel {
+  key: "in05" | "altman_z_prime";
+  name: string;
+  source: string;
+  zones: string;
+  current: BankruptcyScore;
+  prior: BankruptcyScore;
+}
+
+export interface Bankruptcy {
+  in05: BankruptcyModel;
+  altman_z_prime: BankruptcyModel;
+}
+
+// benchmarks, report and number_check are free-form dicts in Python until CIPW-14/16/17 fix them
 
 export interface Benchmarks {
   mock?: boolean;

@@ -1,7 +1,7 @@
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import { formatChange, formatNumber, formatRatio } from "../lib/format";
 import { ratioLight } from "../lib/summary";
-import type { Light, Ratio, ResultView, Zone } from "../types";
+import type { BankruptcyModel, Light, Ratio, ResultView, Zone } from "../types";
 import { Badge, MockBanner } from "./ui";
 
 const GROUPS = [
@@ -47,6 +47,30 @@ function RatioCard({ result, ratio }: { result: ResultView; ratio: Ratio }) {
   );
 }
 
+function ModelCard({ model }: { model: BankruptcyModel }) {
+  const { current, prior } = model;
+  return (
+    <div className="card ratio">
+      <div className="name">
+        <span>{model.name}</span>
+        {current.zone && <Badge tone={ZONE[current.zone].tone} icon>{ZONE[current.zone].word}</Badge>}
+        {current.flag === "unreliable" && <Badge tone="warn">Check inputs</Badge>}
+      </div>
+      <div className="zone">{current.score === null ? "–" : formatNumber(current.score, 2)}</div>
+      <div className="change">
+        <span className="faint">
+          {prior.score === null ? "no prior year" : `${formatNumber(prior.score, 2)} prior year${prior.zone ? ` (${ZONE[prior.zone].word.toLowerCase()})` : ""}`}
+        </span>
+      </div>
+      <div className="formula">
+        {current.variables.map((v) => `${v.key} ${v.value === null ? "–" : formatNumber(v.value, 2)}`).join(" · ")}
+      </div>
+      <div className="faint" style={{ fontSize: 12 }}>{model.zones}</div>
+      {current.flag !== "ok" && current.reason && <div className="faint" style={{ fontSize: 12 }}>{current.reason}</div>}
+    </div>
+  );
+}
+
 export function Ratios({ result }: { result: ResultView }) {
   const ratios = result.ratios?.ratios ?? [];
   const b = result.bankruptcy;
@@ -59,25 +83,12 @@ export function Ratios({ result }: { result: ResultView }) {
   return (
     <div className="stack">
       {mock && <MockBanner what={mock} />}
-      {b && (b.in05 || b.altman_z_prime) && (
+      {b && (
         <div className="grid-2">
-          {b.in05 && (
-            <div className="card ratio">
-              <div className="name"><span>IN05 (Neumaierovi)</span><Badge tone={ZONE[b.in05.zone].tone} icon>{ZONE[b.in05.zone].word}</Badge></div>
-              <div className="zone">{formatNumber(b.in05.score, 2)}</div>
-              <div className="faint" style={{ fontSize: 12 }}>Czech bankruptcy model: below 0.9 distress, above 1.6 creates value</div>
-            </div>
-          )}
-          {b.altman_z_prime && (
-            <div className="card ratio">
-              <div className="name"><span>Altman Z′ (private firms)</span><Badge tone={ZONE[b.altman_z_prime.zone].tone} icon>{ZONE[b.altman_z_prime.zone].word}</Badge></div>
-              <div className="zone">{formatNumber(b.altman_z_prime.score, 2)}</div>
-              <div className="faint" style={{ fontSize: 12 }}>Below 1.23 distress, above 2.9 safe</div>
-            </div>
-          )}
+          <ModelCard model={b.in05} />
+          <ModelCard model={b.altman_z_prime} />
         </div>
       )}
-      {b?.note && <p className="faint" style={{ margin: 0, fontSize: 13 }}>{b.note}</p>}
       {GROUPS.map(([group, title]) => {
         const items = ratios.filter((r) => r.group === group);
         if (items.length === 0) return null;

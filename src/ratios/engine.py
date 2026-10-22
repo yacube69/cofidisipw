@@ -21,9 +21,14 @@ from src.validation.models import ValidationReport
 PERIODS = ("current", "prior")
 
 # lines that are one part of a sum: not printed means 0 when the rest of the sum is there
-# (a manufacturer prints no revenue from goods, a service firm no inventories)
+# (a manufacturer prints no revenue from goods, a service firm no inventories, many firms no share premium)
 ZERO_WHEN_MISSING = {
-    "revenue_products_services", "revenue_goods", "short_term_financial_assets", "inventories", "interest_expense"
+    "revenue_products_services",
+    "revenue_goods",
+    "short_term_financial_assets",
+    "inventories",
+    "interest_expense",
+    "share_premium_capital_funds",
 }
 
 # costs some statements print negative (the operating result check accepts both); their size is what counts
