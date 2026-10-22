@@ -16,7 +16,7 @@ pydantic-settings>=2.4  # src/settings.py (CIPW-45)
 anthropic>=1.11.0
 
 # API for the web app (web/, CIPW-41)
-fastapi>=0.115
+fastapi>=0.146.0
 uvicorn>=0.30
 python-multipart>=0.0.9
 
