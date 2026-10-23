@@ -245,6 +245,6 @@
     }
   },
   "transcribed_by": "Claude (from the scanned PDF, read visually)",
-  "verified_by": "Marvin",
+  "verified_by": "Marvin,Barbara,Katerina",
   "notes": "Scan (no text layer), 4 pages, balance sheet only: no income statement in the file, so all income_statement lines are null. Printed form heading says 'v plném rozsahu' (full scope), hence scope=full. Whole thousands CZK. Korekce printed positive (296), stored as printed. Prior year has only a Netto column. No unreadable characters; scan is clean."
 }
