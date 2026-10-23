@@ -256,7 +256,7 @@
     }
   },
   "transcribed_by": "Claude (from the scanned PDF, read visually)",
-  "verified_by": "Marvin,Barbara,Katerina",
+  "verified_by": "Marvin, Barbara, Katerina",
   "partial": false,
   "notes": "Scan without text layer, 9 pages: balance sheet pp. 1-3, income statement p. 4, rest is the annex. Full scope, whole thousands CZK (header says 'v tisicich Kc'). Statement date 31.12.2022; the balance sheet column headers on p. 1 both read '31.12.21' (typo in the source, pp. 3-4 correctly show 31.12.22 / 31.12.21). Poorer scan quality: grey shaded total rows, right page edge cropped (address cut off), uneven print weight; every number was legible and all sub-totals add up, so no value is flagged as doubtful. Blank cells are null; prior-year zeros printed as 0 stored as 0. Bank loans lines are blank (null). Prior-year income-statement lines that are blank (change in inventory, capitalization) are null. Interest expense (J) printed as 0 / 0 in the shaded sub-total row."
 }

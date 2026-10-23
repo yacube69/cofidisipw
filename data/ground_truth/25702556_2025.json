@@ -245,7 +245,7 @@
     }
   },
   "transcribed_by": "Claude (from the PDF text layer)",
-  "verified_by": "Marvin,Barbara,Katerina",
+  "verified_by": "Marvin, Barbara, Katerina",
   "partial": true,
   "notes": "PARTIAL. IFRS individual statements of CEPS, a.s. in MILLIONS of CZK (unit_multiplier 1000000), annual report PDF pages 62-64 (digital text layer); consolidated statements start on p. 118 and are not transcribed. IFRS layout differs from the Czech decree form: no gross/korekce columns (gross and adjustment null), assets split into non-current/current with long-term receivables and right-of-use asset inside non-current. Filled only lines with the same meaning as a schema field. revenue_products_services = 'Vynosy ze smluv se zakazniky'; tangible_assets = 'Dlouhodoby hmotny majetek celkem' (incl. unfinished 15 035 / 11 029). Left null on purpose: fixed_assets and current_assets (IFRS totals 81 934 / 5 906 contain lines the Czech form places elsewhere, so the schema sums would not hold), receivables (printed together with other receivables 1 823 / 2 552), equity (42 092 / 36 220; filling it without external_sources breaks the liabilities identity because 'Zavazky celkem' is not printed), retained_earnings/profit_current_period (printed combined: 14 951 / 10 035), funds_from_profit (Fond rozvoje soustavy 16 606 / 15 650), bank loans (Uvery 26 540 / 2 968 not labelled as credit institutions), cost, depreciation, personnel, interest and tax lines (IFRS prints expenses negative, e.g. Osobni naklady -1 343). Statement of comprehensive income = profit after tax, so no separate OCI lines."
 }

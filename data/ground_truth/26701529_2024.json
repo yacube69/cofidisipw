@@ -245,6 +245,6 @@
     }
   },
   "transcribed_by": "Claude (from the PDF text layer)",
-  "verified_by": "Marvin,Barbara,Katerina",
+  "verified_by": "Marvin, Barbara, Katerina",
   "notes": "Digital micro-entity statement, 3 pages: abbreviated balance sheet (pp. 1-2, 've zkracenem rozsahu pro mikro ucetni jednotku') and income statement in full scope (p. 3). Company name is not printed (only the ICO), so company_name is null. The abbreviated balance sheet prints only the top-level lines (B, C, A, B.+C., C, D), so all other balance-sheet lines are null; A.V (profit of the period) is not printed in the balance sheet. Korekce is blank for current assets (null). Prior year has only a Netto column. Income tax and interest expense lines are not printed (null). No unreadable characters."
 }
