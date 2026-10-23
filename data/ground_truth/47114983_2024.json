@@ -269,7 +269,7 @@
     }
   },
   "transcribed_by": "Claude (from the PDF text layer)",
-  "verified_by": "Marvin",
+  "verified_by": "Marvin,Barbara,Katerina",
   "partial": false,
   "notes": "INDIVIDUAL statements of Ceska posta, s.p. (state enterprise) from its annual report 2024 (83-page PDF), Czech decree form, full scope, in MILLIONS of CZK (unit_multiplier 1000000, not thousands). Assets PDF p. 21, liabilities p. 22, profit and loss p. 23 (digital text layer; printed page numbers 'Strana 21-23/83'). The CONSOLIDATED statements (PDF pp. 54-58) are not transcribed. Korekce printed negative, entered as printed; prior year only Netto, so prior gross/adjustment null. 'z toho svereni prostredky' (entrusted funds, e.g. 4 819 of liabilities) are memo lines and not part of any schema line. A.IV (retained earnings of previous years) is not printed (equity = 3 588 + 72 + 363 - 1 249 = 2 774) -> retained_earnings null. capitalization = line C 'Aktivace' printed -22 / -21 (negative as printed). net_turnover 2023 is printed '*' (not comparable, methodology change) -> null. income_tax not printed (result before and after tax are equal) -> null. Lines not printed on the form (goods/receivables subscribed capital, C.II.3 and C.III accrual lines, change in inventory, long-term bank loans) -> null. trade_payables_long_term = C.I.4. Balance sheet identity and operating result reconcile exactly. No unreadable characters."
 }
