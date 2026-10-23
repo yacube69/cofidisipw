@@ -272,7 +272,7 @@
     }
   },
   "transcribed_by": "Claude (from the scanned PDF, read visually)",
-  "verified_by": null,
+  "verified_by": "Marvin,Barbara,Katerina",
   "partial": false,
   "notes": "Scan with a noisy OCR text layer (not used), 6 pages: balance sheet pp. 1-4, income statement pp. 5-6, full scope, whole thousands CZK. ICO printed '28 29 75 80'. Company has no sales revenue (lines I. and II. blank, null): the operating result is negative and the profit comes from other financial income (VII. 23 553 / 30 968); net turnover equals that line. Negative balances printed as they are: trade receivables -367 / -368 (C.II.2.1.) and trade payables -114 / -75 (C.II.4.). Korekce printed positive (956), stored as printed. Blank cells are null (e.g. income-statement lines without values, bank loans, long-term liabilities detail); zeros printed as 0 stored as 0. This form has neither C.II.3. nor C.III. accrual lines, so accruals_in_receivables and accruals_in_liabilities are null. No unreadable digits; all sub-totals add up."
 }
