@@ -50,7 +50,9 @@ def test_an_empty_cell_is_filled_when_the_checks_pass_with_it(statement):
     report, _ = validate_and_review(fs)
     reread(doc, fs, report)
     assert fs.get("cash", "prior") == 50_000 * K
-    assert fs.value("cash", "prior").source == "ocr"
+    filled = fs.value("cash", "prior")
+    assert filled.source == "ocr" and filled.ocr_conf is not None
+    assert filled.match_score == fs.value("cash", "current").match_score  # the line was found, the cell was empty
 
 
 def _amounts(fs):

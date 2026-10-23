@@ -301,9 +301,13 @@ def _best(fs: FinancialStatements, moves: list[list[tuple[Cell, Reading]]], fail
 
 def _apply(fs: FinancialStatements, cell: Cell, reading: Reading, report: RereadReport) -> None:
     old = _set(fs, cell.key, cell.period, None)
-    new = (old.model_copy() if old is not None else Value(page=cell.page, bbox=cell.box, source="ocr")).model_copy(
-        update={"value": reading.value, "raw": reading.text, "ocr_conf": reading.conf}
-    )
+    if old is None:  # an empty cell: the line itself was identified, its other cells carry the match score
+        item = fs.balance_sheet.get(cell.key) or fs.income_statement.get(cell.key)
+        line = next((v.match_score for v in item.values() if v.match_score is not None), None) if item else None
+        base = Value(page=cell.page, bbox=cell.box, source="ocr", match_score=line)
+    else:
+        base = old.model_copy()
+    new = base.model_copy(update={"value": reading.value, "raw": reading.text, "ocr_conf": reading.conf})
     printed = repr(old.raw) if old is not None and old.raw else "nothing"
     new.note = f"re-read at higher resolution ({reading.attempt}): {printed} read as {reading.text!r}, the checks agree"
     if old is not None and old.value is not None and old.value not in new.candidates:

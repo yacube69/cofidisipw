@@ -365,6 +365,7 @@ def _value(tokens: list[NumberToken | Word], unit: int, pw: PageWords, score: fl
                 page=pw.page,
                 bbox=unstraighten(w.bbox, pw),
                 source=pw.source,
+                ocr_conf=w.conf,
                 match_score=round(score, 1),
             )
         return None

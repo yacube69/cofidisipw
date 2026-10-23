@@ -10,6 +10,7 @@ from src.evaluation import compare
 from src.extraction.parser import (
     ParsedLine,
     ParseLog,
+    _value,
     clean_label,
     code_key,
     continues,
@@ -19,7 +20,7 @@ from src.extraction.parser import (
     row_offsets,
 )
 from src.extraction.reading import read_page
-from src.extraction.types import PageWords
+from src.extraction.types import PageWords, Word
 from src.line_items import load_dictionary
 from src.schema import GroundTruth
 from src.validation.review import validate_and_review
@@ -157,7 +158,14 @@ def test_every_value_has_provenance():
         for item in fs.statement(st).values():
             for v in item.values():
                 assert v.page in (20, 21, 22) and v.bbox is not None and v.source == "ocr"
-                assert v.match_score is not None and v.raw
+                assert v.match_score is not None and v.ocr_conf is not None and v.raw
+
+
+def test_a_dash_read_by_ocr_keeps_its_confidence():
+    """A dash prints zero; like any other value it carries the confidence of the word it was read from."""
+    pw = PageWords(file="x.pdf", page=1, source="ocr", width=600, height=800)
+    v = _value([Word(text="-", x0=500, y0=100, x1=505, y1=108, conf=91.0)], 1000, pw, 96.0)
+    assert v.value == 0 and v.ocr_conf == 91.0 and v.match_score == 96.0
 
 
 # ---------------------------------------------------------------- CIPW-32: lines the parser used to miss
