@@ -269,7 +269,7 @@
     }
   },
   "transcribed_by": "Claude (from the PDF text layer)",
-  "verified_by": null,
+  "verified_by": "Marvin",
   "partial": false,
   "notes": "3-page statement export (balance sheet pp. 1-2, profit and loss p. 3), full scope, thousands CZK, digital text layer; checked against a rendering of page 1. The document prints only 'IC: 9840141' (entered as 08-digit 09840141) and NO company name, so company_name is null (not found in data/index.csv either); please add it from the commercial register. Korekce printed as positive numbers, entered as printed; blank korekce cells are null, printed 0 is 0. Prior year only Netto, so prior gross/adjustment null. Only lines printed on the form are filled; the PDF omits all-zero/empty lines (intangibles B.I.3, financial fixed assets, inventories, provisions, bank loans, personnel costs, interest, other operating income, accrual lines C.II.3 / C.III) -> null. Blank prior-year cell C.II.8.6 (Dohadne ucty pasivni) is not a schema line. Balance sheet identity and operating result reconcile exactly."
 }
