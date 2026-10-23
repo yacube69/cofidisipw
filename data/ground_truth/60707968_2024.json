@@ -271,7 +271,7 @@
     }
   },
   "transcribed_by": "Claude (AI-assisted), from scan",
-  "verified_by": null,
+  "verified_by": "Marvin,Barbara,Katerina",
   "partial": false,
   "notes": "Full-scope statements (Czech decree 500/2002), thousands CZK, scanned PDF read visually. Korekce printed negative. cost_of_sales = line A (Vykonova spotreba, row 03); change_in_inventory = B (row 07, -3909); capitalization = C (row 08, -10); depreciation = E.1 (row 15); interest_expense = J (row 43); other_operating_income = III (row 20), other_operating_expenses = F (row 24). bank_loans_short_term = C.II.2 'Zavazky k uverovym institucim' (row 130); trade_payables_short_term = row 132. accruals_in_receivables = C.II.3 (row 068) and accruals_in_liabilities = C.III (row 144), both 0. accruals_liabilities = D (row 147). net_turnover prior-year cell (row 56) is empty on the form -> null. No unreadable characters."
 }
