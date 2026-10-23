@@ -269,7 +269,7 @@
     }
   },
   "transcribed_by": "Claude (from the scanned PDF, deskewed and read visually)",
-  "verified_by": null,
+  "verified_by": "Marvin,Barbara,Katerina",
   "partial": false,
   "notes": "Poor scan, 4 pages, no text layer: full-scope balance sheet only (pp. 1-4, form 'Rozvaha-Efko plny rozsah'), no income statement in the file, so all income_statement lines are null. Whole thousands CZK. Balance sheet date printed as 31.03.2024 (not 31.12.), period_end set accordingly. Pages 2 and 4 are tilted about 2 degrees so labels sit lower than their numbers: values were assigned by the row numbers (cislo radku) after deskewing, and every sub-total adds up. Auditor stamp overlaps the header of p. 3 and p. 1 (labels only, no numbers). Korekce printed negative (stored as printed). Blank cells are null, also in the prior-year column. This form has no C.II.3 accruals line (row 068 is C.III.), so accruals_in_receivables is null; accruals in liabilities appear only as D. (row 141). Long-term receivables exist only in the prior year (4 000). 'Sestaveno dne' is empty. No unreadable digits."
 }
