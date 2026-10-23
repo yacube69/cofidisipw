@@ -267,7 +267,7 @@
     }
   },
   "transcribed_by": "Claude (from scan, read visually)",
-  "verified_by": null,
+  "verified_by": "Marvin,Barbara,Katerina",
   "partial": false,
   "notes": "Balance sheet only: this PDF (14 pages) contains the balance sheet (pp. 2-3, 'v plnem rozsahu', thousands CZK) and the notes (from p. 4) but NO income statement, so income_statement is all null and pages.income_statement is empty. ICO printed as '084 97 222' (= 08497222). Scanned, all figures readable. Gross/Korekce/Netto printed for current-year assets; prior year (01.01.2025) only Netto, so prior gross/adjustment are null. Korekce are printed as positive numbers (102 687, 83 182, 19 505) and entered as printed; cells left blank on the form are null. Only lines present on this form are filled; intangible assets, financial fixed assets, inventories, long-term receivables, bank loans, funds, share premium and C.II.3 / C.III accrual lines are not printed -> null. Blank cells are null (prior-year A.V profit current period; 2025 provisions B / B.2 are blank, prior B.2 3 584). Prior-year balance sheet column is headed 01.01.2025 (opening balance), not 31.12.2024. tangible_assets = fixed_assets (B.II = only fixed-asset group printed). accruals_assets = D (102 / 16 242; D.3 prior 16 153)."
 }
