@@ -269,7 +269,7 @@
     }
   },
   "transcribed_by": "Claude (from the PDF text layer)",
-  "verified_by": null,
+  "verified_by": "Marvin",
   "partial": false,
   "notes": "Czech decree form, full scope, thousands CZK, from the 2025 annual report PDF (42 pages): balance sheet PDF pp. 9-10, profit and loss (druhove cleneni) p. 11; digital text layer. ICO printed as '481 71 131'. Korekce printed as positive numbers (e.g. 6 305 993) and entered as printed; cells left blank on the form (gross-only rows, prior-year blanks such as C.II.2 bank loans 2024, C.II.8.7 2025) are null, printed 0 is 0. Prior year only Netto, so prior gross/adjustment null. capitalization = line C 'Aktivace (-)' printed -33 178 / -35 096; change_in_inventory = line B printed +1 755 070 / -1 711 107 (as printed). bank_loans_short_term = C.II.2 'Zavazky k uverovym institucim' 618 (2024 blank). Lines not printed on this form (C.II.3 / C.III accrual lines, short-term financial assets C.III, long-term bank loans, trade payables long-term) -> null. The annual report also contains the notes (from p. 15) and cash flow / equity statements, not transcribed. No unreadable characters."
 }
