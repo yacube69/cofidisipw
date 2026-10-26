@@ -16,7 +16,7 @@ from src.schema import GroundTruth
 from tests.synthetic import make_digital_pdf
 
 ROOT = Path(__file__).resolve().parents[1]
-GT_PATH = ROOT / "data" / "ground_truth" / "25080776_2025.json"
+GT_PATH = ROOT / "data" / "ground_truth" / "26161516_2025.json"
 
 
 def _gt() -> GroundTruth:
