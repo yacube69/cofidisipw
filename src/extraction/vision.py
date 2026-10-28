@@ -12,6 +12,7 @@ plus the unit, see docs/schema.md). The answer is validated with Pydantic (`Grou
 from __future__ import annotations
 
 import base64
+import json
 import os
 import time
 from dataclasses import dataclass, field
@@ -26,6 +27,9 @@ from src.schema import FinancialStatements, GroundTruth
 ROOT = Path(__file__).resolve().parents[2]
 PROMPT_PATH = ROOT / "prompts" / "extraction_vision_v1.md"
 DEFAULT_MODEL = "claude-sonnet-5-5"
+DEFAULT_MODELS = {"anthropic": DEFAULT_MODEL, "mistral": "mistral-medium-3.5"}
+PROVIDERS = tuple(DEFAULT_MODELS)
+MISTRAL_URL = "https://api.mistral.ai/v1/chat/completions"
 DPI = 200
 MAX_TOKENS = 8000
 TOOL_NAME = "record_statements"
@@ -40,6 +44,7 @@ class VisionResult:
     statements: FinancialStatements | None = None
     raw: dict[str, Any] | None = None  # the tool input exactly as the model returned it
     model: str = ""
+    provider: str = "anthropic"
     prompt_version: str = PROMPT_PATH.stem
     dpi: int = DPI
     temperature_used: bool = True
@@ -85,8 +90,12 @@ def build_prompt(path: Path = PROMPT_PATH) -> str:
     return body.strip() + "\n"
 
 
-def output_schema() -> dict[str, Any]:
-    """JSON schema of the tool input: ground-truth format, one optional object per schema key."""
+def output_schema(simple: bool = False) -> dict[str, Any]:
+    """JSON schema of the tool input: ground-truth format, one optional object per schema key.
+
+    `simple=True` (used for Mistral) writes each number as plain `number` instead of `["number", "null"]`: a value
+    that is not printed is left out, which the prompt already allows and which `GroundTruth` reads as missing.
+    """
     d = load_dictionary()
 
     def statement_schema(statement: str) -> dict[str, Any]:
@@ -95,7 +104,7 @@ def output_schema() -> dict[str, Any]:
             props[line.key] = {
                 "type": "object",
                 "description": f"{line.label} ({line.code or 'total'})",
-                "properties": {p: {"type": ["number", "null"]} for p in _periods(line)},
+                "properties": {p: {"type": "number" if simple else ["number", "null"]} for p in _periods(line)},
                 "additionalProperties": False,
             }
         return {"type": "object", "properties": props, "additionalProperties": False}
@@ -183,6 +192,138 @@ def to_statements(raw: dict[str, Any], file: str, pages: list[int]) -> Financial
     return fs
 
 
+class MistralError(Exception):
+    """An HTTP error from the Mistral API."""
+
+    def __init__(self, status_code: int, message: str):
+        super().__init__(f"HTTP {status_code}: {message}")
+        self.status_code = status_code
+
+
+class MistralClient:
+    """Minimal client for Mistral's chat completions API (plain HTTP, no SDK). Retries rate limits (429)."""
+
+    def __init__(
+        self, api_key: str | None = None, url: str = MISTRAL_URL, timeout: float = 300.0, max_retries: int = 6
+    ):
+        self.api_key = api_key or os.getenv("MISTRAL_API_KEY")
+        if not self.api_key:
+            raise ValueError("MISTRAL_API_KEY is not set")
+        self.url, self.timeout, self.max_retries = url, timeout, max_retries
+        self.sleep = time.sleep
+
+    def chat(self, payload: dict[str, Any]) -> dict[str, Any]:
+        import httpx
+
+        for attempt in range(self.max_retries + 1):
+            response = httpx.post(
+                self.url, json=payload, headers={"Authorization": f"Bearer {self.api_key}"}, timeout=self.timeout
+            )
+            if response.status_code == 429 and attempt < self.max_retries:
+                try:
+                    wait = float(response.headers.get("retry-after", ""))
+                except ValueError:
+                    wait = min(2.0 * 2**attempt, 60.0)
+                self.sleep(min(wait, 120.0))
+                continue
+            if response.status_code >= 400:
+                raise MistralError(response.status_code, response.text[:500])
+            return response.json()
+        raise MistralError(429, "rate limit: retries exhausted")
+
+
+def _mistral_content(images: list[tuple[int, bytes]]) -> list[dict[str, Any]]:
+    content: list[dict[str, Any]] = []
+    for page, png in images:
+        content.append({"type": "text", "text": f"PDF page {page}:"})
+        content.append({"type": "image_url", "image_url": "data:image/png;base64," + base64.b64encode(png).decode()})
+    content.append({"type": "text", "text": f"Transcribe the statements into the `{TOOL_NAME}` tool."})
+    return content
+
+
+def _call_anthropic(
+    client: Any, model: str, images: list[tuple[int, bytes]], max_tokens: int, result: VisionResult
+) -> dict[str, Any]:
+    import anthropic
+
+    kwargs: dict[str, Any] = {
+        "model": model,
+        "max_tokens": max_tokens,
+        "system": build_prompt(),
+        "tools": [
+            {
+                "name": TOOL_NAME,
+                "description": "Record the numbers transcribed from the pages.",
+                "input_schema": output_schema(),
+            }
+        ],
+        "tool_choice": {"type": "tool", "name": TOOL_NAME},
+        "messages": [{"role": "user", "content": _content(images)}],
+    }
+    try:
+        response = client.messages.create(temperature=0, **kwargs)
+    except anthropic.BadRequestError as exc:
+        if "temperature" not in str(exc).lower():
+            raise
+        result.temperature_used = False  # some models do not accept it: the run is then not strictly temperature 0
+        result.warnings.append("model rejected temperature=0; called without it")
+        response = client.messages.create(**kwargs)
+    result.input_tokens = response.usage.input_tokens
+    result.output_tokens = response.usage.output_tokens
+    result.stop_reason = response.stop_reason
+    if response.stop_reason == "max_tokens":
+        raise ValueError("answer cut off at max_tokens: raise MAX_TOKENS")
+    block = next((b for b in response.content if b.type == "tool_use" and b.name == TOOL_NAME), None)
+    if block is None:
+        raise ValueError("the model did not call the tool")
+    return dict(block.input)
+
+
+def _call_mistral(
+    client: Any, model: str, images: list[tuple[int, bytes]], max_tokens: int, result: VisionResult
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "model": model,
+        "max_tokens": max_tokens,
+        "messages": [
+            {"role": "system", "content": build_prompt()},
+            {"role": "user", "content": _mistral_content(images)},
+        ],
+        "tools": [
+            {
+                "type": "function",
+                "function": {
+                    "name": TOOL_NAME,
+                    "description": "Record the numbers transcribed from the pages.",
+                    "parameters": output_schema(simple=True),
+                },
+            }
+        ],
+        "tool_choice": "any",
+    }
+    try:
+        data = client.chat({**payload, "temperature": 0})
+    except MistralError as exc:
+        if exc.status_code != 400 or "temperature" not in str(exc).lower():
+            raise
+        result.temperature_used = False
+        result.warnings.append("model rejected temperature=0; called without it")
+        data = client.chat(payload)
+    usage = data.get("usage") or {}
+    result.input_tokens = usage.get("prompt_tokens", 0)
+    result.output_tokens = usage.get("completion_tokens", 0)
+    choice = data["choices"][0]
+    result.stop_reason = choice.get("finish_reason")
+    if result.stop_reason == "length":
+        raise ValueError("answer cut off at max_tokens: raise MAX_TOKENS")
+    calls = (choice.get("message") or {}).get("tool_calls") or []
+    call = next((c for c in calls if (c.get("function") or {}).get("name") == TOOL_NAME), None)
+    if call is None:
+        raise ValueError("the model did not call the tool")
+    arguments = call["function"]["arguments"]
+    return json.loads(arguments) if isinstance(arguments, str) else dict(arguments)
+
+
 def extract_with_vision(
     pdf: str | Path,
     pages: list[int],
@@ -190,47 +331,24 @@ def extract_with_vision(
     model: str | None = None,
     dpi: int = DPI,
     max_tokens: int = MAX_TOKENS,
+    provider: str = "anthropic",
 ) -> VisionResult:
-    """One call: the images of `pages` in, statements out. `client` is an `anthropic.Anthropic` (or a test double)."""
-    import anthropic
+    """One call: the images of `pages` in, statements out.
 
-    model = model or os.getenv("LLM_MODEL") or DEFAULT_MODEL
+    `client` is an `anthropic.Anthropic` (provider "anthropic") or a `MistralClient` (provider "mistral"), or a test
+    double with the same methods.
+    """
+    if provider not in PROVIDERS:
+        raise ValueError(f"unknown provider {provider!r}, use one of {PROVIDERS}")
+    env_model = os.getenv("MISTRAL_MODEL" if provider == "mistral" else "LLM_MODEL")
+    model = model or env_model or DEFAULT_MODELS[provider]
     pdf = Path(pdf)
-    result = VisionResult(file=pdf.name, pages=pages, model=model, dpi=dpi)
+    result = VisionResult(file=pdf.name, pages=pages, model=model, dpi=dpi, provider=provider)
     started = time.perf_counter()
     try:
         images = render_pages(pdf, pages, dpi)
-        kwargs: dict[str, Any] = {
-            "model": model,
-            "max_tokens": max_tokens,
-            "system": build_prompt(),
-            "tools": [
-                {
-                    "name": TOOL_NAME,
-                    "description": "Record the numbers transcribed from the pages.",
-                    "input_schema": output_schema(),
-                }
-            ],
-            "tool_choice": {"type": "tool", "name": TOOL_NAME},
-            "messages": [{"role": "user", "content": _content(images)}],
-        }
-        try:
-            response = client.messages.create(temperature=0, **kwargs)
-        except anthropic.BadRequestError as exc:
-            if "temperature" not in str(exc).lower():
-                raise
-            result.temperature_used = False  # some models do not accept it: the run is then not strictly temperature 0
-            result.warnings.append("model rejected temperature=0; called without it")
-            response = client.messages.create(**kwargs)
-        result.input_tokens = response.usage.input_tokens
-        result.output_tokens = response.usage.output_tokens
-        result.stop_reason = response.stop_reason
-        if response.stop_reason == "max_tokens":
-            raise ValueError("answer cut off at max_tokens: raise MAX_TOKENS")
-        block = next((b for b in response.content if b.type == "tool_use" and b.name == TOOL_NAME), None)
-        if block is None:
-            raise ValueError("the model did not call the tool")
-        result.raw = dict(block.input)
+        call = _call_mistral if provider == "mistral" else _call_anthropic
+        result.raw = call(client, model, images, max_tokens, result)
         result.notes = result.raw.get("notes")
         result.statements = to_statements(result.raw, pdf.name, pages)
     except Exception as exc:  # a failed file is a result, not a crash: the run goes on and the failure is reported

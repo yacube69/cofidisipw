@@ -141,3 +141,103 @@ def test_cost_needs_the_prices_from_the_environment(monkeypatch):
     monkeypatch.setenv("LLM_PRICE_IN_PER_MTOK", "3")
     monkeypatch.setenv("LLM_PRICE_OUT_PER_MTOK", "15")
     assert vision.cost_usd(1_000_000, 1_000_000) == pytest.approx(18.0)
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Mistral (the model Cofidis uses): plain HTTP client, so the test doubles are a fake client and a fake httpx.post
+# ---------------------------------------------------------------------------------------------------------------
+
+
+class FakeMistral:
+    def __init__(self, *answers):
+        self.answers = list(answers)
+        self.payloads: list[dict] = []
+
+    def chat(self, payload):
+        self.payloads.append(payload)
+        answer = self.answers.pop(0)
+        if isinstance(answer, Exception):
+            raise answer
+        return answer
+
+
+def _mistral_response(tool_input, finish_reason="tool_calls", as_string=True):
+    arguments = json.dumps(tool_input) if as_string else tool_input
+    message = {"role": "assistant", "tool_calls": [{"function": {"name": vision.TOOL_NAME, "arguments": arguments}}]}
+    return {
+        "choices": [{"message": message, "finish_reason": finish_reason}],
+        "usage": {"prompt_tokens": 1500, "completion_tokens": 400},
+    }
+
+
+def test_mistral_request_shape_and_perfect_answer(pdf: Path):
+    gt = _gt()
+    client = FakeMistral(_mistral_response(_answer(gt)))
+    result = vision.extract_with_vision(pdf, [1, 2], client, provider="mistral")
+    assert result.ok and result.provider == "mistral" and result.model == "mistral-medium-3.5"
+    assert result.input_tokens == 1500 and result.output_tokens == 400
+    assert all(f.correct for f in compare(gt, result.statements))
+    payload = client.payloads[0]
+    assert payload["temperature"] == 0 and payload["tool_choice"] == "any"
+    images = [b for b in payload["messages"][1]["content"] if b["type"] == "image_url"]
+    assert len(images) == 2 and images[0]["image_url"].startswith("data:image/png;base64,")
+    schema = payload["tools"][0]["function"]["parameters"]
+    first = next(iter(schema["properties"]["balance_sheet"]["properties"].values()))
+    assert all(p["type"] == "number" for p in first["properties"].values())  # no ["number", "null"] unions
+
+
+def test_mistral_arguments_may_already_be_an_object(pdf: Path):
+    client = FakeMistral(_mistral_response(_answer(_gt()), as_string=False))
+    assert vision.extract_with_vision(pdf, [1], client, provider="mistral").ok
+
+
+def test_mistral_cut_off_and_missing_tool_call_are_errors(pdf: Path):
+    cut = FakeMistral(_mistral_response({}, finish_reason="length"))
+    assert "cut off" in (vision.extract_with_vision(pdf, [1], cut, provider="mistral").error or "")
+    no_call = FakeMistral({"choices": [{"message": {"content": "hi"}, "finish_reason": "stop"}], "usage": {}})
+    assert "did not call" in (vision.extract_with_vision(pdf, [1], no_call, provider="mistral").error or "")
+
+
+def test_mistral_temperature_rejected_is_retried_and_flagged(pdf: Path):
+    rejected = vision.MistralError(400, "temperature is not supported")
+    client = FakeMistral(rejected, _mistral_response(_answer(_gt())))
+    result = vision.extract_with_vision(pdf, [1], client, provider="mistral")
+    assert result.ok and result.temperature_used is False and result.warnings
+    assert "temperature" not in client.payloads[1]
+
+
+def test_unknown_provider_is_refused(pdf: Path):
+    with pytest.raises(ValueError):
+        vision.extract_with_vision(pdf, [1], object(), provider="nope")
+
+
+class FakeHttpResponse:
+    def __init__(self, status_code, body=None, headers=None):
+        self.status_code, self._body, self.headers, self.text = status_code, body or {}, headers or {}, "error text"
+
+    def json(self):
+        return self._body
+
+
+def test_mistral_client_waits_and_retries_on_rate_limit(monkeypatch):
+    import httpx
+
+    responses = [FakeHttpResponse(429, headers={"retry-after": "3"}), FakeHttpResponse(200, {"ok": True})]
+    monkeypatch.setattr(httpx, "post", lambda *a, **k: responses.pop(0))
+    client = vision.MistralClient(api_key="test-key")
+    waits: list[float] = []
+    client.sleep = waits.append
+    assert client.chat({"model": "m"}) == {"ok": True}
+    assert waits == [3.0]
+
+
+def test_mistral_client_raises_on_other_errors_and_needs_a_key(monkeypatch):
+    import httpx
+
+    monkeypatch.setattr(httpx, "post", lambda *a, **k: FakeHttpResponse(401))
+    with pytest.raises(vision.MistralError) as exc:
+        vision.MistralClient(api_key="test-key").chat({})
+    assert exc.value.status_code == 401
+    monkeypatch.delenv("MISTRAL_API_KEY", raising=False)
+    with pytest.raises(ValueError):
+        vision.MistralClient()

@@ -68,15 +68,16 @@ def run_parser(gt: GroundTruth) -> tuple[list[ev.FieldResult], dict[str, list[in
     return ev.compare(gt, fs), pages, seconds, "ocr" in set(fs.metadata.extraction_source.values())
 
 
-def cache_path(gt: GroundTruth, pages: list[int], model: str, dpi: int) -> Path:
-    key = json.dumps([vision.build_prompt(), vision.output_schema(), model, dpi, pages], sort_keys=True)
+def cache_path(gt: GroundTruth, pages: list[int], provider: str, model: str, dpi: int) -> Path:
+    schema = vision.output_schema(simple=provider == "mistral")
+    key = json.dumps([vision.build_prompt(), schema, provider, model, dpi, pages], sort_keys=True)
     return OUT / "cache" / f"{Path(gt.file).stem}_{hashlib.sha1(key.encode()).hexdigest()[:12]}.json"
 
 
 def run_vision(
-    gt: GroundTruth, pages: list[int], client: Any, model: str, dpi: int, force: bool
+    gt: GroundTruth, pages: list[int], client: Any, provider: str, model: str, dpi: int, force: bool
 ) -> vision.VisionResult:
-    path = cache_path(gt, pages, model, dpi)
+    path = cache_path(gt, pages, provider, model, dpi)
     if path.exists() and not force:
         data = json.loads(path.read_text(encoding="utf-8"))
         result = vision.VisionResult(**{k: v for k, v in data.items() if k != "statements"})
@@ -84,7 +85,7 @@ def run_vision(
             result.statements = vision.to_statements(result.raw, gt.file, pages)
         result.from_cache = True
         return result
-    result = vision.extract_with_vision(RAW / gt.file, pages, client, model, dpi)
+    result = vision.extract_with_vision(RAW / gt.file, pages, client, model, dpi, provider=provider)
     if result.error is None:  # failures are not cached: a rerun must try again
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(
@@ -106,26 +107,36 @@ def fmt_cost(c: float | None) -> str:
 def main(argv: list[str] | None = None, client: Any = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("files", nargs="*", help="ground truth names (without .json); default: all")
-    ap.add_argument("--model", default=os.getenv("LLM_MODEL") or vision.DEFAULT_MODEL)
+    ap.add_argument("--provider", choices=vision.PROVIDERS, default=os.getenv("LLM_PROVIDER") or "anthropic")
+    ap.add_argument(
+        "--model", default=None, help="default: MISTRAL_MODEL / LLM_MODEL from .env, else the provider default"
+    )
     ap.add_argument("--dpi", type=int, default=vision.DPI)
     ap.add_argument("--use-gt-pages", action="store_true", help="send the annotated pages, not the locator's")
     ap.add_argument("--dry-run", action="store_true", help="no API call")
     ap.add_argument("--force", action="store_true", help="ignore the vision cache")
     ap.add_argument("--details", action="store_true")
+    ap.add_argument("--pause", type=float, default=0.0, help="seconds to wait after each API call (free-tier limits)")
     args = ap.parse_args(argv)
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(errors="replace")
 
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    args.model = args.model or os.getenv("MISTRAL_MODEL" if args.provider == "mistral" else "LLM_MODEL")
+    args.model = args.model or vision.DEFAULT_MODELS[args.provider]
     if client is None and not args.dry_run:
-        from dotenv import load_dotenv
-
-        load_dotenv()
-        if not os.getenv("ANTHROPIC_API_KEY"):
-            print("ERROR: ANTHROPIC_API_KEY is not set. Copy .env.example to .env and fill it in.")
+        key = "MISTRAL_API_KEY" if args.provider == "mistral" else "ANTHROPIC_API_KEY"
+        if not os.getenv(key):
+            print(f"ERROR: {key} is not set. Copy .env.example to .env and fill it in.")
             return 1
-        import anthropic
+        if args.provider == "mistral":
+            client = vision.MistralClient()
+        else:
+            import anthropic
 
-        client = anthropic.Anthropic()
+            client = anthropic.Anthropic()
 
     paths = [GT_DIR / f"{n}.json" for n in args.files] or sorted(
         p for p in GT_DIR.glob("*.json") if not p.name.startswith("_")
@@ -139,7 +150,9 @@ def main(argv: list[str] | None = None, client: Any = None) -> int:
         if args.dry_run:
             dry_run(gt, pages, args.dpi)
             continue
-        vr = run_vision(gt, pages, client, args.model, args.dpi, args.force)
+        vr = run_vision(gt, pages, client, args.provider, args.model, args.dpi, args.force)
+        if args.pause and not vr.from_cache:
+            time.sleep(args.pause)
         v_fields = ev.compare(gt, vr.statements or FinancialStatements())
         rows.append(
             {
@@ -178,7 +191,7 @@ def main(argv: list[str] | None = None, client: Any = None) -> int:
 def report(rows: list[dict[str, Any]], args: argparse.Namespace) -> int:
     OUT.mkdir(parents=True, exist_ok=True)
     lines = [
-        f"Vision baseline vs parser, {len(rows)} file(s). Model {args.model}, {args.dpi} DPI, "
+        f"Vision baseline vs parser, {len(rows)} file(s). {args.provider} / {args.model}, {args.dpi} DPI, "
         f"prompt {vision.PROMPT_PATH.stem}, pages from the {'annotation' if args.use_gt_pages else 'page locator'}.",
         "",
         "| file | type | values | parser correct | parser silent errors | parser missing | parser s | "
