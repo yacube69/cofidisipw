@@ -282,7 +282,8 @@ def test_gemini_request_shape_and_perfect_answer(pdf: Path):
     assert config["maxOutputTokens"] == vision.MAX_TOKENS_BY_PROVIDER["gemini"]
     images = [p for p in body["contents"][0]["parts"] if "inlineData" in p]
     assert len(images) == 2 and images[0]["inlineData"]["mimeType"] == "image/png"
-    assert "enum" not in config["responseJsonSchema"]["properties"]["unit_multiplier"]
+    assert "responseJsonSchema" not in config  # the full schema is rejected by Gemini (HTTP 400)
+    assert any("exactly this shape" in p.get("text", "") for p in body["contents"][0]["parts"])
 
 
 def test_gemini_cut_off_empty_and_blocked_answers_are_errors(pdf: Path):

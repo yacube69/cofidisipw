@@ -366,6 +366,15 @@ def _call_mistral(
     return json.loads(arguments) if isinstance(arguments, str) else dict(arguments)
 
 
+GEMINI_FORMAT_HINT = """Answer with one JSON object and nothing else, in exactly this shape:
+{"unit_multiplier": 1000,
+ "balance_sheet": {"<line key>": {"gross": 0, "adjustment": 0, "current": 0, "prior": 0}, ...},
+ "income_statement": {"<line key>": {"current": 0, "prior": 0}, ...},
+ "notes": "one short sentence, optional"}
+Use only the line keys and periods listed in the system instructions. Numbers are plain JSON numbers in the printed
+unit; leave out a value that is not printed. unit_multiplier is 1, 1000 or 1000000."""
+
+
 def _call_gemini(
     client: Any, model: str, images: list[tuple[int, bytes]], max_tokens: int, result: VisionResult
 ) -> dict[str, Any]:
@@ -373,12 +382,10 @@ def _call_gemini(
     for page, png in images:
         parts.append({"text": f"PDF page {page}:"})
         parts.append({"inlineData": {"mimeType": "image/png", "data": base64.b64encode(png).decode()}})
-    parts.append({"text": "Transcribe the statements into the JSON answer."})
-    config: dict[str, Any] = {
-        "maxOutputTokens": max_tokens,
-        "responseMimeType": "application/json",
-        "responseJsonSchema": output_schema(simple=True),
-    }
+    parts.append({"text": "Transcribe the statements into the JSON answer.\n\n" + GEMINI_FORMAT_HINT})
+    # No responseJsonSchema: Gemini rejects the full schema (88 line items) with HTTP 400, although each statement
+    # alone passes. JSON mode plus the format hint below is enough; GroundTruth validates the answer afterwards.
+    config: dict[str, Any] = {"maxOutputTokens": max_tokens, "responseMimeType": "application/json"}
     body: dict[str, Any] = {
         "systemInstruction": {"parts": [{"text": build_prompt()}]},
         "contents": [{"role": "user", "parts": parts}],
