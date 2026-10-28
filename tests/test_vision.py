@@ -241,3 +241,90 @@ def test_mistral_client_raises_on_other_errors_and_needs_a_key(monkeypatch):
     monkeypatch.delenv("MISTRAL_API_KEY", raising=False)
     with pytest.raises(ValueError):
         vision.MistralClient()
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Gemini (free tier): plain HTTP client, JSON answer instead of a tool call
+# ---------------------------------------------------------------------------------------------------------------
+
+
+class FakeGemini:
+    def __init__(self, *answers):
+        self.answers = list(answers)
+        self.calls: list[tuple[str, dict]] = []
+
+    def generate(self, model, body):
+        self.calls.append((model, body))
+        answer = self.answers.pop(0)
+        if isinstance(answer, Exception):
+            raise answer
+        return answer
+
+
+def _gemini_response(answer, finish="STOP", thoughts=0):
+    return {
+        "candidates": [{"content": {"parts": [{"text": json.dumps(answer)}]}, "finishReason": finish}],
+        "usageMetadata": {"promptTokenCount": 2000, "candidatesTokenCount": 500, "thoughtsTokenCount": thoughts},
+    }
+
+
+def test_gemini_request_shape_and_perfect_answer(pdf: Path):
+    gt = _gt()
+    client = FakeGemini(_gemini_response(_answer(gt), thoughts=300))
+    result = vision.extract_with_vision(pdf, [1, 2], client, provider="gemini")
+    assert result.ok and result.provider == "gemini" and result.model == "gemini-3.6-flash"
+    assert result.input_tokens == 2000 and result.output_tokens == 800  # thinking counts as output
+    assert all(f.correct for f in compare(gt, result.statements))
+    model, body = client.calls[0]
+    assert model == "gemini-3.6-flash"
+    config = body["generationConfig"]
+    assert config["temperature"] == 0 and config["responseMimeType"] == "application/json"
+    assert config["maxOutputTokens"] == vision.MAX_TOKENS_BY_PROVIDER["gemini"]
+    images = [p for p in body["contents"][0]["parts"] if "inlineData" in p]
+    assert len(images) == 2 and images[0]["inlineData"]["mimeType"] == "image/png"
+    assert "enum" not in config["responseJsonSchema"]["properties"]["unit_multiplier"]
+
+
+def test_gemini_cut_off_empty_and_blocked_answers_are_errors(pdf: Path):
+    cut = FakeGemini(_gemini_response({}, finish="MAX_TOKENS"))
+    assert "cut off" in (vision.extract_with_vision(pdf, [1], cut, provider="gemini").error or "")
+    empty = FakeGemini({"candidates": [{"content": {"parts": []}, "finishReason": "STOP"}], "usageMetadata": {}})
+    assert "no text" in (vision.extract_with_vision(pdf, [1], empty, provider="gemini").error or "")
+    blocked = FakeGemini({"promptFeedback": {"blockReason": "OTHER"}})
+    assert "no answer" in (vision.extract_with_vision(pdf, [1], blocked, provider="gemini").error or "")
+
+
+def test_gemini_temperature_rejected_is_retried_and_flagged(pdf: Path):
+    client = FakeGemini(vision.ApiError(400, "temperature is not supported"), _gemini_response(_answer(_gt())))
+    result = vision.extract_with_vision(pdf, [1], client, provider="gemini")
+    assert result.ok and result.temperature_used is False
+    assert "temperature" not in client.calls[1][1]["generationConfig"]
+
+
+def test_gemini_client_uses_key_header_and_retries_when_busy(monkeypatch):
+    import httpx
+
+    seen = {}
+
+    def fake_post(url, json, headers, timeout):
+        seen["url"], seen["headers"] = url, headers
+        return responses.pop(0)
+
+    responses = [FakeHttpResponse(503), FakeHttpResponse(200, {"ok": True})]
+    monkeypatch.setattr(httpx, "post", fake_post)
+    client = vision.GeminiClient(api_key="test-key")
+    waits: list[float] = []
+    client.sleep = waits.append
+    assert client.generate("gemini-x", {"a": 1}) == {"ok": True}
+    assert seen["url"].endswith("/models/gemini-x:generateContent") and seen["headers"] == {
+        "x-goog-api-key": "test-key"
+    }
+    assert waits == [2.0]
+
+
+def test_make_client_needs_the_key(monkeypatch):
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    with pytest.raises(ValueError):
+        vision.make_client("gemini")
+    monkeypatch.setenv("GEMINI_API_KEY", "test-key")
+    assert isinstance(vision.make_client("gemini"), vision.GeminiClient)

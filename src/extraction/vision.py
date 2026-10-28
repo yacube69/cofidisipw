@@ -27,11 +27,15 @@ from src.schema import FinancialStatements, GroundTruth
 ROOT = Path(__file__).resolve().parents[2]
 PROMPT_PATH = ROOT / "prompts" / "extraction_vision_v1.md"
 DEFAULT_MODEL = "claude-sonnet-5-5"
-DEFAULT_MODELS = {"anthropic": DEFAULT_MODEL, "mistral": "mistral-medium-3.5"}
+DEFAULT_MODELS = {"anthropic": DEFAULT_MODEL, "mistral": "mistral-medium-3.5", "gemini": "gemini-3.6-flash"}
 PROVIDERS = tuple(DEFAULT_MODELS)
+MODEL_ENV = {"anthropic": "LLM_MODEL", "mistral": "MISTRAL_MODEL", "gemini": "GEMINI_MODEL"}
+KEY_ENV = {"anthropic": "ANTHROPIC_API_KEY", "mistral": "MISTRAL_API_KEY", "gemini": "GEMINI_API_KEY"}
 MISTRAL_URL = "https://api.mistral.ai/v1/chat/completions"
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 DPI = 200
 MAX_TOKENS = 8000
+MAX_TOKENS_BY_PROVIDER = {"anthropic": MAX_TOKENS, "mistral": MAX_TOKENS, "gemini": 16000}  # Gemini counts thinking
 TOOL_NAME = "record_statements"
 ASSET_PERIODS = ("gross", "adjustment", "current", "prior")
 OTHER_PERIODS = ("current", "prior")
@@ -109,14 +113,16 @@ def output_schema(simple: bool = False) -> dict[str, Any]:
             }
         return {"type": "object", "properties": props, "additionalProperties": False}
 
+    unit: dict[str, Any] = {
+        "type": "integer",
+        "description": "1 = Kč, 1000 = tis. Kč, 1000000 = mil. Kč, from the header of the statements.",
+    }
+    if not simple:
+        unit["enum"] = [1, 1000, 1000000]
     return {
         "type": "object",
         "properties": {
-            "unit_multiplier": {
-                "type": "integer",
-                "enum": [1, 1000, 1000000],
-                "description": "1 = Kč, 1000 = tis. Kč, 1000000 = mil. Kč, from the header of the statements.",
-            },
+            "unit_multiplier": unit,
             "balance_sheet": statement_schema("balance_sheet"),
             "income_statement": statement_schema("income_statement"),
             "notes": {"type": "string", "description": "One short sentence about anything unusual."},
@@ -192,34 +198,35 @@ def to_statements(raw: dict[str, Any], file: str, pages: list[int]) -> Financial
     return fs
 
 
-class MistralError(Exception):
-    """An HTTP error from the Mistral API."""
+class ApiError(Exception):
+    """An HTTP error from a model API (Mistral or Gemini)."""
 
     def __init__(self, status_code: int, message: str):
         super().__init__(f"HTTP {status_code}: {message}")
         self.status_code = status_code
 
 
-class MistralClient:
-    """Minimal client for Mistral's chat completions API (plain HTTP, no SDK). Retries rate limits (429)."""
+MistralError = ApiError  # name used by the first version of this module
 
-    def __init__(
-        self, api_key: str | None = None, url: str = MISTRAL_URL, timeout: float = 300.0, max_retries: int = 6
-    ):
-        self.api_key = api_key or os.getenv("MISTRAL_API_KEY")
+
+class _HttpClient:
+    """Plain HTTP client (no SDK). Waits and retries when the service says "too many requests" (429) or is busy."""
+
+    retry_statuses = (429, 503)
+
+    def __init__(self, key_env: str, api_key: str | None, timeout: float, max_retries: int):
+        self.api_key = api_key or os.getenv(key_env)
         if not self.api_key:
-            raise ValueError("MISTRAL_API_KEY is not set")
-        self.url, self.timeout, self.max_retries = url, timeout, max_retries
+            raise ValueError(f"{key_env} is not set")
+        self.timeout, self.max_retries = timeout, max_retries
         self.sleep = time.sleep
 
-    def chat(self, payload: dict[str, Any]) -> dict[str, Any]:
+    def _post(self, url: str, headers: dict[str, str], payload: dict[str, Any]) -> dict[str, Any]:
         import httpx
 
         for attempt in range(self.max_retries + 1):
-            response = httpx.post(
-                self.url, json=payload, headers={"Authorization": f"Bearer {self.api_key}"}, timeout=self.timeout
-            )
-            if response.status_code == 429 and attempt < self.max_retries:
+            response = httpx.post(url, json=payload, headers=headers, timeout=self.timeout)
+            if response.status_code in self.retry_statuses and attempt < self.max_retries:
                 try:
                     wait = float(response.headers.get("retry-after", ""))
                 except ValueError:
@@ -227,9 +234,44 @@ class MistralClient:
                 self.sleep(min(wait, 120.0))
                 continue
             if response.status_code >= 400:
-                raise MistralError(response.status_code, response.text[:500])
+                raise ApiError(response.status_code, response.text[:500])
             return response.json()
-        raise MistralError(429, "rate limit: retries exhausted")
+        raise ApiError(429, "rate limit: retries exhausted")
+
+
+class MistralClient(_HttpClient):
+    """Mistral chat completions API."""
+
+    def __init__(
+        self, api_key: str | None = None, url: str = MISTRAL_URL, timeout: float = 300.0, max_retries: int = 6
+    ):
+        super().__init__("MISTRAL_API_KEY", api_key, timeout, max_retries)
+        self.url = url
+
+    def chat(self, payload: dict[str, Any]) -> dict[str, Any]:
+        return self._post(self.url, {"Authorization": f"Bearer {self.api_key}"}, payload)
+
+
+class GeminiClient(_HttpClient):
+    """Google Gemini API (generateContent)."""
+
+    def __init__(self, api_key: str | None = None, url: str = GEMINI_URL, timeout: float = 300.0, max_retries: int = 6):
+        super().__init__("GEMINI_API_KEY", api_key, timeout, max_retries)
+        self.url = url
+
+    def generate(self, model: str, body: dict[str, Any]) -> dict[str, Any]:
+        return self._post(self.url.format(model=model), {"x-goog-api-key": self.api_key or ""}, body)
+
+
+def make_client(provider: str) -> Any:
+    """The client for `provider`, reading its key from the environment."""
+    if provider == "mistral":
+        return MistralClient()
+    if provider == "gemini":
+        return GeminiClient()
+    import anthropic
+
+    return anthropic.Anthropic()
 
 
 def _mistral_content(images: list[tuple[int, bytes]]) -> list[dict[str, Any]]:
@@ -324,30 +366,75 @@ def _call_mistral(
     return json.loads(arguments) if isinstance(arguments, str) else dict(arguments)
 
 
+def _call_gemini(
+    client: Any, model: str, images: list[tuple[int, bytes]], max_tokens: int, result: VisionResult
+) -> dict[str, Any]:
+    parts: list[dict[str, Any]] = []
+    for page, png in images:
+        parts.append({"text": f"PDF page {page}:"})
+        parts.append({"inlineData": {"mimeType": "image/png", "data": base64.b64encode(png).decode()}})
+    parts.append({"text": "Transcribe the statements into the JSON answer."})
+    config: dict[str, Any] = {
+        "maxOutputTokens": max_tokens,
+        "responseMimeType": "application/json",
+        "responseJsonSchema": output_schema(simple=True),
+    }
+    body: dict[str, Any] = {
+        "systemInstruction": {"parts": [{"text": build_prompt()}]},
+        "contents": [{"role": "user", "parts": parts}],
+    }
+    try:
+        data = client.generate(model, {**body, "generationConfig": {**config, "temperature": 0}})
+    except ApiError as exc:
+        if exc.status_code != 400 or "temperature" not in str(exc).lower():
+            raise
+        result.temperature_used = False
+        result.warnings.append("model rejected temperature=0; called without it")
+        data = client.generate(model, {**body, "generationConfig": config})
+    usage = data.get("usageMetadata") or {}
+    result.input_tokens = usage.get("promptTokenCount", 0)
+    # thinking tokens are billed as output
+    result.output_tokens = usage.get("candidatesTokenCount", 0) + usage.get("thoughtsTokenCount", 0)
+    candidates = data.get("candidates") or []
+    if not candidates:
+        raise ValueError(f"no answer from the model: {str(data.get('promptFeedback') or data)[:300]}")
+    candidate = candidates[0]
+    result.stop_reason = candidate.get("finishReason")
+    if result.stop_reason == "MAX_TOKENS":
+        raise ValueError("answer cut off at max_tokens: raise MAX_TOKENS_BY_PROVIDER")
+    text = "".join(p.get("text", "") for p in (candidate.get("content") or {}).get("parts", []) if not p.get("thought"))
+    if not text.strip():
+        raise ValueError(f"the model returned no text (finish reason {result.stop_reason})")
+    answer = json.loads(text)
+    if not isinstance(answer, dict):
+        raise ValueError("the answer is not a JSON object")
+    return answer
+
+
 def extract_with_vision(
     pdf: str | Path,
     pages: list[int],
     client: Any,
     model: str | None = None,
     dpi: int = DPI,
-    max_tokens: int = MAX_TOKENS,
+    max_tokens: int | None = None,
     provider: str = "anthropic",
 ) -> VisionResult:
     """One call: the images of `pages` in, statements out.
 
-    `client` is an `anthropic.Anthropic` (provider "anthropic") or a `MistralClient` (provider "mistral"), or a test
-    double with the same methods.
+    `client` is an `anthropic.Anthropic` (provider "anthropic"), a `MistralClient` ("mistral") or a `GeminiClient`
+    ("gemini"), or a test double with the same methods.
     """
     if provider not in PROVIDERS:
         raise ValueError(f"unknown provider {provider!r}, use one of {PROVIDERS}")
-    env_model = os.getenv("MISTRAL_MODEL" if provider == "mistral" else "LLM_MODEL")
-    model = model or env_model or DEFAULT_MODELS[provider]
+    model = model or os.getenv(MODEL_ENV[provider]) or DEFAULT_MODELS[provider]
+    max_tokens = max_tokens or MAX_TOKENS_BY_PROVIDER[provider]
     pdf = Path(pdf)
     result = VisionResult(file=pdf.name, pages=pages, model=model, dpi=dpi, provider=provider)
     started = time.perf_counter()
     try:
         images = render_pages(pdf, pages, dpi)
-        call = _call_mistral if provider == "mistral" else _call_anthropic
+        call = {"anthropic": _call_anthropic, "mistral": _call_mistral, "gemini": _call_gemini}[provider]
         result.raw = call(client, model, images, max_tokens, result)
         result.notes = result.raw.get("notes")
         result.statements = to_statements(result.raw, pdf.name, pages)

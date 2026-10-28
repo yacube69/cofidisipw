@@ -69,7 +69,7 @@ def run_parser(gt: GroundTruth) -> tuple[list[ev.FieldResult], dict[str, list[in
 
 
 def cache_path(gt: GroundTruth, pages: list[int], provider: str, model: str, dpi: int) -> Path:
-    schema = vision.output_schema(simple=provider == "mistral")
+    schema = vision.output_schema(simple=provider != "anthropic")
     key = json.dumps([vision.build_prompt(), schema, provider, model, dpi, pages], sort_keys=True)
     return OUT / "cache" / f"{Path(gt.file).stem}_{hashlib.sha1(key.encode()).hexdigest()[:12]}.json"
 
@@ -105,11 +105,16 @@ def fmt_cost(c: float | None) -> str:
 
 
 def main(argv: list[str] | None = None, client: Any = None) -> int:
+    from dotenv import load_dotenv
+
+    load_dotenv()  # before the parser, so that LLM_PROVIDER from .env is the default
     ap = argparse.ArgumentParser()
     ap.add_argument("files", nargs="*", help="ground truth names (without .json); default: all")
     ap.add_argument("--provider", choices=vision.PROVIDERS, default=os.getenv("LLM_PROVIDER") or "anthropic")
     ap.add_argument(
-        "--model", default=None, help="default: MISTRAL_MODEL / LLM_MODEL from .env, else the provider default"
+        "--model",
+        default=None,
+        help="default: the model variable in .env (LLM_MODEL, MISTRAL_MODEL, GEMINI_MODEL), else the provider default",
     )
     ap.add_argument("--dpi", type=int, default=vision.DPI)
     ap.add_argument("--use-gt-pages", action="store_true", help="send the annotated pages, not the locator's")
@@ -121,22 +126,13 @@ def main(argv: list[str] | None = None, client: Any = None) -> int:
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(errors="replace")
 
-    from dotenv import load_dotenv
-
-    load_dotenv()
-    args.model = args.model or os.getenv("MISTRAL_MODEL" if args.provider == "mistral" else "LLM_MODEL")
-    args.model = args.model or vision.DEFAULT_MODELS[args.provider]
+    args.model = args.model or os.getenv(vision.MODEL_ENV[args.provider]) or vision.DEFAULT_MODELS[args.provider]
     if client is None and not args.dry_run:
-        key = "MISTRAL_API_KEY" if args.provider == "mistral" else "ANTHROPIC_API_KEY"
+        key = vision.KEY_ENV[args.provider]
         if not os.getenv(key):
             print(f"ERROR: {key} is not set. Copy .env.example to .env and fill it in.")
             return 1
-        if args.provider == "mistral":
-            client = vision.MistralClient()
-        else:
-            import anthropic
-
-            client = anthropic.Anthropic()
+        client = vision.make_client(args.provider)
 
     paths = [GT_DIR / f"{n}.json" for n in args.files] or sorted(
         p for p in GT_DIR.glob("*.json") if not p.name.startswith("_")
