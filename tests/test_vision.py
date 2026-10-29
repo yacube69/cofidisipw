@@ -231,6 +231,26 @@ def test_mistral_client_waits_and_retries_on_rate_limit(monkeypatch):
     assert waits == [3.0]
 
 
+def test_daily_quota_is_not_retried(monkeypatch):
+    import httpx
+
+    calls = []
+
+    def post(*a, **k):
+        calls.append(1)
+        response = FakeHttpResponse(429)
+        response.text = "Quota exceeded ... Generate content requests per day limit exceeded on Free Tier"
+        return response
+
+    monkeypatch.setattr(httpx, "post", post)
+    client = vision.MistralClient(api_key="test-key")
+    client.sleep = lambda s: pytest.fail("must not wait")
+    with pytest.raises(vision.ApiError):
+        client.chat({})
+    assert len(calls) == 1
+    assert vision.is_daily_quota("limit exceeded per day") and not vision.is_daily_quota("too many requests")
+
+
 def test_mistral_client_raises_on_other_errors_and_needs_a_key(monkeypatch):
     import httpx
 

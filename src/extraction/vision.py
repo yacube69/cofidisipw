@@ -209,6 +209,11 @@ class ApiError(Exception):
 MistralError = ApiError  # name used by the first version of this module
 
 
+def is_daily_quota(message: str) -> bool:
+    """True for "requests per day exceeded": waiting a minute does not help, the quota comes back tomorrow."""
+    return "per day" in message.lower() or "perday" in message.lower()
+
+
 class _HttpClient:
     """Plain HTTP client (no SDK). Waits and retries when the service says "too many requests" (429) or is busy."""
 
@@ -226,7 +231,8 @@ class _HttpClient:
 
         for attempt in range(self.max_retries + 1):
             response = httpx.post(url, json=payload, headers=headers, timeout=self.timeout)
-            if response.status_code in self.retry_statuses and attempt < self.max_retries:
+            daily = response.status_code == 429 and is_daily_quota(response.text)
+            if response.status_code in self.retry_statuses and attempt < self.max_retries and not daily:
                 try:
                     wait = float(response.headers.get("retry-after", ""))
                 except ValueError:

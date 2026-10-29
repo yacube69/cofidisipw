@@ -34,10 +34,13 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
+import pymupdf  # noqa: E402
+
 import src.evaluation as ev  # noqa: E402
 from src.extraction import vision  # noqa: E402
 from src.extraction.parser import ParseLog  # noqa: E402
 from src.schema import FinancialStatements, GroundTruth  # noqa: E402
+from src.settings import get_settings  # noqa: E402
 
 RAW = ROOT / "data" / "raw"
 GT_DIR = ROOT / "data" / "ground_truth"
@@ -55,13 +58,21 @@ def score(fields: list[ev.FieldResult]) -> dict[str, int]:
 
 
 def run_parser(gt: GroundTruth) -> tuple[list[ev.FieldResult], dict[str, list[int]], float, bool]:
-    """The parser on one file with an empty page cache. Returns fields, located pages, seconds, is_scan."""
+    """The parser on one file with an empty page cache. Returns fields, located pages, seconds, is_scan.
+
+    Runs the same stages as `scripts/evaluate_extraction.py`: parse, checks, targeted re-read of doubted cells
+    (CIPW-11), checks again. Without the re-read the parser looks worse than the pipeline we actually use.
+    """
     original = ev.CACHE
     with tempfile.TemporaryDirectory() as tmp:
         ev.CACHE = Path(tmp)
         try:
             started = time.perf_counter()
             fs, pages = ev.extract(RAW / gt.file, log=ParseLog())
+            checks, _ = ev.validate_and_review(fs)
+            with pymupdf.open(RAW / gt.file) as doc:
+                ev.reread(doc, fs, checks, get_settings().reread.dpi)
+            ev.validate_and_review(fs)
             seconds = time.perf_counter() - started
         finally:
             ev.CACHE = original
@@ -147,6 +158,9 @@ def main(argv: list[str] | None = None, client: Any = None) -> int:
             dry_run(gt, pages, args.dpi)
             continue
         vr = run_vision(gt, pages, client, args.provider, args.model, args.dpi, args.force)
+        if vr.error and vision.is_daily_quota(vr.error):
+            print(f"STOP: daily quota of the API is used up ({gt.file}). Finished files are saved; run again later.")
+            break
         if args.pause and not vr.from_cache:
             time.sleep(args.pause)
         v_fields = ev.compare(gt, vr.statements or FinancialStatements())
