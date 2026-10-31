@@ -4,7 +4,7 @@
 
 Extraction of Czech financial statements (PDF, including scanned) → validated data → financial ratios, bankruptcy models and an AI assessment, shown in a web app.
 
-**Run it:** `docker compose up`, then open http://localhost:8000 (see [docs/app.md](docs/app.md)).
+**Run it:** `docker run --rm -p 8000:8000 ghcr.io/yacube69/cofidisipw:main`, then open http://localhost:8000. Step-by-step guide for the team (Docker, from the repository, sharing on a network): [docs/run.md](docs/run.md).
 
 ## Structure
 
@@ -27,26 +27,17 @@ tests/
 
 ## Setup
 
-### 1. Tesseract OCR with Czech language data
+### 1. Tesseract OCR
 
 | OS | Install |
 |---|---|
-| Linux (Debian/Ubuntu) | `sudo apt install tesseract-ocr tesseract-ocr-ces` |
-| macOS | `brew install tesseract tesseract-lang` |
-| Windows | [UB Mannheim installer](https://github.com/UB-Mannheim/tesseract/wiki) (or `winget install UB-Mannheim.TesseractOCR`); in the installer select **Additional language data → Czech** |
+| Linux (Debian/Ubuntu) | `sudo apt install tesseract-ocr` |
+| macOS | `brew install tesseract` |
+| Windows | [UB Mannheim installer](https://github.com/UB-Mannheim/tesseract/wiki) (or `winget install UB-Mannheim.TesseractOCR`) |
+
+The Czech model ships with Fides in `models/tessdata` (`ocr.tessdata` in `config/fides.yaml`), so a PDF is read the same on every machine and no language data has to be installed.
 
 Windows: if `tesseract` is not on `PATH`, set `TESSERACT_CMD=C:\Program Files\Tesseract-OCR\tesseract.exe` in `.env`.
-
-Windows without admin rights (silent/winget install includes only `eng`): download
-[`ces.traineddata`](https://github.com/tesseract-ocr/tessdata/raw/main/ces.traineddata) into a user folder,
-e.g. `%LOCALAPPDATA%\tessdata`, copy `eng`/`osd` from `C:\Program Files\Tesseract-OCR\tessdata` next to it,
-and set `TESSDATA_PREFIX` to that folder in `.env`.
-
-Check that `ces` is listed:
-
-```bash
-tesseract --list-langs
-```
 
 Alternatively use the dev container (`Dockerfile`, `.devcontainer/`) — VS Code → *Reopen in Container*. It has Tesseract with Czech data preinstalled.
 

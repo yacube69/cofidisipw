@@ -9,6 +9,8 @@ browser  ──>  http://localhost:8000/        React app (web/, built to web/di
 
 ## Run
 
+Step-by-step guide with installation and troubleshooting: [run.md](run.md).
+
 | How | Command | Open |
 | --- | --- | --- |
 | Docker (Cofidis, demo) | `docker compose up`, or `docker run --rm -p 8000:8000 ghcr.io/yacube69/cofidisipw:main` | http://localhost:8000 |
