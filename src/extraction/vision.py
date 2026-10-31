@@ -181,11 +181,16 @@ def cost_usd(input_tokens: int, output_tokens: int) -> float | None:
 
 def to_statements(raw: dict[str, Any], file: str, pages: list[int]) -> FinancialStatements:
     """Validate the model answer (unknown keys are rejected by `GroundTruth`) and convert to CZK."""
+
+    # a line the model answers with null (instead of leaving it out) is a line that is not printed
+    def present(statement: Any) -> dict[str, Any]:
+        return {k: v for k, v in (statement or {}).items() if v is not None}
+
     gt = GroundTruth(
         file=file,
         unit_multiplier=raw["unit_multiplier"],
-        balance_sheet=raw.get("balance_sheet") or {},
-        income_statement=raw.get("income_statement") or {},
+        balance_sheet=present(raw.get("balance_sheet")),
+        income_statement=present(raw.get("income_statement")),
         notes=raw.get("notes"),
     )
     fs = gt.to_statements()

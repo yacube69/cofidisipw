@@ -114,6 +114,15 @@ def test_wrong_and_missing_values_are_counted():
     assert "wrong" in outcomes and "missing" in outcomes
 
 
+def test_null_line_counts_as_not_printed():
+    gt = _gt()
+    answer = _answer(gt)
+    answer["balance_sheet"]["provisions"] = None  # Gemini sometimes writes null instead of leaving the line out
+    answer["income_statement"]["other_operating_income"] = None
+    fs = vision.to_statements(answer, gt.file, [1])
+    assert "provisions" not in fs.balance_sheet and "other_operating_income" not in fs.income_statement
+
+
 def test_unknown_key_is_a_failed_file_not_a_crash(pdf: Path):
     answer = {"unit_multiplier": 1, "balance_sheet": {"not_a_line": {"current": 1}}, "income_statement": {}}
     result = vision.extract_with_vision(pdf, [1], _client(_response(answer)), model="m")
