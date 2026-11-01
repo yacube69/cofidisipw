@@ -59,7 +59,7 @@ def download_codebooks() -> None:
             for code, i in sorted(items.items())
         }
         print(f"{kind}: {len(items)} codes")
-    ares.CODEBOOKS.write_text(json.dumps(books, ensure_ascii=False, indent=0) + "\n", encoding="utf-8")
+    ares.CODEBOOKS.write_bytes((json.dumps(books, ensure_ascii=False, indent=0) + "\n").encode("utf-8"))  # LF
     ares._codebooks.cache_clear()
 
 
@@ -101,7 +101,7 @@ def main(argv: list[str] | None = None) -> int:
             time.sleep(PAUSE)
 
     with ares.SNAPSHOT.open("w", encoding="utf-8", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=ares.SNAPSHOT_FIELDS)
+        writer = csv.DictWriter(f, fieldnames=ares.SNAPSHOT_FIELDS, lineterminator="\n")
         writer.writeheader()
         writer.writerows(snapshot[i] for i in sorted(snapshot))
     with_nace = sum(1 for r in snapshot.values() if r["nace"])
