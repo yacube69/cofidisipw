@@ -25,10 +25,14 @@ Nothing has to be installed on the user's computer apart from Docker. Fonts are 
 
 Layout chosen from three variants on 2026-10-21 (Mobbin references in `docs/brand/inspiration.md`): **overview first** (Xero business health, 1Password Watchtower) with **the document next to the data** for the extraction (Mistral Document AI).
 
+**Navigation (2026-11-01):** the sidebar only navigates. *New analysis* opens the upload form; under it are the files analysed in this session and the samples. A result has its steps as tabs, and *About this result* and *Export JSON* in its header. The IČO used for benchmarks is edited in the Ratios step. Notes from reading the file (signs restored, cells read again, pages not read) are folded under the header when there are more than two.
+
+**Colours and type:** one typeface, IBM Plex Sans, with tabular figures for numbers; IBM Plex Mono only for formulas and printed text. One accent, navy, for everything that can be clicked. **Red only for what failed and needs a person:** a failed check, a value to review, an error. A weak ratio, a distress zone or a high risk rating is a finding about the company, not a failure, so it is marked with an icon, not red. The brand red and yellow stay in the logo.
+
 | Step | What the user sees |
 | --- | --- |
 | Overview | company, balance sheet date, scope, source; one card per step with its status; "Needs attention" (failed identities, values to review, weak ratios); the verdict |
-| Extraction | the statement page with a box around every value (green confident, yellow check, red review) and the values of the page next to it. A click on a row highlights its box and the other way round; arrow keys move through the table; zoom 100–200 % |
+| Extraction | the statement page with a box around every value (grey confident, amber check, red review) and the values of the page next to it. A click on a row highlights its box and the other way round; arrow keys move through the table; zoom 100–200 % |
 | Validation | the accounting identities with status, period and difference; a value of a failed check opens on its page |
 | Ratios | ratio tiles (current, prior, change, benchmark light), IN05 and Altman Z′ with their zone |
 | AI report | rating, summary, strengths, risks, red flags, the number check of the report |
@@ -60,7 +64,7 @@ Results of uploaded files live in memory (the last 20) and are gone after a rest
 | `src/api.py` | FastAPI app; also serves `web/dist` when it exists |
 | `web/src/types.ts` | TypeScript types of the result view (keep in sync with `src/result.py` and `src/schema.py`) |
 | `web/src/lib/` | API calls, Czech number formatting, value confidence, step summaries (unit tests in `lib.test.ts`) |
-| `web/src/components/` | the sidebar and one component per step |
+| `web/src/components/` | the navigation sidebar, the new analysis form and one component per step |
 | `web/src/styles.css` | brand tokens from `docs/brand/fides.html`, light and dark mode |
 | `web/src/App.test.tsx` | renders every step from the saved sample |
 

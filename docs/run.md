@@ -126,18 +126,18 @@ A colleague on the same Wi-Fi or office network can open the app running on your
 
 ## Using the app
 
-- **Open a sample** in the sidebar: it opens at once, without OCR.
+- **Open a sample** in the sidebar on the left: it opens at once, without OCR. *New analysis* at the top of the sidebar brings back the upload form, and every file analysed in this session stays listed there.
 - **Analyse a PDF:** drop it on *Drop a PDF or browse* (or click it), choose *Individual* or *Consolidated* statements and click *Analyse*.
   - A digital PDF takes seconds.
   - A scan is read by OCR: about half a minute on a 6-core computer, up to 4 minutes for a long annual report.
 - **The steps:**
   - **Overview** shows what needs attention.
-  - **Extraction** puts every value next to its place on the page: green confident, yellow check, red review.
+  - **Extraction** puts every value next to its place on the page: grey confident, amber check, red review.
   - **Validation** lists the accounting checks.
   - **Ratios** shows the ratios and the bankruptcy models IN05 and Altman Z′.
   - **AI report** is still mock data.
 - A *Mock data* badge marks the steps that are not built yet. They are the benchmarks and the AI report, so no API key is needed for now.
-- **Results stay in memory:** the app keeps the last 20, and they are gone after a restart. *Export result (JSON)* downloads the full result.
+- **Results stay in memory:** the app keeps the last 20, and they are gone after a restart. *Export JSON* in the header of a result downloads it in full.
 
 More about the screens and the API: [app.md](app.md). All settings: [settings.md](settings.md).
 

@@ -59,7 +59,7 @@ export function stepSummaries(result: ResultView, rows: ValueRow[]): StepSummary
       title: "Ratios",
       headline: `${ratios.length} ratios`,
       detail: lights.length ? `${red} red of ${lights.length} benchmarked` : "no benchmarks yet",
-      tone: red ? "bad" : lights.length ? "ok" : "neutral",
+      tone: red ? "warn" : lights.length ? "ok" : "neutral", // a weak ratio is a finding, not a failure
       mock: stub.has("ratios") || stub.has("bankruptcy"),
     },
     {
@@ -67,7 +67,7 @@ export function stepSummaries(result: ResultView, rows: ValueRow[]): StepSummary
       title: "AI report",
       headline: rating ? `${rating[0].toUpperCase()}${rating.slice(1)} risk` : "not generated",
       detail: result.number_check ? (result.number_check.passed ? "every number checked" : "numbers to verify") : "",
-      tone: rating === "high" ? "bad" : rating === "medium" ? "warn" : rating === "low" ? "ok" : "neutral",
+      tone: result.number_check && !result.number_check.passed ? "bad" : rating ? "ok" : "neutral",
       mock: stub.has("report"),
     },
   ];

@@ -36,10 +36,26 @@ afterEach(() => {
 });
 
 describe("App", () => {
+  it("starts on a new analysis and opens a sample from the navigation", async () => {
+    render(<App />);
+    expect(await screen.findByRole("heading", { level: 1, name: "New analysis" })).toBeTruthy();
+    expect(screen.getByText("Drop a PDF or browse")).toBeTruthy();
+    const samples = await screen.findByRole("navigation", { name: "Samples" });
+    fireEvent.click(within(samples).getByRole("button", { name: "Mondi" }));
+    expect(await screen.findByRole("navigation", { name: "Steps" })).toBeTruthy();
+    expect(within(samples).getByRole("button", { name: "Mondi" }).getAttribute("aria-current")).toBe("true");
+    // back to the form, and to the result again
+    fireEvent.click(screen.getByRole("button", { name: "New analysis" }));
+    expect(await screen.findByRole("heading", { level: 1, name: "New analysis" })).toBeTruthy();
+    fireEvent.click(within(samples).getByRole("button", { name: "Mondi" }));
+    expect(await screen.findByRole("navigation", { name: "Steps" })).toBeTruthy();
+  });
+
   it("opens the sample and renders the overview and every step", async () => {
     render(<App />);
-    expect(await screen.findByRole("heading", { level: 1 })).toBeTruthy();
-    const steps = screen.getByRole("navigation", { name: "Steps" });
+    fireEvent.click(within(await screen.findByRole("navigation", { name: "Samples" })).getByRole("button", { name: "Mondi" }));
+    const steps = await screen.findByRole("navigation", { name: "Steps" });
+    expect(screen.getByRole("heading", { level: 1 })).toBeTruthy();
 
     // overview: one card per step and the attention list
     for (const title of ["Extraction", "Validation", "Ratios", "AI report"]) {

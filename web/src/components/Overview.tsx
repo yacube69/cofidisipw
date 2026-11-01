@@ -40,7 +40,7 @@ export function Overview({ result, rows, summaries, onOpen }: Props) {
   }
   for (const ratio of result.ratios?.ratios ?? []) {
     if (ratioLight(result, ratio) === "red") {
-      attention.push({ text: `${ratio.name} ${formatRatio(ratio.current.value, ratio.unit)} below the benchmark`, tone: "bad", step: "ratios" });
+      attention.push({ text: `${ratio.name} ${formatRatio(ratio.current.value, ratio.unit)} below the benchmark`, tone: "warn", step: "ratios" });
     }
   }
 
@@ -66,7 +66,6 @@ export function Overview({ result, rows, summaries, onOpen }: Props) {
         <section className="card" aria-labelledby="attention-title">
           <div className="card-title">
             <h2 id="attention-title">Needs attention</h2>
-
           </div>
           {attention.length === 0 ? (
             <p className="muted" style={{ margin: 0 }}>Nothing to look at: every check passed and every value was read cleanly.</p>

@@ -29,7 +29,7 @@ export function Validation({ result, rows, onShowValue }: Props) {
     <div className="stack">
       <div className="stat-row">
         <div className="stat"><div className="label">Checks passed</div><div className="value">{checks.length - failed.length} of {checks.length}</div></div>
-        <div className="stat"><div className="label">Failed</div><div className="value">{errors}</div></div>
+        <div className={`stat${errors ? " bad" : ""}`}><div className="label">Failed</div><div className="value">{errors}</div></div>
         <div className="stat"><div className="label">Warnings</div><div className="value">{failed.length - errors}</div></div>
       </div>
       <p className="muted" style={{ margin: 0, fontSize: 14 }}>

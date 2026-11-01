@@ -1,7 +1,5 @@
 import type { ResultView } from "../types";
-import { Badge, MockBanner, Status } from "./ui";
-
-const RATING = { low: "ok", medium: "warn", high: "bad" } as const;
+import { MockBanner, Status } from "./ui";
 
 export function Report({ result }: { result: ResultView }) {
   const report = result.report;
@@ -20,7 +18,7 @@ export function Report({ result }: { result: ResultView }) {
       <section className="card">
         <div className="card-title">
           <h2>Assessment</h2>
-          <Badge tone={RATING[report.rating.value]} icon>{report.rating.value[0].toUpperCase() + report.rating.value.slice(1)} risk</Badge>
+          <span className="badge">{report.rating.value[0].toUpperCase() + report.rating.value.slice(1)} risk</span>
         </div>
         <p className="verdict" style={{ margin: 0 }}>{report.summary}</p>
         <p className="faint" style={{ fontSize: 13, marginBottom: 0 }}>{report.rating.reasoning}</p>
