@@ -16,7 +16,9 @@ from dataclasses import dataclass, field
 from src.extraction.types import PageWords, Word
 from src.schema import BBox
 
-NUMERIC = re.compile(r"^[-−–—~«=+(]{0,2}[\d.,]+\)?$")  # OCR reads a minus as « = ~ too
+# OCR reads a minus as « = ~ too. A text layer may hold a whole number as one word: "2 224 679" printed with
+# thin or non-breaking spaces between the thousands groups (plain spaces after NFKC in reading.py).
+NUMERIC = re.compile(r"^[-−–—~«=+(]{0,2}(?:\d{1,3}(?: \d{3})+|[\d.,]+)\)?$")
 GROUP = re.compile(r"^\d{3}\)?$")
 
 

@@ -9,6 +9,7 @@ from src.extraction.layout import group_lines, straighten
 from src.extraction.numbers import (
     detect_columns,
     detect_company,
+    detect_format,
     detect_ico,
     detect_period,
     detect_scope,
@@ -129,6 +130,15 @@ def test_detect_scope():
     assert detect_scope("Rozvaha ve zkráceném rozsahu pro mikro účetní jednotku") == "abbreviated"
     assert detect_scope("ROZVAHA v plném rozsahu") == "full"
     assert detect_scope("ROZVAHA") is None
+
+
+def test_detect_format():
+    """Statements Fides does not read are named, so a near-empty result is explained (docs/decisions.md)."""
+    assert detect_format("INDIVIDUÁLNÍ VÝKAZ O FINANČNÍ POZICI k 31.12.2025 Pozemky, budovy a zařízení") == "ifrs"
+    assert detect_format("Individuální výkaz zisku nebo ztráty a ostatního\núplného výsledku") == "ifrs"
+    assert detect_format("SAMOSTATNÁ ÚČETNÍ ZÁVĚRKA sestavená v souladu s IFRS") == "ifrs"
+    assert detect_format("AKTIVA Pohledávky za bankami Pohledávky za nebankovními subjekty") == "bank"
+    assert detect_format("ROZVAHA v plném rozsahu AKTIVA CELKEM Peněžní prostředky Výsledek hospodaření") is None
 
 
 def test_detect_ico_and_company():

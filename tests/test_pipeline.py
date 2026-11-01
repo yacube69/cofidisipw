@@ -5,7 +5,8 @@ from pathlib import Path
 import pymupdf
 import pytest
 
-from src.pipeline import REQUIRES, STAGES, main, run_pipeline, write_result
+from src.extraction.types import PageWords, Word
+from src.pipeline import REQUIRES, STAGES, _few_values, main, run_pipeline, write_result
 from src.result import PipelineOptions, Result
 from tests.synthetic import make_digital_pdf, make_scanned_pdf
 
@@ -65,6 +66,32 @@ def test_page_override_out_of_range(tiny_pdf):
     result = run_pipeline(tiny_pdf, PipelineOptions(skip_report=True, pages={"balance_sheet": [1, 7]}))
     assert result.stages[0].status == "error"
     assert "pages [7] out of range (the PDF has 2 pages)" in result.errors[0]
+
+
+def _read(text: str, source: str = "text_layer", conf: float | None = None) -> Result:
+    words = [Word(text=t, x0=10 * i, y0=10, x1=10 * i + 8, y1=18, conf=conf) for i, t in enumerate(text.split())]
+    pw = PageWords(file="x.pdf", page=4, source=source, width=600, height=800, words=words)  # type: ignore[arg-type]
+    return Result(file="x.pdf", pages={"balance_sheet": [4], "income_statement": []}, page_words=[pw])
+
+
+def test_few_values_are_explained():
+    """A near-empty result says why: a format Fides does not read, a scan too poor to read, or other pages."""
+    assert "IFRS" in _few_values(_read("Výkaz o finanční pozici Pozemky, budovy a zařízení 1 234"))[0]
+    assert "bank statements" in _few_values(_read("Pohledávky za bankami 611 125"))[0]
+    assert "mean OCR confidence 41 %" in _few_values(_read("ROZVAHA AKTiVA CELKFM 1 2", "ocr", conf=41))[0]
+    assert _few_values(_read("Příloha účetní závěrky")) == [
+        "only 0 lines found on pages [4]; if these are not the statements, enter the pages"
+    ]
+
+
+def test_a_statement_read_cleanly_has_no_such_warning(tiny_pdf):
+    result = run_pipeline(tiny_pdf, PipelineOptions(skip_report=True))
+    assert not [w for w in result.warnings if w.startswith("parse:")], result.warnings
+    # the synthetic statement has no income statement: said once, without blaming the file
+    assert [w for w in result.warnings if w.startswith("locate:")] == [
+        "locate: no income statement found (small companies may publish only the balance sheet); enter its pages "
+        "if the PDF has one"
+    ]
 
 
 def test_text_mode_on_scan_fails_read(tiny_pdf, tmp_path):

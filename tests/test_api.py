@@ -57,6 +57,21 @@ def test_analyse_a_digital_pdf(tmp_path):
     assert "attachment" in export.headers["content-disposition"] and "page_words" in export.json()
 
 
+def test_analyse_reads_the_pages_the_user_entered(tmp_path):
+    """An annual report where the locator picks the wrong pages: the user enters them, the locator is not used."""
+    pdf = make_digital_pdf(tmp_path / "12345678_2025_statement.pdf")
+    form = {"balance_sheet_pages": "1 - 2", "income_statement_pages": ""}
+    with pdf.open("rb") as f:
+        response = client.post("/api/analyse", files={"file": (pdf.name, f, "application/pdf")}, data=form)
+    view = response.json()
+    assert view["pages"] == {"balance_sheet": [1, 2], "income_statement": []} and view["consolidation"] is None
+    assert view["statements"]["balance_sheet"]["total_assets"]["current"]["value"] == 1_000_000_000
+    assert not any(w.startswith("locate:") for w in view["warnings"])
+    with pdf.open("rb") as f:
+        bad = client.post("/api/analyse", files={"file": (pdf.name, f)}, data={"balance_sheet_pages": "1 a 2"})
+    assert bad.status_code == 422 and "'a' is not a page number" in bad.json()["detail"]
+
+
 def test_analyse_rejects_a_file_that_is_not_a_pdf():
     response = client.post("/api/analyse", files={"file": ("notes.pdf", b"hello", "application/pdf")})
     assert response.status_code == 415 and response.json()["detail"] == "That is not a PDF file"

@@ -11,7 +11,7 @@ import { api } from "./lib/api";
 import { formatDate } from "./lib/format";
 import { stepSummaries, type StepId } from "./lib/summary";
 import { accountingChecks, valueRows } from "./lib/values";
-import type { LineDef, ResultView, Sample } from "./types";
+import type { LineDef, ResultView, Sample, StatementPages } from "./types";
 
 const STEPS: { id: StepId; label: string }[] = [
   { id: "overview", label: "Overview" },
@@ -78,14 +78,14 @@ export default function App() {
     api.result(id).then(show).catch((e: Error) => setError(e.message));
   };
 
-  const analyse = (file: File, scope: "individual" | "consolidated") => {
+  const analyse = (file: File, scope: "individual" | "consolidated", pages: StatementPages) => {
     if (busy) return;
     abort.current = new AbortController();
     setBusy({ file: file.name, started: Date.now() });
     setElapsed(0);
     setError("");
     api
-      .analyse(file, scope, abort.current.signal)
+      .analyse(file, scope, pages, abort.current.signal)
       .then((r) => {
         show(r);
         go("overview");

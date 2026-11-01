@@ -37,7 +37,7 @@ from pathlib import Path
 import pymupdf
 
 from src.extraction.locate import locate_one_set
-from src.extraction.numbers import detect_unit
+from src.extraction.numbers import detect_format, detect_unit
 from src.extraction.parallel import pmap
 from src.extraction.parser import parse_statements
 from src.extraction.reading import read_page
@@ -52,6 +52,14 @@ from src.validation.review import validate_and_review
 from src.version import file_version, git_info, package_version, python_version, tesseract_version
 
 MOCK_NAME = "mock_26161516_2025.json"  # in settings.paths.fixtures
+FEW_LINES = 5  # fewer lines with a value than the smallest statement prints (a micro balance sheet has 9)
+LOW_OCR_CONF = 60  # mean word confidence of the OCR pages below which a scan is hard to read
+NOT_READ = {
+    "ifrs": "the statements look like IFRS (výkaz o finanční pozici, úplný výsledek). Fides reads the Czech form "
+    "of Vyhláška 500/2002 Sb.; IFRS lines are found only where their names match it, so values are missing",
+    "bank": "these look like bank statements (Vyhláška 501/2002 Sb.), which Fides does not read; values are "
+    "missing or on other lines",
+}
 REPORT_PROMPT = "report.md"  # in settings.paths.prompts (CIPW-16)
 
 
@@ -110,6 +118,13 @@ def stage_locate(result: Result, ctx: Context) -> StageStatus:
             result.warnings.append(f"locate: the PDF also has {rest} statements (pages {pages}), not read")
     if not any(result.pages.values()):
         raise StageFailed("no balance sheet or income statement found; pass the pages manually")
+    if not ctx.options.pages and not result.pages.get("balance_sheet"):
+        result.warnings.append("locate: no balance sheet found; enter its pages if the PDF has one")
+    if not ctx.options.pages and not result.pages.get("income_statement"):
+        result.warnings.append(
+            "locate: no income statement found (small companies may publish only the balance sheet); enter its "
+            "pages if the PDF has one"
+        )
     return "ok"
 
 
@@ -144,7 +159,28 @@ def stage_parse(result: Result, ctx: Context) -> StageStatus:
         year = int(parts[1])
         meta.period_end, meta.prior_period_end = date(year, 12, 31), date(year - 1, 12, 31)
         result.warnings.append(f"parse: balance sheet date not found, assumed 31.12.{year} from the file name")
+    result.warnings.extend(f"parse: {note}" for note in _few_values(result))
     return "ok"
+
+
+def _few_values(result: Result) -> list[str]:
+    """Why a statement gave few or no values: a format Fides does not read, a scan too poor to read, or pages
+    that are not the statements. Said once, so the user does not take an empty result for a clean one."""
+    form = detect_format("\n".join(pw.text for pw in result.page_words))
+    if form:
+        return [NOT_READ[form]]
+    confs = [w.conf for pw in result.page_words if pw.source == "ocr" for w in pw.words
+             if w.conf is not None and w.conf >= 0]  # fmt: skip
+    if confs and sum(confs) / len(confs) < LOW_OCR_CONF:
+        return [f"the scan is hard to read (mean OCR confidence {sum(confs) / len(confs):.0f} %): values may be "
+                "missing or misread"]  # fmt: skip
+    st = result.statements
+    lines = sum(any(v.value is not None for v in item.values()) for s in (st.balance_sheet, st.income_statement)
+                for item in s.values())  # fmt: skip
+    if lines < FEW_LINES:
+        pages = sorted({p for ps in result.pages.values() for p in ps})
+        return [f"only {lines} lines found on pages {pages}; if these are not the statements, enter the pages"]
+    return []
 
 
 def stage_validate(result: Result, ctx: Context) -> StageStatus:

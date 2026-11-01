@@ -149,6 +149,36 @@ def test_untitled_balance_sheet_starting_with_total_assets(tmp_path):
         assert locate_statements(d)["balance_sheet"] == [1]
 
 
+INCOME_PAGE = (
+    "<h1>VÝKAZ ZISKU A ZTRÁTY</h1><table><tr><th>označ.</th><th>TEXT</th><th>řád.</th><th>2025</th><th>2024</th></tr>"
+    "<tr><td>I.</td><td>Tržby z prodeje výrobků a služeb</td><td>01</td><td>950 000</td><td>900 000</td></tr>"
+    "<tr><td>A.</td><td>Výkonová spotřeba</td><td>03</td><td>600 000</td><td>580 000</td></tr>"
+    "<tr><td>D.</td><td>Osobní náklady</td><td>09</td><td>200 000</td><td>190 000</td></tr>"
+    "<tr><td>***</td><td>Výsledek hospodaření za účetní období</td><td>55</td><td>90 000</td><td>80 000</td></tr>"
+    "</table>"
+)
+
+
+def test_untitled_balance_sheet_right_before_the_income_statement(tmp_path):
+    """Metrostav 2024: the individual balance sheet has no "Rozvaha" title, and the keyword pass takes the titled
+    consolidated statement elsewhere; the form's rows from AKTIVA CELKEM to PASIVA CELKEM before the income
+    statement are its balance sheet."""
+    pdf = _pdf(
+        tmp_path / "annual.pdf",
+        [
+            "<p>Konsolidovaná účetní závěrka</p>" + asset_page_html(),
+            liability_page_html(),
+            "<h1>Zpráva auditora</h1><p>Text.</p>",
+            asset_page_html(title=""),
+            liability_page_html(),
+            INCOME_PAGE,
+        ],
+    )
+    with pymupdf.open(pdf) as d:
+        pages, scope, _ = locate_one_set(d)
+    assert (pages, scope) == ({"balance_sheet": [4, 5], "income_statement": [6]}, "individual")
+
+
 def pages_needing_ocr(doc: pymupdf.Document) -> int:
     return sum(1 for page in doc if not has_text_layer(page.get_text(sort=True)))
 

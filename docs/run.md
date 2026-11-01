@@ -130,6 +130,8 @@ A colleague on the same Wi-Fi or office network can open the app running on your
 - **Analyse a PDF:** drop it on *Drop a PDF or browse* (or click it), choose *Individual* or *Consolidated* statements and click *Analyse*.
   - A digital PDF takes seconds.
   - A scan is read by OCR: about half a minute on a 6-core computer, up to 4 minutes for a long annual report.
+- **Statement pages:** Fides finds them automatically. When a long annual report gives few values, look up the pages of the balance sheet and the income statement in the PDF and enter them, e.g. `75-76` and `77`.
+- **What Fides reads:** Czech statements in the form of Vyhláška 500/2002 Sb., full or abbreviated, digital or scanned. IFRS statements (large companies, many annual reports) and bank statements are not read yet; a banner says so.
 - **The steps:**
   - **Overview** shows what needs attention.
   - **Extraction** puts every value next to its place on the page: green confident, yellow check, red review.
@@ -152,4 +154,5 @@ More about the screens and the API: [app.md](app.md). All settings: [settings.md
 | `localhost:8000` shows `{"detail":"Not Found"}` | The web app is not built: run step B.5. |
 | The screens look old after `git pull` | Rebuild the web app (step B.5), then reload the page with `Ctrl+F5`. |
 | `npm ci` fails | Node.js is too old: install 22 LTS or newer. |
+| An annual report gives few or no values | Read the banner above the result. For IFRS or bank statements, Fides does not read them yet. Otherwise enter the statement pages (see *Using the app*). |
 | A scan takes very long | OCR uses every processor core: close other heavy programs. On a Mac with an Apple chip the Docker image runs emulated (see A); run it from the repository (B) instead. |
