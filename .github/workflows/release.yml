@@ -1,8 +1,9 @@
 name: Release
 
 # Pushing a version tag (e.g. `git tag v1.0.0 && git push origin v1.0.0`) creates a GitHub release
-# with notes generated from the merged pull requests (CIPW-49). The Docker workflow publishes the
-# matching image ghcr.io/<owner>/<repo>:1.0.0 for the same tag.
+# with the section of that version from CHANGELOG.md, followed by notes generated from the merged pull
+# requests (CIPW-49). The Docker workflow publishes the matching image ghcr.io/<owner>/<repo>:1.0.0 for
+# the same tag.
 
 on:
   push:
@@ -17,8 +18,17 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Release notes from CHANGELOG.md
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          # the lines under "## <version>" up to the next "## " heading
+          awk -v v="$version" '/^## /{p = index($0, "## " v " ") == 1 || $0 == "## " v} p' CHANGELOG.md \
+            | tail -n +2 > notes.md
+          test -s notes.md || echo "No section for $version in CHANGELOG.md." > notes.md
+
       - name: Create GitHub release
         uses: softprops/action-gh-release@v3
         with:
+          body_path: notes.md
           generate_release_notes: true
           prerelease: ${{ contains(github.ref_name, '-') }}

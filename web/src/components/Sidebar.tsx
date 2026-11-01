@@ -55,7 +55,7 @@ export function Sidebar({ samples, recent, currentId, analysing, onNew, onOpen }
 
       <footer className="side-foot">
         <span>Every number, traced to its page.</span>
-        <span>Fides 0.1 · Cofidis IPW 2026 prototype</span>
+        <span>Fides {__FIDES_VERSION__} · Cofidis IPW 2026 prototype</span>
       </footer>
     </aside>
   );

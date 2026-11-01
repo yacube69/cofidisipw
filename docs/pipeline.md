@@ -66,7 +66,7 @@ A stage that fails does not stop the run: stages that do not depend on it still 
 
 | Field | Type | Filled by |
 | --- | --- | --- |
-| `tool_version` | str | version of the tool (`0.1.0`) |
+| `tool_version` | str | version of the tool (`pyproject.toml`, e.g. `0.2.0`) |
 | `file` | str | PDF file name |
 | `created_at` | datetime | start of the run (local time) |
 | `options` | `PipelineOptions` | options of the run |

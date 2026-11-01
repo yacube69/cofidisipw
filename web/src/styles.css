@@ -114,6 +114,9 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 }
 .field .hint { font-size: 12px; color: var(--faint); font-weight: 400; }
 .field .error { font-size: 12px; color: var(--bad); font-weight: 400; }
+.field-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; max-width: 360px; }
+.field-pair label { display: grid; gap: 2px; min-width: 0; }
+.field-pair input { width: 100%; min-width: 0; }
 .segmented { display: inline-flex; padding: 2px; gap: 2px; border-radius: var(--radius); background: var(--well); border: 1px solid var(--line); }
 .segmented button {
   border: 0; background: transparent; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-size: 13px; color: var(--muted);
@@ -173,6 +176,9 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 .notes summary { display: flex; align-items: center; gap: 8px; padding: 8px 12px; cursor: pointer; color: var(--muted); }
 .notes summary svg { width: 16px; height: 16px; color: var(--faint); }
 .notes ul { margin: 0; padding: 0 12px 10px 36px; display: grid; gap: 4px; color: var(--muted); }
+.notes ul.read { list-style: none; padding: 8px 12px; color: var(--ink); }
+.notes ul.read li { display: flex; gap: 8px; align-items: flex-start; }
+.notes ul.read svg { width: 16px; height: 16px; flex: none; margin-top: 2px; color: var(--faint); }
 
 /* ---------- cards ---------- */
 .card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px 18px; }

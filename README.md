@@ -76,11 +76,11 @@ All of them should end with `OK` / pass.
 | --- | --- | --- |
 | `ci.yml` | every push to any branch, PRs from forks | installs Tesseract with Czech data, `ruff check`, `pytest` on Python 3.11 and 3.12, uploads the JUnit report; web app typecheck, `vitest` and build |
 | `docker.yml` | every push, `v*` tags | builds the image, runs the OCR smoke test, a pipeline run and the web app inside it; on `main` and tags publishes `ghcr.io/yacube69/cofidisipw` (`main`, `sha-…`, version tags) |
-| `release.yml` | `v*` tags | creates a GitHub release with notes generated from merged PRs |
+| `release.yml` | `v*` tags | creates a GitHub release with the version's section of `CHANGELOG.md` and notes generated from merged PRs |
 
 Tests never call the paid LLM API: CI runs with an empty `ANTHROPIC_API_KEY`, LLM calls must be mocked.
 
-Release: `git tag v1.0.0 && git push origin v1.0.0` → GitHub release + image `ghcr.io/yacube69/cofidisipw:1.0.0`.
+Release: set the version in `pyproject.toml` and `web/package.json`, add its section to `CHANGELOG.md`, then `git tag v1.0.0 && git push origin v1.0.0` → GitHub release + image `ghcr.io/yacube69/cofidisipw:1.0.0`.
 
 Run the published image locally (documents stay on your machine):
 

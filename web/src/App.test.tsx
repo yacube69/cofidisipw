@@ -95,6 +95,27 @@ describe("App", () => {
     expect(within(about).getByText("Line dictionary")).toBeTruthy();
   });
 
+  it("sends the statement pages the user entered with the PDF", async () => {
+    render(<App />);
+    await screen.findByRole("heading", { level: 1 });
+    const pdf = new File(["%PDF-1.7"], "annual-report.pdf", { type: "application/pdf" });
+    fireEvent.change(document.querySelector('input[type="file"]') as HTMLInputElement, { target: { files: [pdf] } });
+    const [balanceSheet, incomeStatement] = screen.getAllByPlaceholderText("auto");
+
+    fireEvent.change(balanceSheet, { target: { value: "75 a 76" } });
+    expect(screen.getByText("Page numbers or ranges, e.g. 75-76")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Analyse" }));
+    expect(vi.mocked(fetch).mock.calls.some(([url]) => url === "/api/analyse")).toBe(false); // not sent
+
+    fireEvent.change(balanceSheet, { target: { value: "75-76" } });
+    fireEvent.change(incomeStatement, { target: { value: "77" } });
+    fireEvent.click(screen.getByRole("button", { name: "Analyse" }));
+    await waitFor(() => expect(vi.mocked(fetch).mock.calls.some(([url]) => url === "/api/analyse")).toBe(true));
+    const [, init] = vi.mocked(fetch).mock.calls.find(([url]) => url === "/api/analyse")!;
+    const form = (init as RequestInit).body as FormData;
+    expect([form.get("balance_sheet_pages"), form.get("income_statement_pages")]).toEqual(["75-76", "77"]);
+  });
+
   it("says so when the service is not reachable", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response("down", { status: 502, statusText: "Bad Gateway" })));
     render(<App />);

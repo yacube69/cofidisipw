@@ -1,7 +1,7 @@
 {
   "name": "fides-web",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Fides web app (CIPW-41): React UI over the Python pipeline API",
   "type": "module",
   "scripts": {

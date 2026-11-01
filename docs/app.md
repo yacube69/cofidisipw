@@ -25,7 +25,7 @@ Nothing has to be installed on the user's computer apart from Docker. Fonts are 
 
 Layout chosen from three variants on 2026-10-21 (Mobbin references in `docs/brand/inspiration.md`): **overview first** (Xero business health, 1Password Watchtower) with **the document next to the data** for the extraction (Mistral Document AI).
 
-**Navigation (2026-11-01):** the sidebar only navigates. *New analysis* opens the upload form; under it are the files analysed in this session and the samples. A result has its steps as tabs, and *About this result* and *Export JSON* in its header. The IČO used for benchmarks is edited in the Ratios step. Notes from reading the file (signs restored, cells read again, pages not read) are folded under the header when there are more than two.
+**Navigation (2026-11-01):** the sidebar only navigates. *New analysis* opens the upload form; under it are the files analysed in this session and the samples. A result has its steps as tabs, and *About this result* and *Export JSON* in its header. The IČO used for benchmarks is edited in the Ratios step. Notes on what was read (pages, a format Fides does not read, unit, date) stay in view under the header; notes from the checks and the re-read (signs restored, cells read again) are folded when there are more than two.
 
 **Colours and type:** one typeface, IBM Plex Sans, with tabular figures for numbers; IBM Plex Mono only for formulas and printed text. One accent, navy, for everything that can be clicked. **Red only for what failed and needs a person:** a failed check, a value to review, an error. A weak ratio, a distress zone or a high risk rating is a finding about the company, not a failure, so it is marked with an icon, not red. The brand red and yellow stay in the logo.
 
@@ -46,7 +46,7 @@ A value is **Review** when the parser flagged it, OCR confidence is below 75 or 
 | `GET /api/health` | liveness |
 | `GET /api/samples` | saved samples (open without OCR) |
 | `GET /api/dictionary` | line items: key, code, Czech label, English name |
-| `POST /api/analyse` | PDF (form field `file`, optional `scope` = individual / consolidated) → result view |
+| `POST /api/analyse` | PDF (form field `file`, optional `scope` = individual / consolidated, `balance_sheet_pages` and `income_statement_pages` such as `75-76`, which replace the page locator) → result view |
 | `GET /api/results/{id}` | result view: `Result` without `page_words`, plus `id`, `page_sizes` (PDF points) and `stubbed_stages` |
 | `GET /api/results/{id}/pages/{page}` | page image (JPEG, 144 dpi) |
 | `GET /api/results/{id}/export` | full `Result` JSON as a download |

@@ -13,7 +13,7 @@ import { api } from "./lib/api";
 import { formatDate } from "./lib/format";
 import { stepSummaries, type StepId } from "./lib/summary";
 import { accountingChecks, valueRows } from "./lib/values";
-import type { LineDef, ResultView, Sample } from "./types";
+import type { LineDef, ResultView, Sample, StatementPages } from "./types";
 
 const STEPS: { id: StepId; label: string }[] = [
   { id: "overview", label: "Overview" },
@@ -23,6 +23,8 @@ const STEPS: { id: StepId; label: string }[] = [
   { id: "report", label: "AI report" },
 ];
 const OPEN_NOTES = 2; // a short list of notes is shown open, a long one folded
+// notes on what was read (pages, a format Fides does not read, unit, date) stay in view; the rest can be folded
+const READ_NOTE = /^(locate|read|parse):/;
 
 function stepFromHash(): StepId {
   const id = window.location.hash.slice(1);
@@ -90,14 +92,14 @@ export default function App() {
     }).catch((e: Error) => setError(e.message));
   };
 
-  const analyse = (file: File, scope: "individual" | "consolidated") => {
+  const analyse = (file: File, scope: "individual" | "consolidated", pages: StatementPages) => {
     if (busy) return;
     abort.current = new AbortController();
     setBusy({ file: file.name, started: Date.now() });
     setElapsed(0);
     setError("");
     api
-      .analyse(file, scope, abort.current.signal)
+      .analyse(file, scope, pages, abort.current.signal)
       .then((r) => {
         show(r);
         setRecent((list) => [{ id: r.id, file: file.name }, ...list.filter((x) => x.id !== r.id)]);
@@ -116,6 +118,8 @@ export default function App() {
     validation: accountingChecks(result?.validation?.checks ?? []).filter((c) => !c.passed && c.severity === "error").length,
   };
   const rating = result?.report?.rating.value;
+  const readNotes = (result?.warnings ?? []).filter((w) => READ_NOTE.test(w));
+  const otherNotes = (result?.warnings ?? []).filter((w) => !READ_NOTE.test(w));
 
   return (
     <div className="shell">
@@ -175,13 +179,20 @@ export default function App() {
             {result.errors.length > 0 && (
               <div className="banner error" role="alert" style={{ marginBottom: 16 }}>{result.errors[0].split("\n")[0]}</div>
             )}
-            {result.warnings.length > 0 && (
-              <details className="notes" open={result.warnings.length <= OPEN_NOTES}>
+            {readNotes.length > 0 && (
+              <div className="notes" role="note">
+                <ul className="read">
+                  {readNotes.map((w) => <li key={w}><Info aria-hidden="true" />{w}</li>)}
+                </ul>
+              </div>
+            )}
+            {otherNotes.length > 0 && (
+              <details className="notes" open={otherNotes.length <= OPEN_NOTES}>
                 <summary>
                   <Info aria-hidden="true" />
-                  {result.warnings.length === 1 ? "1 note" : `${result.warnings.length} notes`} from reading this file
+                  {otherNotes.length === 1 ? "1 note" : `${otherNotes.length} notes`} from the checks and the re-read
                 </summary>
-                <ul>{result.warnings.map((w) => <li key={w}>{w}</li>)}</ul>
+                <ul>{otherNotes.map((w) => <li key={w}>{w}</li>)}</ul>
               </details>
             )}
 

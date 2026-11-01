@@ -9,7 +9,7 @@ Endpoints (all under /api):
     GET  /health                       liveness probe
     GET  /samples                      saved sample results the app can open without OCR
     GET  /dictionary                   line items: key, statement, code, Czech label, English name
-    POST /analyse                      PDF upload -> run the pipeline -> result view
+    POST /analyse                      PDF upload (optionally the statement pages) -> run the pipeline -> result view
     GET  /results/{id}                 result view (a sample id opens that sample)
     GET  /results/{id}/pages/{page}    page image (JPEG rendered from the PDF, or the one saved with a sample)
     GET  /results/{id}/export          full Result JSON as a download
@@ -20,6 +20,7 @@ statement page in PDF points, so the app can scale bounding boxes onto the page 
 
 from __future__ import annotations
 
+import re
 import tempfile
 import threading
 import uuid
@@ -37,6 +38,7 @@ from src.line_items import load_dictionary
 from src.pipeline import run_pipeline
 from src.result import PipelineOptions, Result
 from src.settings import ROOT, get_settings
+from src.version import package_version
 
 SETTINGS = get_settings()
 FIXTURES = SETTINGS.paths.fixtures
@@ -93,7 +95,7 @@ def _view(result_id: str, result: Result) -> dict:
     return data
 
 
-app = FastAPI(title="Fides API", version="0.1.0", docs_url="/api/docs", openapi_url="/api/openapi.json")
+app = FastAPI(title="Fides API", version=package_version(), docs_url="/api/docs", openapi_url="/api/openapi.json")
 
 
 @app.get("/api/health")
@@ -119,8 +121,14 @@ def analyse(
     file: Annotated[UploadFile, File(description="Financial statement as PDF")],
     scope: Annotated[Literal["individual", "consolidated"], Form()] = "individual",
     skip_report: Annotated[bool, Form()] = True,
+    balance_sheet_pages: Annotated[str, Form(description="e.g. '75-76'; with the next one replaces the locator")] = "",
+    income_statement_pages: Annotated[str, Form(description="e.g. '77'")] = "",
 ) -> dict:
-    """Run the whole pipeline on one PDF. Scans take about 20 s per statement page (OCR)."""
+    """Run the whole pipeline on one PDF. Scans take about 20 s per statement page (OCR).
+
+    The statement pages are found automatically; when the user enters them (an annual report where the locator
+    picks the wrong pages), those pages are read instead, and a statement left empty is not read."""
+    pages = {"balance_sheet": _page_list(balance_sheet_pages), "income_statement": _page_list(income_statement_pages)}
     pdf = file.file.read(MAX_UPLOAD + 1)
     if len(pdf) > MAX_UPLOAD:
         raise HTTPException(413, f"The file is larger than {MAX_UPLOAD // 2**20} MB")
@@ -131,12 +139,25 @@ def analyse(
         path = Path(tmp) / name
         path.write_bytes(pdf)
         try:
-            result = run_pipeline(path, PipelineOptions(scope=scope, skip_report=skip_report))
+            override = pages if any(pages.values()) else None
+            result = run_pipeline(path, PipelineOptions(scope=scope, skip_report=skip_report, pages=override))
         except Exception as exc:  # a PDF pymupdf cannot open
             raise HTTPException(422, f"The PDF could not be read: {exc}") from exc
     result_id = uuid.uuid4().hex[:12]
     _remember(result_id, Stored(result, pdf))
     return _view(result_id, result)
+
+
+def _page_list(text: str) -> list[int]:
+    """'75-76, 80' -> [75, 76, 80]."""
+    pages: set[int] = set()
+    for part in re.split(r"[\s,;]+", re.sub(r"\s*[-–]\s*", "-", text.strip())):
+        m = re.fullmatch(r"(\d{1,4})(?:-(\d{1,4}))?", part)
+        if part and (not m or int(m[2] or m[1]) - int(m[1]) not in range(20)):
+            raise HTTPException(422, f"Pages: '{part}' is not a page number or a range such as 75-76")
+        if m:
+            pages.update(range(int(m[1]), int(m[2] or m[1]) + 1))
+    return sorted(pages)
 
 
 @app.get("/api/results/{result_id}")

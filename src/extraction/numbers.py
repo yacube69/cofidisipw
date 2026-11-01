@@ -5,6 +5,7 @@ Interface agreed with CIPW-32:
     detect_unit(text)                  -> multiplier (1, 1000, 1_000_000) or None
     detect_period(text)                -> (period_end, prior_period_end)
     detect_scope(text)                 -> "full" | "abbreviated" | None
+    detect_format(text)                -> "ifrs" | "bank" | None (statements the parser does not read)
     detect_columns(lines, kind)        -> [Column(name, x0, x1)], name in gross/adjustment/current/prior/row/extra
 """
 
@@ -193,6 +194,24 @@ def detect_scope(text: str) -> Literal["full", "abbreviated"] | None:
         return "abbreviated"
     if "plnem rozsahu" in t:
         return "full"
+    return None
+
+
+# Statements outside the Czech form the parser reads (docs/decisions.md, 2026-10-19): IFRS statements of large
+# companies ("výkaz o finanční pozici", "úplný výsledek") and the bank form of Vyhláška 501/2002 Sb.
+_IFRS = re.compile(
+    r"\bifrs\b|upln\w* vysled|financni (?:pozic|situac)|penize a penezni ekvivalent|pozemky, budovy a zarizeni"
+)
+_BANK = re.compile(r"pohledavky za bankami|zavazky (?:vuci|k) bankam|pohledavky za (?:klienty|nebankovnimi)")
+
+
+def detect_format(text: str) -> Literal["ifrs", "bank"] | None:
+    """'bank' or 'ifrs' when the statement pages are not the Czech form of Vyhláška 500/2002 Sb., else None."""
+    t = " ".join(_plain(text).split())
+    if _BANK.search(t):
+        return "bank"
+    if _IFRS.search(t):
+        return "ifrs"
     return None
 
 

@@ -669,7 +669,29 @@ def locate_statements_split(
             groups[scope].append(p)
             prev_page, prev_scope = p, scope
         out[stmt] = groups
+    for scope in ("individual", "consolidated"):
+        income = out.get("income_statement", {}).get(scope)
+        if income and not out["balance_sheet"][scope]:
+            out["balance_sheet"][scope] = _balance_sheet_before(info, income[0])
     return out
+
+
+def _balance_sheet_before(info: dict, first_income_page: int) -> list[int]:
+    """In Czech filings the balance sheet comes right before the income statement. When a set has an income
+    statement but no balance sheet (Metrostav prints the form without the title "Rozvaha", and the keyword pass
+    took a consolidated IFRS statement instead), the pages right before it are taken if they carry the fixed rows
+    of the form, from AKTIVA CELKEM to PASIVA CELKEM."""
+    found: list[int] = []
+    for q in range(first_income_page - 1, first_income_page - 1 - LOOKBACK, -1):
+        d = info.get(q)
+        if d is None or _blocked(info, q, "balance_sheet") or d["digits"] < MIN_DIGIT_RATIO or not d["rows"]:
+            break
+        found.insert(0, q)
+        if _has(info, q, BS_ASSETS):
+            break
+    if found and _has(info, found[0], BS_ASSETS) and any(_has(info, q, BS_LIAB) for q in found):
+        return found
+    return []
 
 
 Scope = Literal["individual", "consolidated"]

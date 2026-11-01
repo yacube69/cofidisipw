@@ -35,6 +35,15 @@ def test_merge_joins_thousands_groups_but_not_columns():
     assert all(isinstance(t, NumberToken) for t in tokens)
 
 
+def test_a_text_layer_word_with_thousands_spaces_is_a_number():
+    """Some PDFs keep "2 224 679" as one word (thin spaces between the groups, plain spaces after NFKC)."""
+    tokens = merge_number_tokens([w("AKTIVA", 80, 0), w("2 224 679", 350, 0), w("−1 099 485", 390, 0), w("0", 460, 0)])
+    assert [(type(t).__name__, t.text) for t in tokens] == [
+        ("Word", "AKTIVA"), ("NumberToken", "2 224 679"), ("NumberToken", "−1 099 485"), ("NumberToken", "0")
+    ]  # fmt: skip
+    assert not isinstance(merge_number_tokens([w("12 34", 0, 0)])[0], NumberToken)  # not a thousands grouping
+
+
 def test_merge_does_not_join_a_short_group():
     tokens = merge_number_tokens([w("12", 0, 0), w("70", 15, 0)])
     assert [t.text for t in tokens] == ["12", "70"]

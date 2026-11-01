@@ -220,3 +220,9 @@ export interface Sample {
   id: string;
   label: string;
 }
+
+/** Statement pages the user entered ("75-76"); empty = found automatically. */
+export interface StatementPages {
+  balanceSheet: string;
+  incomeStatement: string;
+}

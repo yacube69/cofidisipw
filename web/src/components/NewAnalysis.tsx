@@ -1,14 +1,18 @@
 import { Upload } from "lucide-react";
 import { useRef, useState, type DragEvent } from "react";
+import type { StatementPages } from "../types";
 
 interface Props {
   busy: boolean;
-  onAnalyse: (file: File, scope: "individual" | "consolidated") => void;
+  onAnalyse: (file: File, scope: "individual" | "consolidated", pages: StatementPages) => void;
 }
+
+const PAGES = /^[\d\s,;\-–]*$/; // "75-76", "77, 79"
 
 export function NewAnalysis({ busy, onAnalyse }: Props) {
   const [file, setFile] = useState<File | null>(null);
   const [scope, setScope] = useState<"individual" | "consolidated">("individual");
+  const [pages, setPages] = useState<StatementPages>({ balanceSheet: "", incomeStatement: "" });
   const [drag, setDrag] = useState(false);
   const [fileError, setFileError] = useState("");
   const input = useRef<HTMLInputElement>(null);
@@ -33,8 +37,10 @@ export function NewAnalysis({ busy, onAnalyse }: Props) {
       setFileError("Choose a PDF first");
       return;
     }
-    onAnalyse(file, scope);
+    if (pagesInvalid) return;
+    onAnalyse(file, scope, pages);
   };
+  const pagesInvalid = !PAGES.test(pages.balanceSheet) || !PAGES.test(pages.incomeStatement);
 
   return (
     <section className="new-analysis" aria-labelledby="new-title">
@@ -74,6 +80,36 @@ export function NewAnalysis({ busy, onAnalyse }: Props) {
             ))}
           </div>
           <span className="hint">Group annual reports hold both sets</span>
+        </div>
+        <div className="field">
+          <span>Statement pages <span className="hint">optional</span></span>
+          <div className="field-pair">
+            <label>
+              <span className="hint">Balance sheet</span>
+              <input
+                value={pages.balanceSheet}
+                placeholder="auto"
+                inputMode="numeric"
+                onChange={(e) => setPages({ ...pages, balanceSheet: e.target.value })}
+                aria-invalid={!PAGES.test(pages.balanceSheet)}
+              />
+            </label>
+            <label>
+              <span className="hint">Income statement</span>
+              <input
+                value={pages.incomeStatement}
+                placeholder="auto"
+                inputMode="numeric"
+                onChange={(e) => setPages({ ...pages, incomeStatement: e.target.value })}
+                aria-invalid={!PAGES.test(pages.incomeStatement)}
+              />
+            </label>
+          </div>
+          {pagesInvalid ? (
+            <span className="error">Page numbers or ranges, e.g. 75-76</span>
+          ) : (
+            <span className="hint">Found automatically; enter them when an annual report gives few values</span>
+          )}
         </div>
         <button className="btn primary" type="button" onClick={analyse} aria-disabled={busy} style={{ justifySelf: "start" }}>
           {busy ? "Analysing…" : "Analyse"}

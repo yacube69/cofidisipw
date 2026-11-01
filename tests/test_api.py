@@ -1,11 +1,13 @@
 """CIPW-41: the HTTP API the web app runs on."""
 
+import json
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
 from src.api import SAMPLES, app
+from src.version import package_version
 from tests.synthetic import make_digital_pdf
 
 client = TestClient(app)
@@ -13,6 +15,13 @@ client = TestClient(app)
 
 def test_health():
     assert client.get("/api/health").json() == {"status": "ok"}
+
+
+def test_one_version_for_the_api_the_web_app_and_the_results():
+    """pyproject.toml is the version; the web app shows the one in web/package.json, so both must agree."""
+    root = Path(__file__).resolve().parents[1]
+    web = json.loads((root / "web" / "package.json").read_text(encoding="utf-8"))["version"]
+    assert app.version == package_version() == web
 
 
 def test_every_sample_opens_with_page_sizes_and_without_page_words():
@@ -55,6 +64,21 @@ def test_analyse_a_digital_pdf(tmp_path):
     assert client.get(f"/api/results/{view['id']}/pages/1").headers["content-type"] == "image/jpeg"
     export = client.get(f"/api/results/{view['id']}/export")
     assert "attachment" in export.headers["content-disposition"] and "page_words" in export.json()
+
+
+def test_analyse_reads_the_pages_the_user_entered(tmp_path):
+    """An annual report where the locator picks the wrong pages: the user enters them, the locator is not used."""
+    pdf = make_digital_pdf(tmp_path / "12345678_2025_statement.pdf")
+    form = {"balance_sheet_pages": "1 - 2", "income_statement_pages": ""}
+    with pdf.open("rb") as f:
+        response = client.post("/api/analyse", files={"file": (pdf.name, f, "application/pdf")}, data=form)
+    view = response.json()
+    assert view["pages"] == {"balance_sheet": [1, 2], "income_statement": []} and view["consolidation"] is None
+    assert view["statements"]["balance_sheet"]["total_assets"]["current"]["value"] == 1_000_000_000
+    assert not any(w.startswith("locate:") for w in view["warnings"])
+    with pdf.open("rb") as f:
+        bad = client.post("/api/analyse", files={"file": (pdf.name, f)}, data={"balance_sheet_pages": "1 a 2"})
+    assert bad.status_code == 422 and "'a' is not a page number" in bad.json()["detail"]
 
 
 def test_analyse_rejects_a_file_that_is_not_a_pdf():

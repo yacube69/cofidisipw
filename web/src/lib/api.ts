@@ -1,4 +1,4 @@
-import type { LineDef, ResultView, Sample } from "../types";
+import type { LineDef, ResultView, Sample, StatementPages } from "../types";
 
 async function json<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -18,11 +18,13 @@ export const api = {
   samples: () => fetch("/api/samples").then((r) => json<Sample[]>(r)),
   dictionary: () => fetch("/api/dictionary").then((r) => json<LineDef[]>(r)),
   result: (id: string) => fetch(`/api/results/${encodeURIComponent(id)}`).then((r) => json<ResultView>(r)),
-  analyse: (file: File, scope: "individual" | "consolidated", signal?: AbortSignal) => {
+  analyse: (file: File, scope: "individual" | "consolidated", pages: StatementPages, signal?: AbortSignal) => {
     const form = new FormData();
     form.append("file", file);
     form.append("scope", scope);
     form.append("skip_report", "true");
+    form.append("balance_sheet_pages", pages.balanceSheet);
+    form.append("income_statement_pages", pages.incomeStatement);
     return fetch("/api/analyse", { method: "POST", body: form, signal }).then((r) => json<ResultView>(r));
   },
   pageUrl: (id: string, page: number) => `/api/results/${encodeURIComponent(id)}/pages/${page}`,
