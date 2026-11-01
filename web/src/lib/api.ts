@@ -1,4 +1,4 @@
-import type { LineDef, ResultView, Sample, StatementPages } from "../types";
+import type { Company, LineDef, ResultView, Sample, StatementPages } from "../types";
 
 async function json<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -17,6 +17,7 @@ async function json<T>(response: Response): Promise<T> {
 export const api = {
   samples: () => fetch("/api/samples").then((r) => json<Sample[]>(r)),
   dictionary: () => fetch("/api/dictionary").then((r) => json<LineDef[]>(r)),
+  company: (ico: string) => fetch(`/api/company/${encodeURIComponent(ico)}`).then((r) => json<Company>(r)),
   result: (id: string) => fetch(`/api/results/${encodeURIComponent(id)}`).then((r) => json<ResultView>(r)),
   analyse: (file: File, scope: "individual" | "consolidated", pages: StatementPages, signal?: AbortSignal) => {
     const form = new FormData();

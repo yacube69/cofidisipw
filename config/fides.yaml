@@ -4,7 +4,8 @@
 #   environment variable or .env:  FIDES_OFFLINE=true, FIDES_OCR__DPI=400, FIDES_LLM__MODEL=...
 # Secrets never go here: the API key comes from ANTHROPIC_API_KEY in .env or the environment.
 
-# No LLM call at all: the AI report step is skipped, everything else runs (extraction, checks, ratios).
+# No call to the internet: no LLM (the AI report step is skipped) and no ARES lookup (company data from saved
+# answers and data/companies.csv only). Everything else runs (extraction, checks, ratios).
 offline: false
 
 # A JSON-lines log of every pipeline run in paths.logs
@@ -53,6 +54,14 @@ llm:
   provider: anthropic
   model: claude-sonnet-5-5
   max_cost_usd: 0.50   # upper limit for one AI report
+
+# Company name, address, industry (CZ-NACE) and size by IČO from the public register ARES (CIPW-44).
+# Only the IČO is sent; answers are saved in outputs/cache/ares.
+ares:
+  enabled: true
+  url: https://ares.gov.cz/ekonomicke-subjekty-v-be/rest
+  timeout: 5           # seconds
+  cache: ""            # folder of the saved answers; "" = outputs/cache/ares
 
 api:
   max_upload_mb: 60

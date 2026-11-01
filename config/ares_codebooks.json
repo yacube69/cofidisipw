@@ -1,0 +1,7330 @@
+{
+"cz_nace": {
+"00": {
+"name": "Výroba, obchod a služby neuvedené v přílohách 1 až 3 živnostenského zákona",
+"parent": "Y"
+},
+"01": {
+"name": "Rostlinná a živočišná výroba, myslivost a související činnosti",
+"parent": "A"
+},
+"011": {
+"name": "Pěstování plodin jiných než trvalých",
+"parent": "01"
+},
+"0111": {
+"name": "Pěstování obilovin jiných než rýže, luštěnin a olejnatých semen",
+"parent": "011"
+},
+"01110": {
+"name": "Pěstování obilovin jiných než rýže, luštěnin a olejnatých semen",
+"parent": "0111"
+},
+"0112": {
+"name": "Pěstování rýže",
+"parent": "011"
+},
+"01120": {
+"name": "Pěstování rýže",
+"parent": "0112"
+},
+"0113": {
+"name": "Pěstování zeleniny a melounů, kořenů a hlíz",
+"parent": "011"
+},
+"01130": {
+"name": "Pěstování zeleniny a melounů, kořenů a hlíz",
+"parent": "0113"
+},
+"0114": {
+"name": "Pěstování cukrové třtiny",
+"parent": "011"
+},
+"01140": {
+"name": "Pěstování cukrové třtiny",
+"parent": "0114"
+},
+"0115": {
+"name": "Pěstování tabáku",
+"parent": "011"
+},
+"01150": {
+"name": "Pěstování tabáku",
+"parent": "0115"
+},
+"0116": {
+"name": "Pěstování přadných rostlin",
+"parent": "011"
+},
+"01160": {
+"name": "Pěstování přadných rostlin",
+"parent": "0116"
+},
+"0119": {
+"name": "Pěstování ostatních plodin jiných než trvalých",
+"parent": "011"
+},
+"01190": {
+"name": "Pěstování ostatních plodin jiných než trvalých",
+"parent": "0119"
+},
+"012": {
+"name": "Pěstování trvalých plodin",
+"parent": "01"
+},
+"0121": {
+"name": "Pěstování vinných hroznů",
+"parent": "012"
+},
+"01210": {
+"name": "Pěstování vinných hroznů",
+"parent": "0121"
+},
+"0122": {
+"name": "Pěstování tropického a subtropického ovoce",
+"parent": "012"
+},
+"01220": {
+"name": "Pěstování tropického a subtropického ovoce",
+"parent": "0122"
+},
+"0123": {
+"name": "Pěstování citrusových plodů",
+"parent": "012"
+},
+"01230": {
+"name": "Pěstování citrusových plodů",
+"parent": "0123"
+},
+"0124": {
+"name": "Pěstování jádrového a peckového ovoce",
+"parent": "012"
+},
+"01240": {
+"name": "Pěstování jádrového a peckového ovoce",
+"parent": "0124"
+},
+"0125": {
+"name": "Pěstování ostatního stromového a keřového ovoce a ořechů",
+"parent": "012"
+},
+"01250": {
+"name": "Pěstování ostatního stromového a keřového ovoce a ořechů",
+"parent": "0125"
+},
+"0126": {
+"name": "Pěstování olejnatých plodů",
+"parent": "012"
+},
+"01260": {
+"name": "Pěstování olejnatých plodů",
+"parent": "0126"
+},
+"0127": {
+"name": "Pěstování rostlin pro výrobu nápojů",
+"parent": "012"
+},
+"01270": {
+"name": "Pěstování rostlin pro výrobu nápojů",
+"parent": "0127"
+},
+"0128": {
+"name": "Pěstování koření a aromatických, léčivých a farmaceutických rostlin",
+"parent": "012"
+},
+"01280": {
+"name": "Pěstování koření a aromatických, léčivých a farmaceutických rostlin",
+"parent": "0128"
+},
+"0129": {
+"name": "Pěstování ostatních trvalých plodin",
+"parent": "012"
+},
+"01290": {
+"name": "Pěstování ostatních trvalých plodin",
+"parent": "0129"
+},
+"013": {
+"name": "Množení rostlin",
+"parent": "01"
+},
+"0130": {
+"name": "Množení rostlin",
+"parent": "013"
+},
+"01300": {
+"name": "Množení rostlin",
+"parent": "0130"
+},
+"014": {
+"name": "Živočišná výroba",
+"parent": "01"
+},
+"0141": {
+"name": "Chov mléčného skotu",
+"parent": "014"
+},
+"01410": {
+"name": "Chov mléčného skotu",
+"parent": "0141"
+},
+"0142": {
+"name": "Chov ostatního skotu a buvolů",
+"parent": "014"
+},
+"01420": {
+"name": "Chov ostatního skotu a buvolů",
+"parent": "0142"
+},
+"0143": {
+"name": "Chov koní a ostatních koňovitých",
+"parent": "014"
+},
+"01430": {
+"name": "Chov koní a ostatních koňovitých",
+"parent": "0143"
+},
+"0144": {
+"name": "Chov velbloudů a velbloudovitých",
+"parent": "014"
+},
+"01440": {
+"name": "Chov velbloudů a velbloudovitých",
+"parent": "0144"
+},
+"0145": {
+"name": "Chov ovcí a koz",
+"parent": "014"
+},
+"01450": {
+"name": "Chov ovcí a koz",
+"parent": "0145"
+},
+"0146": {
+"name": "Chov prasat",
+"parent": "014"
+},
+"01460": {
+"name": "Chov prasat",
+"parent": "0146"
+},
+"0147": {
+"name": "Chov drůbeže",
+"parent": "014"
+},
+"01470": {
+"name": "Chov drůbeže",
+"parent": "0147"
+},
+"0148": {
+"name": "Chov ostatních zvířat",
+"parent": "014"
+},
+"01480": {
+"name": "Chov ostatních zvířat",
+"parent": "0148"
+},
+"015": {
+"name": "Smíšené hospodaření",
+"parent": "01"
+},
+"0150": {
+"name": "Smíšené hospodaření",
+"parent": "015"
+},
+"01500": {
+"name": "Smíšené hospodaření",
+"parent": "0150"
+},
+"016": {
+"name": "Podpůrné činnosti pro zemědělství a posklizňové činnosti",
+"parent": "01"
+},
+"0161": {
+"name": "Podpůrné činnosti pro rostlinnou výrobu",
+"parent": "016"
+},
+"01610": {
+"name": "Podpůrné činnosti pro rostlinnou výrobu",
+"parent": "0161"
+},
+"0162": {
+"name": "Podpůrné činnosti pro živočišnou výrobu",
+"parent": "016"
+},
+"01620": {
+"name": "Podpůrné činnosti pro živočišnou výrobu",
+"parent": "0162"
+},
+"0163": {
+"name": "Posklizňové činnosti a zpracování osiva pro účely množení",
+"parent": "016"
+},
+"01630": {
+"name": "Posklizňové činnosti a zpracování osiva pro účely množení",
+"parent": "0163"
+},
+"017": {
+"name": "Lov a odchyt divokých zvířat a související činnosti",
+"parent": "01"
+},
+"0170": {
+"name": "Lov a odchyt divokých zvířat a související činnosti",
+"parent": "017"
+},
+"01700": {
+"name": "Lov a odchyt divokých zvířat a související činnosti",
+"parent": "0170"
+},
+"02": {
+"name": "Lesnictví a těžba dřeva",
+"parent": "A"
+},
+"021": {
+"name": "Pěstování lesa a jiné činnosti v oblasti lesnictví",
+"parent": "02"
+},
+"0210": {
+"name": "Pěstování lesa a jiné činnosti v oblasti lesnictví",
+"parent": "021"
+},
+"02100": {
+"name": "Pěstování lesa a jiné činnosti v oblasti lesnictví",
+"parent": "0210"
+},
+"022": {
+"name": "Těžba dřeva",
+"parent": "02"
+},
+"0220": {
+"name": "Těžba dřeva",
+"parent": "022"
+},
+"02200": {
+"name": "Těžba dřeva",
+"parent": "0220"
+},
+"023": {
+"name": "Sběr a získávání volně rostoucích plodů a materiálů, kromě dřeva",
+"parent": "02"
+},
+"0230": {
+"name": "Sběr a získávání volně rostoucích plodů a materiálů, kromě dřeva",
+"parent": "023"
+},
+"02300": {
+"name": "Sběr a získávání volně rostoucích plodů a materiálů, kromě dřeva",
+"parent": "0230"
+},
+"024": {
+"name": "Podpůrné činnosti pro lesnictví",
+"parent": "02"
+},
+"0240": {
+"name": "Podpůrné činnosti pro lesnictví",
+"parent": "024"
+},
+"02400": {
+"name": "Podpůrné činnosti pro lesnictví",
+"parent": "0240"
+},
+"03": {
+"name": "Rybolov a akvakultura",
+"parent": "A"
+},
+"031": {
+"name": "Rybolov",
+"parent": "03"
+},
+"0311": {
+"name": "Mořský rybolov",
+"parent": "031"
+},
+"03110": {
+"name": "Mořský rybolov",
+"parent": "0311"
+},
+"0312": {
+"name": "Sladkovodní rybolov",
+"parent": "031"
+},
+"03120": {
+"name": "Sladkovodní rybolov",
+"parent": "0312"
+},
+"032": {
+"name": "Akvakultura",
+"parent": "03"
+},
+"0321": {
+"name": "Mořská akvakultura",
+"parent": "032"
+},
+"03210": {
+"name": "Mořská akvakultura",
+"parent": "0321"
+},
+"0322": {
+"name": "Sladkovodní akvakultura",
+"parent": "032"
+},
+"03220": {
+"name": "Sladkovodní akvakultura",
+"parent": "0322"
+},
+"033": {
+"name": "Podpůrné činnosti pro rybolov a akvakulturu",
+"parent": "03"
+},
+"0330": {
+"name": "Podpůrné činnosti pro rybolov a akvakulturu",
+"parent": "033"
+},
+"03300": {
+"name": "Podpůrné činnosti pro rybolov a akvakulturu",
+"parent": "0330"
+},
+"05": {
+"name": "Těžba černého a hnědého uhlí",
+"parent": "B"
+},
+"051": {
+"name": "Těžba černého uhlí",
+"parent": "05"
+},
+"0510": {
+"name": "Těžba černého uhlí",
+"parent": "051"
+},
+"05101": {
+"name": "Těžba černého uhlí, kromě úpravy",
+"parent": "0510"
+},
+"05102": {
+"name": "Úprava černého uhlí",
+"parent": "0510"
+},
+"052": {
+"name": "Těžba hnědého uhlí",
+"parent": "05"
+},
+"0520": {
+"name": "Těžba hnědého uhlí",
+"parent": "052"
+},
+"05201": {
+"name": "Těžba hnědého uhlí jiného než lignitu, kromě úpravy",
+"parent": "0520"
+},
+"05202": {
+"name": "Úprava hnědého uhlí jiného než lignitu",
+"parent": "0520"
+},
+"05203": {
+"name": "Těžba lignitu, kromě úpravy",
+"parent": "0520"
+},
+"05204": {
+"name": "Úprava lignitu",
+"parent": "0520"
+},
+"06": {
+"name": "Těžba ropy a zemního plynu",
+"parent": "B"
+},
+"061": {
+"name": "Těžba ropy",
+"parent": "06"
+},
+"0610": {
+"name": "Těžba ropy",
+"parent": "061"
+},
+"06100": {
+"name": "Těžba ropy",
+"parent": "0610"
+},
+"062": {
+"name": "Těžba zemního plynu",
+"parent": "06"
+},
+"0620": {
+"name": "Těžba zemního plynu",
+"parent": "062"
+},
+"06200": {
+"name": "Těžba zemního plynu",
+"parent": "0620"
+},
+"07": {
+"name": "Těžba rud",
+"parent": "B"
+},
+"071": {
+"name": "Těžba železných rud",
+"parent": "07"
+},
+"0710": {
+"name": "Těžba železných rud",
+"parent": "071"
+},
+"07101": {
+"name": "Těžba železných rud, kromě úpravy",
+"parent": "0710"
+},
+"07102": {
+"name": "Úprava železných rud",
+"parent": "0710"
+},
+"072": {
+"name": "Těžba neželezných rud",
+"parent": "07"
+},
+"0721": {
+"name": "Těžba uranových a thoriových rud",
+"parent": "072"
+},
+"07211": {
+"name": "Těžba uranových a thoriových rud, kromě úpravy",
+"parent": "0721"
+},
+"07212": {
+"name": "Úprava uranových a thoriových rud",
+"parent": "0721"
+},
+"0729": {
+"name": "Těžba ostatních neželezných rud",
+"parent": "072"
+},
+"07291": {
+"name": "Těžba ostatních neželezných rud, kromě úpravy",
+"parent": "0729"
+},
+"07292": {
+"name": "Úprava ostatních neželezných rud",
+"parent": "0729"
+},
+"08": {
+"name": "Těžba a dobývání ostatních nerostných surovin",
+"parent": "B"
+},
+"081": {
+"name": "Dobývání kamene, písků a jílů",
+"parent": "08"
+},
+"0811": {
+"name": "Dobývání kamene, vápence, sádrovce, břidlice a jiného kamene, také pro výtvarné účely",
+"parent": "081"
+},
+"08110": {
+"name": "Dobývání kamene, vápence, sádrovce, břidlice a jiného kamene, také pro výtvarné účely",
+"parent": "0811"
+},
+"0812": {
+"name": "Provoz pískoven a štěrkopískoven a těžba jílů a kaolinu",
+"parent": "081"
+},
+"08120": {
+"name": "Provoz pískoven a štěrkopískoven a těžba jílů a kaolinu",
+"parent": "0812"
+},
+"089": {
+"name": "Těžba a dobývání nerostných surovin j. n.",
+"parent": "08"
+},
+"0891": {
+"name": "Těžba chemických minerálů a minerálů pro výrobu hnojiv",
+"parent": "089"
+},
+"08910": {
+"name": "Těžba chemických minerálů a minerálů pro výrobu hnojiv",
+"parent": "0891"
+},
+"0892": {
+"name": "Těžba rašeliny",
+"parent": "089"
+},
+"08920": {
+"name": "Těžba rašeliny",
+"parent": "0892"
+},
+"0893": {
+"name": "Těžba soli",
+"parent": "089"
+},
+"08930": {
+"name": "Těžba soli",
+"parent": "0893"
+},
+"0899": {
+"name": "Těžba a dobývání ostatních nerostných surovin j. n.",
+"parent": "089"
+},
+"08990": {
+"name": "Těžba a dobývání ostatních nerostných surovin j. n.",
+"parent": "0899"
+},
+"09": {
+"name": "Podpůrné činnosti pro těžbu a dobývání nerostných surovin",
+"parent": "B"
+},
+"091": {
+"name": "Podpůrné činnosti pro těžbu ropy a zemního plynu",
+"parent": "09"
+},
+"0910": {
+"name": "Podpůrné činnosti pro těžbu ropy a zemního plynu",
+"parent": "091"
+},
+"09100": {
+"name": "Podpůrné činnosti pro těžbu ropy a zemního plynu",
+"parent": "0910"
+},
+"099": {
+"name": "Podpůrné činnosti pro těžbu a dobývání ostatních nerostných surovin",
+"parent": "09"
+},
+"0990": {
+"name": "Podpůrné činnosti pro těžbu a dobývání ostatních nerostných surovin",
+"parent": "099"
+},
+"09901": {
+"name": "Podpůrné činnosti pro těžbu černého uhlí",
+"parent": "0990"
+},
+"09902": {
+"name": "Podpůrné činnosti pro těžbu hnědého uhlí, kromě lignitu",
+"parent": "0990"
+},
+"09903": {
+"name": "Podpůrné činnosti pro těžbu lignitu",
+"parent": "0990"
+},
+"09904": {
+"name": "Podpůrné činnosti pro těžbu železných rud",
+"parent": "0990"
+},
+"09905": {
+"name": "Podpůrné činnosti pro těžbu uranových a thoriových rud",
+"parent": "0990"
+},
+"09906": {
+"name": "Podpůrné činnosti pro těžbu ostatních neželezných rud",
+"parent": "0990"
+},
+"09909": {
+"name": "Podpůrné činnosti pro těžbu a dobývání ostatních nerostných surovin j. n.",
+"parent": "0990"
+},
+"10": {
+"name": "Výroba potravinářských výrobků",
+"parent": "C"
+},
+"101": {
+"name": "Zpracování a konzervování masa a výroba masných výrobků",
+"parent": "10"
+},
+"1011": {
+"name": "Zpracování a konzervování masa, kromě drůbežího masa",
+"parent": "101"
+},
+"10110": {
+"name": "Zpracování a konzervování masa, kromě drůbežího masa",
+"parent": "1011"
+},
+"1012": {
+"name": "Zpracování a konzervování drůbežího masa",
+"parent": "101"
+},
+"10120": {
+"name": "Zpracování a konzervování drůbežího masa",
+"parent": "1012"
+},
+"1013": {
+"name": "Výroba masných výrobků a výrobků z drůbežího masa",
+"parent": "101"
+},
+"10130": {
+"name": "Výroba masných výrobků a výrobků z drůbežího masa",
+"parent": "1013"
+},
+"102": {
+"name": "Zpracování a konzervování ryb, korýšů a měkkýšů",
+"parent": "10"
+},
+"1020": {
+"name": "Zpracování a konzervování ryb, korýšů a měkkýšů",
+"parent": "102"
+},
+"10200": {
+"name": "Zpracování a konzervování ryb, korýšů a měkkýšů",
+"parent": "1020"
+},
+"103": {
+"name": "Zpracování a konzervování ovoce a zeleniny",
+"parent": "10"
+},
+"1031": {
+"name": "Zpracování a konzervování brambor",
+"parent": "103"
+},
+"10310": {
+"name": "Zpracování a konzervování brambor",
+"parent": "1031"
+},
+"1032": {
+"name": "Výroba ovocných a zeleninových šťáv",
+"parent": "103"
+},
+"10320": {
+"name": "Výroba ovocných a zeleninových šťáv",
+"parent": "1032"
+},
+"1039": {
+"name": "Ostatní zpracování a konzervování ovoce a zeleniny",
+"parent": "103"
+},
+"10390": {
+"name": "Ostatní zpracování a konzervování ovoce a zeleniny",
+"parent": "1039"
+},
+"104": {
+"name": "Výroba rostlinných a živočišných olejů a tuků",
+"parent": "10"
+},
+"1041": {
+"name": "Výroba olejů a tuků",
+"parent": "104"
+},
+"10410": {
+"name": "Výroba olejů a tuků",
+"parent": "1041"
+},
+"1042": {
+"name": "Výroba margarínu a podobných jedlých tuků",
+"parent": "104"
+},
+"10420": {
+"name": "Výroba margarínu a podobných jedlých tuků",
+"parent": "1042"
+},
+"105": {
+"name": "Výroba mléčných výrobků, výroba zmrzliny a ledu k lidské spotřebě",
+"parent": "10"
+},
+"1051": {
+"name": "Výroba mléčných výrobků",
+"parent": "105"
+},
+"10510": {
+"name": "Výroba mléčných výrobků",
+"parent": "1051"
+},
+"1052": {
+"name": "Výroba zmrzliny a ledu k lidské spotřebě",
+"parent": "105"
+},
+"10520": {
+"name": "Výroba zmrzliny a ledu k lidské spotřebě",
+"parent": "1052"
+},
+"106": {
+"name": "Výroba mlýnských a škrobárenských výrobků",
+"parent": "10"
+},
+"1061": {
+"name": "Výroba mlýnských výrobků",
+"parent": "106"
+},
+"10610": {
+"name": "Výroba mlýnských výrobků",
+"parent": "1061"
+},
+"1062": {
+"name": "Výroba škrobárenských výrobků",
+"parent": "106"
+},
+"10620": {
+"name": "Výroba škrobárenských výrobků",
+"parent": "1062"
+},
+"107": {
+"name": "Výroba pekařských, cukrářských a jiných moučných výrobků",
+"parent": "10"
+},
+"1071": {
+"name": "Výroba pekařských a cukrářských výrobků, kromě trvanlivých",
+"parent": "107"
+},
+"10710": {
+"name": "Výroba pekařských a cukrářských výrobků, kromě trvanlivých",
+"parent": "1071"
+},
+"1072": {
+"name": "Výroba sucharů, sušenek a trvanlivých pekařských a cukrářských výrobků",
+"parent": "107"
+},
+"10720": {
+"name": "Výroba sucharů, sušenek a trvanlivých pekařských a cukrářských výrobků",
+"parent": "1072"
+},
+"1073": {
+"name": "Výroba moučných výrobků",
+"parent": "107"
+},
+"10730": {
+"name": "Výroba moučných výrobků",
+"parent": "1073"
+},
+"108": {
+"name": "Výroba ostatních potravinářských výrobků",
+"parent": "10"
+},
+"1081": {
+"name": "Výroba cukru",
+"parent": "108"
+},
+"10810": {
+"name": "Výroba cukru",
+"parent": "1081"
+},
+"1082": {
+"name": "Výroba kakaa, čokolády a cukrovinek",
+"parent": "108"
+},
+"10820": {
+"name": "Výroba kakaa, čokolády a cukrovinek",
+"parent": "1082"
+},
+"1083": {
+"name": "Zpracování čaje a kávy",
+"parent": "108"
+},
+"10830": {
+"name": "Zpracování čaje a kávy",
+"parent": "1083"
+},
+"1084": {
+"name": "Výroba koření a přísad pro ochucení",
+"parent": "108"
+},
+"10840": {
+"name": "Výroba koření a přísad pro ochucení",
+"parent": "1084"
+},
+"1085": {
+"name": "Výroba hotových pokrmů",
+"parent": "108"
+},
+"10850": {
+"name": "Výroba hotových pokrmů",
+"parent": "1085"
+},
+"1086": {
+"name": "Výroba homogenizovaných potravinářských přípravků a dietetických potravin",
+"parent": "108"
+},
+"10860": {
+"name": "Výroba homogenizovaných potravinářských přípravků a dietetických potravin",
+"parent": "1086"
+},
+"1089": {
+"name": "Výroba ostatních potravinářských výrobků j. n.",
+"parent": "108"
+},
+"10890": {
+"name": "Výroba ostatních potravinářských výrobků j. n.",
+"parent": "1089"
+},
+"109": {
+"name": "Výroba krmiv",
+"parent": "10"
+},
+"1091": {
+"name": "Výroba krmiv pro hospodářská zvířata",
+"parent": "109"
+},
+"10910": {
+"name": "Výroba krmiv pro hospodářská zvířata",
+"parent": "1091"
+},
+"1092": {
+"name": "Výroba krmiv pro zvířata v zájmovém chovu",
+"parent": "109"
+},
+"10920": {
+"name": "Výroba krmiv pro zvířata v zájmovém chovu",
+"parent": "1092"
+},
+"11": {
+"name": "Výroba nápojů",
+"parent": "C"
+},
+"110": {
+"name": "Výroba nápojů",
+"parent": "11"
+},
+"1101": {
+"name": "Destilace, rektifikace a míchaní lihovin",
+"parent": "110"
+},
+"11010": {
+"name": "Destilace, rektifikace a míchaní lihovin",
+"parent": "1101"
+},
+"1102": {
+"name": "Výroba vína z vinných hroznů",
+"parent": "110"
+},
+"11020": {
+"name": "Výroba vína z vinných hroznů",
+"parent": "1102"
+},
+"1103": {
+"name": "Výroba ciderů a jiných kvašených ovocných nápojů",
+"parent": "110"
+},
+"11030": {
+"name": "Výroba ciderů a jiných kvašených ovocných nápojů",
+"parent": "1103"
+},
+"1104": {
+"name": "Výroba ostatních nedestilovaných kvašených nápojů",
+"parent": "110"
+},
+"11040": {
+"name": "Výroba ostatních nedestilovaných kvašených nápojů",
+"parent": "1104"
+},
+"1105": {
+"name": "Výroba piva",
+"parent": "110"
+},
+"11050": {
+"name": "Výroba piva",
+"parent": "1105"
+},
+"1106": {
+"name": "Výroba sladu",
+"parent": "110"
+},
+"11060": {
+"name": "Výroba sladu",
+"parent": "1106"
+},
+"1107": {
+"name": "Výroba nealkoholických nápojů a balených vod",
+"parent": "110"
+},
+"11070": {
+"name": "Výroba nealkoholických nápojů a balených vod",
+"parent": "1107"
+},
+"12": {
+"name": "Výroba tabákových výrobků",
+"parent": "C"
+},
+"120": {
+"name": "Výroba tabákových výrobků",
+"parent": "12"
+},
+"1200": {
+"name": "Výroba tabákových výrobků",
+"parent": "120"
+},
+"12000": {
+"name": "Výroba tabákových výrobků",
+"parent": "1200"
+},
+"13": {
+"name": "Výroba textilií",
+"parent": "C"
+},
+"131": {
+"name": "Úprava a spřádání textilních vláken a příze",
+"parent": "13"
+},
+"1310": {
+"name": "Úprava a spřádání textilních vláken a příze",
+"parent": "131"
+},
+"13100": {
+"name": "Úprava a spřádání textilních vláken a příze",
+"parent": "1310"
+},
+"132": {
+"name": "Tkaní textilií",
+"parent": "13"
+},
+"1320": {
+"name": "Tkaní textilií",
+"parent": "132"
+},
+"13200": {
+"name": "Tkaní textilií",
+"parent": "1320"
+},
+"133": {
+"name": "Konečná úprava textilií",
+"parent": "13"
+},
+"1330": {
+"name": "Konečná úprava textilií",
+"parent": "133"
+},
+"13300": {
+"name": "Konečná úprava textilií",
+"parent": "1330"
+},
+"139": {
+"name": "Výroba ostatních textilií",
+"parent": "13"
+},
+"1391": {
+"name": "Výroba pletených a háčkovaných textilií",
+"parent": "139"
+},
+"13910": {
+"name": "Výroba pletených a háčkovaných textilií",
+"parent": "1391"
+},
+"1392": {
+"name": "Výroba bytového textilu a konfekčních bytových textilií",
+"parent": "139"
+},
+"13920": {
+"name": "Výroba bytového textilu a konfekčních bytových textilií",
+"parent": "1392"
+},
+"1393": {
+"name": "Výroba koberců a kobercových předložek",
+"parent": "139"
+},
+"13930": {
+"name": "Výroba koberců a kobercových předložek",
+"parent": "1393"
+},
+"1394": {
+"name": "Výroba lan, provazů a síťovaných výrobků",
+"parent": "139"
+},
+"13940": {
+"name": "Výroba lan, provazů a síťovaných výrobků",
+"parent": "1394"
+},
+"1395": {
+"name": "Výroba netkaných textilií a výrobků z nich",
+"parent": "139"
+},
+"13950": {
+"name": "Výroba netkaných textilií a výrobků z nich",
+"parent": "1395"
+},
+"1396": {
+"name": "Výroba ostatních technických a průmyslových textilií",
+"parent": "139"
+},
+"13960": {
+"name": "Výroba ostatních technických a průmyslových textilií",
+"parent": "1396"
+},
+"1399": {
+"name": "Výroba ostatních textilií j. n.",
+"parent": "139"
+},
+"13990": {
+"name": "Výroba ostatních textilií j. n.",
+"parent": "1399"
+},
+"14": {
+"name": "Výroba oděvů",
+"parent": "C"
+},
+"141": {
+"name": "Výroba pletených a háčkovaných oděvů",
+"parent": "14"
+},
+"1410": {
+"name": "Výroba pletených a háčkovaných oděvů",
+"parent": "141"
+},
+"14101": {
+"name": "Výroba pletených a háčkovaných punčochových výrobků",
+"parent": "1410"
+},
+"14109": {
+"name": "Výroba ostatních pletených a háčkovaných oděvů",
+"parent": "1410"
+},
+"142": {
+"name": "Výroba ostatních oděvů a oděvních doplňků",
+"parent": "14"
+},
+"1421": {
+"name": "Výroba svrchních oděvů",
+"parent": "142"
+},
+"14210": {
+"name": "Výroba svrchních oděvů",
+"parent": "1421"
+},
+"1422": {
+"name": "Výroba osobního prádla",
+"parent": "142"
+},
+"14220": {
+"name": "Výroba osobního prádla",
+"parent": "1422"
+},
+"1423": {
+"name": "Výroba pracovních oděvů",
+"parent": "142"
+},
+"14230": {
+"name": "Výroba pracovních oděvů",
+"parent": "1423"
+},
+"1424": {
+"name": "Výroba kožených oděvů a kožešinových výrobků",
+"parent": "142"
+},
+"14240": {
+"name": "Výroba kožených oděvů a kožešinových výrobků",
+"parent": "1424"
+},
+"1429": {
+"name": "Výroba ostatních oděvů a oděvních doplňků j. n.",
+"parent": "142"
+},
+"14290": {
+"name": "Výroba ostatních oděvů a oděvních doplňků j. n.",
+"parent": "1429"
+},
+"15": {
+"name": "Výroba usní a souvisejících výrobků z jakýchkoli materiálů",
+"parent": "C"
+},
+"151": {
+"name": "Činění, úprava, barvení usní a kožešin&#59^ výroba zavazadel, kabelek, sedlářských a řemenářských výrobků",
+"parent": "15"
+},
+"1511": {
+"name": "Činění, úprava, barvení usní a kožešin",
+"parent": "151"
+},
+"15110": {
+"name": "Činění, úprava, barvení usní a kožešin",
+"parent": "1511"
+},
+"1512": {
+"name": "Výroba zavazadel, kabelek, sedlářských a řemenářských výrobků z jakýchkoli materiálů",
+"parent": "151"
+},
+"15120": {
+"name": "Výroba zavazadel, kabelek, sedlářských a řemenářských výrobků z jakýchkoli materiálů",
+"parent": "1512"
+},
+"152": {
+"name": "Výroba obuvi",
+"parent": "15"
+},
+"1520": {
+"name": "Výroba obuvi",
+"parent": "152"
+},
+"15201": {
+"name": "Výroba obuvi s usňovým svrškem",
+"parent": "1520"
+},
+"15209": {
+"name": "Výroba ostatní obuvi",
+"parent": "1520"
+},
+"16": {
+"name": "Zpracování dřeva, výroba dřevěných, korkových, proutěných a slaměných výrobků, kromě nábytku",
+"parent": "C"
+},
+"161": {
+"name": "Pilařská výroba a impregnace dřeva&#59^ zpracování a konečná úprava dřeva",
+"parent": "16"
+},
+"1611": {
+"name": "Pilařská výroba",
+"parent": "161"
+},
+"16110": {
+"name": "Pilařská výroba",
+"parent": "1611"
+},
+"1612": {
+"name": "Zpracování a konečná úprava dřeva",
+"parent": "161"
+},
+"16120": {
+"name": "Zpracování a konečná úprava dřeva",
+"parent": "1612"
+},
+"162": {
+"name": "Výroba dřevěných, korkových, proutěných a slaměných výrobků",
+"parent": "16"
+},
+"1621": {
+"name": "Výroba dýh a desek na bázi dřeva",
+"parent": "162"
+},
+"16210": {
+"name": "Výroba dýh a desek na bázi dřeva",
+"parent": "1621"
+},
+"1622": {
+"name": "Výroba sestavených parketových podlah",
+"parent": "162"
+},
+"16220": {
+"name": "Výroba sestavených parketových podlah",
+"parent": "1622"
+},
+"1623": {
+"name": "Výroba ostatních výrobků stavebního truhlářství a tesařství",
+"parent": "162"
+},
+"16230": {
+"name": "Výroba ostatních výrobků stavebního truhlářství a tesařství",
+"parent": "1623"
+},
+"1624": {
+"name": "Výroba dřevěných obalů",
+"parent": "162"
+},
+"16240": {
+"name": "Výroba dřevěných obalů",
+"parent": "1624"
+},
+"1625": {
+"name": "Výroba dřevěných dveří a oken",
+"parent": "162"
+},
+"16250": {
+"name": "Výroba dřevěných dveří a oken",
+"parent": "1625"
+},
+"1626": {
+"name": "Výroba pevných paliv z rostlinné biomasy",
+"parent": "162"
+},
+"16260": {
+"name": "Výroba pevných paliv z rostlinné biomasy",
+"parent": "1626"
+},
+"1627": {
+"name": "Konečná úprava dřevěných výrobků",
+"parent": "162"
+},
+"16270": {
+"name": "Konečná úprava dřevěných výrobků",
+"parent": "1627"
+},
+"1628": {
+"name": "Výroba ostatních dřevěných, korkových, proutěných a slaměných výrobků",
+"parent": "162"
+},
+"16280": {
+"name": "Výroba ostatních dřevěných, korkových, proutěných a slaměných výrobků",
+"parent": "1628"
+},
+"17": {
+"name": "Výroba papíru a výrobků z papíru",
+"parent": "C"
+},
+"171": {
+"name": "Výroba buničiny, papíru a lepenky",
+"parent": "17"
+},
+"1711": {
+"name": "Výroba buničiny",
+"parent": "171"
+},
+"17111": {
+"name": "Výroba chemických buničin",
+"parent": "1711"
+},
+"17112": {
+"name": "Výroba mechanických vláknin",
+"parent": "1711"
+},
+"17119": {
+"name": "Výroba ostatních papírenských vláknin",
+"parent": "1711"
+},
+"1712": {
+"name": "Výroba papíru a lepenky",
+"parent": "171"
+},
+"17120": {
+"name": "Výroba papíru a lepenky",
+"parent": "1712"
+},
+"172": {
+"name": "Výroba výrobků z papíru a lepenky",
+"parent": "17"
+},
+"1721": {
+"name": "Výroba vlnitého papíru a lepenky, papírových a lepenkových obalů",
+"parent": "172"
+},
+"17210": {
+"name": "Výroba vlnitého papíru a lepenky, papírových a lepenkových obalů",
+"parent": "1721"
+},
+"1722": {
+"name": "Výroba domácích potřeb, hygienických a toaletních výrobků z papíru",
+"parent": "172"
+},
+"17220": {
+"name": "Výroba domácích potřeb, hygienických a toaletních výrobků z papíru",
+"parent": "1722"
+},
+"1723": {
+"name": "Výroba kancelářských potřeb z papíru",
+"parent": "172"
+},
+"17230": {
+"name": "Výroba kancelářských potřeb z papíru",
+"parent": "1723"
+},
+"1724": {
+"name": "Výroba tapet",
+"parent": "172"
+},
+"17240": {
+"name": "Výroba tapet",
+"parent": "1724"
+},
+"1725": {
+"name": "Výroba ostatních výrobků z papíru a lepenky",
+"parent": "172"
+},
+"17250": {
+"name": "Výroba ostatních výrobků z papíru a lepenky",
+"parent": "1725"
+},
+"18": {
+"name": "Tisk a rozmnožování nahraných nosičů",
+"parent": "C"
+},
+"181": {
+"name": "Tisk a činnosti související s tiskem",
+"parent": "18"
+},
+"1811": {
+"name": "Tisk novin",
+"parent": "181"
+},
+"18110": {
+"name": "Tisk novin",
+"parent": "1811"
+},
+"1812": {
+"name": "Ostatní tisk",
+"parent": "181"
+},
+"18120": {
+"name": "Ostatní tisk",
+"parent": "1812"
+},
+"1813": {
+"name": "Příprava tisku a digitálních dat",
+"parent": "181"
+},
+"18130": {
+"name": "Příprava tisku a digitálních dat",
+"parent": "1813"
+},
+"1814": {
+"name": "Vázání a související činnosti",
+"parent": "181"
+},
+"18140": {
+"name": "Vázání a související činnosti",
+"parent": "1814"
+},
+"182": {
+"name": "Rozmnožování nahraných nosičů",
+"parent": "18"
+},
+"1820": {
+"name": "Rozmnožování nahraných nosičů",
+"parent": "182"
+},
+"18200": {
+"name": "Rozmnožování nahraných nosičů",
+"parent": "1820"
+},
+"19": {
+"name": "Výroba koksu a rafinovaných ropných produktů",
+"parent": "C"
+},
+"191": {
+"name": "Výroba koksárenských produktů",
+"parent": "19"
+},
+"1910": {
+"name": "Výroba koksárenských produktů",
+"parent": "191"
+},
+"19100": {
+"name": "Výroba koksárenských produktů",
+"parent": "1910"
+},
+"192": {
+"name": "Výroba rafinovaných ropných produktů a produktů z fosilních paliv",
+"parent": "19"
+},
+"1920": {
+"name": "Výroba rafinovaných ropných produktů a produktů z fosilních paliv",
+"parent": "192"
+},
+"19200": {
+"name": "Výroba rafinovaných ropných produktů a produktů z fosilních paliv",
+"parent": "1920"
+},
+"20": {
+"name": "Výroba chemických látek a chemických výrobků",
+"parent": "C"
+},
+"201": {
+"name": "Výroba základních chemických látek, hnojiv a dusíkatých sloučenin, plastů a syntetického kaučuku v primárních formách",
+"parent": "20"
+},
+"2011": {
+"name": "Výroba technických plynů",
+"parent": "201"
+},
+"20110": {
+"name": "Výroba technických plynů",
+"parent": "2011"
+},
+"2012": {
+"name": "Výroba barviv a pigmentů",
+"parent": "201"
+},
+"20120": {
+"name": "Výroba barviv a pigmentů",
+"parent": "2012"
+},
+"2013": {
+"name": "Výroba jiných základních anorganických chemických látek",
+"parent": "201"
+},
+"20130": {
+"name": "Výroba jiných základních anorganických chemických látek",
+"parent": "2013"
+},
+"2014": {
+"name": "Výroba jiných základních organických chemických látek",
+"parent": "201"
+},
+"20140": {
+"name": "Výroba jiných základních organických chemických látek",
+"parent": "2014"
+},
+"2015": {
+"name": "Výroba hnojiv a dusíkatých sloučenin",
+"parent": "201"
+},
+"20150": {
+"name": "Výroba hnojiv a dusíkatých sloučenin",
+"parent": "2015"
+},
+"2016": {
+"name": "Výroba plastů v primárních formách",
+"parent": "201"
+},
+"20160": {
+"name": "Výroba plastů v primárních formách",
+"parent": "2016"
+},
+"2017": {
+"name": "Výroba syntetického kaučuku v primárních formách",
+"parent": "201"
+},
+"20170": {
+"name": "Výroba syntetického kaučuku v primárních formách",
+"parent": "2017"
+},
+"202": {
+"name": "Výroba pesticidů, dezinfekčních prostředků a jiných agrochemických přípravků",
+"parent": "20"
+},
+"2020": {
+"name": "Výroba pesticidů, dezinfekčních prostředků a jiných agrochemických přípravků",
+"parent": "202"
+},
+"20200": {
+"name": "Výroba pesticidů, dezinfekčních prostředků a jiných agrochemických přípravků",
+"parent": "2020"
+},
+"203": {
+"name": "Výroba barev, laků a jiných nátěrových hmot, tiskařských barev a tmelů",
+"parent": "20"
+},
+"2030": {
+"name": "Výroba barev, laků a jiných nátěrových hmot, tiskařských barev a tmelů",
+"parent": "203"
+},
+"20300": {
+"name": "Výroba barev, laků a jiných nátěrových hmot, tiskařských barev a tmelů",
+"parent": "2030"
+},
+"204": {
+"name": "Výroba mycích, čisticích a lešticích prostředků",
+"parent": "20"
+},
+"2041": {
+"name": "Výroba mýdel, detergentů a čisticích a lešticích prostředků",
+"parent": "204"
+},
+"20410": {
+"name": "Výroba mýdel, detergentů a čisticích a lešticích prostředků",
+"parent": "2041"
+},
+"2042": {
+"name": "Výroba parfémů a toaletních přípravků",
+"parent": "204"
+},
+"20420": {
+"name": "Výroba parfémů a toaletních přípravků",
+"parent": "2042"
+},
+"205": {
+"name": "Výroba ostatních chemických výrobků",
+"parent": "20"
+},
+"2051": {
+"name": "Výroba kapalných biopaliv",
+"parent": "205"
+},
+"20510": {
+"name": "Výroba kapalných biopaliv",
+"parent": "2051"
+},
+"2059": {
+"name": "Výroba ostatních chemických výrobků j. n.",
+"parent": "205"
+},
+"20591": {
+"name": "Výroba aditiv do pohonných hmot na bázi ethyltercbutyléteru (ETBE) a methyltercbutyléteru (MTBE)",
+"parent": "2059"
+},
+"20599": {
+"name": "Výroba jiných chemických výrobků j. n.",
+"parent": "2059"
+},
+"206": {
+"name": "Výroba chemických vláken",
+"parent": "20"
+},
+"2060": {
+"name": "Výroba chemických vláken",
+"parent": "206"
+},
+"20600": {
+"name": "Výroba chemických vláken",
+"parent": "2060"
+},
+"21": {
+"name": "Výroba základních farmaceutických výrobků a farmaceutických přípravků",
+"parent": "C"
+},
+"211": {
+"name": "Výroba základních farmaceutických výrobků",
+"parent": "21"
+},
+"2110": {
+"name": "Výroba základních farmaceutických výrobků",
+"parent": "211"
+},
+"21100": {
+"name": "Výroba základních farmaceutických výrobků",
+"parent": "2110"
+},
+"212": {
+"name": "Výroba farmaceutických přípravků",
+"parent": "21"
+},
+"2120": {
+"name": "Výroba farmaceutických přípravků",
+"parent": "212"
+},
+"21200": {
+"name": "Výroba farmaceutických přípravků",
+"parent": "2120"
+},
+"22": {
+"name": "Výroba pryžových a plastových výrobků",
+"parent": "C"
+},
+"221": {
+"name": "Výroba pryžových výrobků",
+"parent": "22"
+},
+"2211": {
+"name": "Výroba pryžových plášťů a duší a protektorování pneumatik",
+"parent": "221"
+},
+"22110": {
+"name": "Výroba pryžových plášťů a duší a protektorování pneumatik",
+"parent": "2211"
+},
+"2212": {
+"name": "Výroba ostatních pryžových výrobků",
+"parent": "221"
+},
+"22120": {
+"name": "Výroba ostatních pryžových výrobků",
+"parent": "2212"
+},
+"222": {
+"name": "Výroba plastových výrobků",
+"parent": "22"
+},
+"2221": {
+"name": "Výroba plastových desek, fólií, hadic, trubek a profilů",
+"parent": "222"
+},
+"22210": {
+"name": "Výroba plastových desek, fólií, hadic, trubek a profilů",
+"parent": "2221"
+},
+"2222": {
+"name": "Výroba plastových obalů",
+"parent": "222"
+},
+"22220": {
+"name": "Výroba plastových obalů",
+"parent": "2222"
+},
+"2223": {
+"name": "Výroba plastových dveří a oken",
+"parent": "222"
+},
+"22230": {
+"name": "Výroba plastových dveří a oken",
+"parent": "2223"
+},
+"2224": {
+"name": "Výroba plastových výrobků pro stavebnictví",
+"parent": "222"
+},
+"22240": {
+"name": "Výroba plastových výrobků pro stavebnictví",
+"parent": "2224"
+},
+"2225": {
+"name": "Zpracování a konečná úprava plastových výrobků",
+"parent": "222"
+},
+"22250": {
+"name": "Zpracování a konečná úprava plastových výrobků",
+"parent": "2225"
+},
+"2226": {
+"name": "Výroba ostatních plastových výrobků",
+"parent": "222"
+},
+"22260": {
+"name": "Výroba ostatních plastových výrobků",
+"parent": "2226"
+},
+"23": {
+"name": "Výroba ostatních nekovových minerálních výrobků",
+"parent": "C"
+},
+"231": {
+"name": "Výroba skla a skleněných výrobků",
+"parent": "23"
+},
+"2311": {
+"name": "Výroba plochého skla",
+"parent": "231"
+},
+"23110": {
+"name": "Výroba plochého skla",
+"parent": "2311"
+},
+"2312": {
+"name": "Tvarování a zpracování plochého skla",
+"parent": "231"
+},
+"23120": {
+"name": "Tvarování a zpracování plochého skla",
+"parent": "2312"
+},
+"2313": {
+"name": "Výroba dutého skla",
+"parent": "231"
+},
+"23130": {
+"name": "Výroba dutého skla",
+"parent": "2313"
+},
+"2314": {
+"name": "Výroba skleněných vláken",
+"parent": "231"
+},
+"23140": {
+"name": "Výroba skleněných vláken",
+"parent": "2314"
+},
+"2315": {
+"name": "Výroba a zpracování ostatního skla, včetně technického skla",
+"parent": "231"
+},
+"23150": {
+"name": "Výroba a zpracování ostatního skla, včetně technického skla",
+"parent": "2315"
+},
+"232": {
+"name": "Výroba žáruvzdorných výrobků",
+"parent": "23"
+},
+"2320": {
+"name": "Výroba žáruvzdorných výrobků",
+"parent": "232"
+},
+"23200": {
+"name": "Výroba žáruvzdorných výrobků",
+"parent": "2320"
+},
+"233": {
+"name": "Výroba stavebních výrobků z jílovitých materiálů",
+"parent": "23"
+},
+"2331": {
+"name": "Výroba keramických obkladaček a dlaždic",
+"parent": "233"
+},
+"23310": {
+"name": "Výroba keramických obkladaček a dlaždic",
+"parent": "2331"
+},
+"2332": {
+"name": "Výroba pálených zdicích materiálů, tašek, dlaždic a podobných výrobků",
+"parent": "233"
+},
+"23320": {
+"name": "Výroba pálených zdicích materiálů, tašek, dlaždic a podobných výrobků",
+"parent": "2332"
+},
+"234": {
+"name": "Výroba ostatních porcelánových a keramických výrobků",
+"parent": "23"
+},
+"2341": {
+"name": "Výroba porcelánových a keramických výrobků převážně pro domácnost a dekoračních předmětů",
+"parent": "234"
+},
+"23410": {
+"name": "Výroba porcelánových a keramických výrobků převážně pro domácnost a dekoračních předmětů",
+"parent": "2341"
+},
+"2342": {
+"name": "Výroba keramických sanitárních výrobků",
+"parent": "234"
+},
+"23420": {
+"name": "Výroba keramických sanitárních výrobků",
+"parent": "2342"
+},
+"2343": {
+"name": "Výroba keramických izolátorů a izolačního příslušenství",
+"parent": "234"
+},
+"23430": {
+"name": "Výroba keramických izolátorů a izolačního příslušenství",
+"parent": "2343"
+},
+"2344": {
+"name": "Výroba ostatních technických keramických výrobků",
+"parent": "234"
+},
+"23440": {
+"name": "Výroba ostatních technických keramických výrobků",
+"parent": "2344"
+},
+"2345": {
+"name": "Výroba ostatních keramických výrobků",
+"parent": "234"
+},
+"23450": {
+"name": "Výroba ostatních keramických výrobků",
+"parent": "2345"
+},
+"235": {
+"name": "Výroba cementu, vápna a sádry",
+"parent": "23"
+},
+"2351": {
+"name": "Výroba cementu",
+"parent": "235"
+},
+"23510": {
+"name": "Výroba cementu",
+"parent": "2351"
+},
+"2352": {
+"name": "Výroba vápna a sádry",
+"parent": "235"
+},
+"23520": {
+"name": "Výroba vápna a sádry",
+"parent": "2352"
+},
+"236": {
+"name": "Výroba betonových, cementových a sádrových výrobků",
+"parent": "23"
+},
+"2361": {
+"name": "Výroba betonových výrobků pro stavební účely",
+"parent": "236"
+},
+"23610": {
+"name": "Výroba betonových výrobků pro stavební účely",
+"parent": "2361"
+},
+"2362": {
+"name": "Výroba sádrových výrobků pro stavební účely",
+"parent": "236"
+},
+"23620": {
+"name": "Výroba sádrových výrobků pro stavební účely",
+"parent": "2362"
+},
+"2363": {
+"name": "Výroba betonu připraveného k lití",
+"parent": "236"
+},
+"23630": {
+"name": "Výroba betonu připraveného k lití",
+"parent": "2363"
+},
+"2364": {
+"name": "Výroba malt",
+"parent": "236"
+},
+"23640": {
+"name": "Výroba malt",
+"parent": "2364"
+},
+"2365": {
+"name": "Výroba vláknocementových výrobků",
+"parent": "236"
+},
+"23650": {
+"name": "Výroba vláknocementových výrobků",
+"parent": "2365"
+},
+"2366": {
+"name": "Výroba ostatních betonových, cementových a sádrových výrobků",
+"parent": "236"
+},
+"23660": {
+"name": "Výroba ostatních betonových, cementových a sádrových výrobků",
+"parent": "2366"
+},
+"237": {
+"name": "Řezání, tvarování a konečná úprava kamenů",
+"parent": "23"
+},
+"2370": {
+"name": "Řezání, tvarování a konečná úprava kamenů",
+"parent": "237"
+},
+"23700": {
+"name": "Řezání, tvarování a konečná úprava kamenů",
+"parent": "2370"
+},
+"239": {
+"name": "Výroba brusiv a ostatních nekovových minerálních výrobků j. n.",
+"parent": "23"
+},
+"2391": {
+"name": "Výroba brusiv",
+"parent": "239"
+},
+"23910": {
+"name": "Výroba brusiv",
+"parent": "2391"
+},
+"2399": {
+"name": "Výroba ostatních nekovových minerálních výrobků j. n.",
+"parent": "239"
+},
+"23990": {
+"name": "Výroba ostatních nekovových minerálních výrobků j. n.",
+"parent": "2399"
+},
+"24": {
+"name": "Výroba základních kovů",
+"parent": "C"
+},
+"241": {
+"name": "Výroba surového železa, oceli a feroslitin",
+"parent": "24"
+},
+"2410": {
+"name": "Výroba surového železa, oceli a feroslitin",
+"parent": "241"
+},
+"24101": {
+"name": "Výroba základních hutních výrobků ze železa a oceli, výroba surového železa a oceli",
+"parent": "2410"
+},
+"24102": {
+"name": "Výroba plochých výrobků ze železa nebo oceli válcovaných za tepla nebo za studena, kromě úzkých pásů válcovaných za studena",
+"parent": "2410"
+},
+"24103": {
+"name": "Výroba tyčí a prutů ze železa nebo oceli válcovaných za tepla",
+"parent": "2410"
+},
+"24109": {
+"name": "Výroba surového železa, oceli a feroslitin j. n.",
+"parent": "2410"
+},
+"242": {
+"name": "Výroba ocelových trub, trubek, dutých profilů a souvisejících potrubních tvarovek",
+"parent": "24"
+},
+"2420": {
+"name": "Výroba ocelových trub, trubek, dutých profilů a souvisejících potrubních tvarovek",
+"parent": "242"
+},
+"24200": {
+"name": "Výroba ocelových trub, trubek, dutých profilů a souvisejících potrubních tvarovek",
+"parent": "2420"
+},
+"243": {
+"name": "Výroba ostatních výrobků získaných primárním zpracováním oceli",
+"parent": "24"
+},
+"2431": {
+"name": "Tažení ocelových tyčí za studena",
+"parent": "243"
+},
+"24310": {
+"name": "Tažení ocelových tyčí za studena",
+"parent": "2431"
+},
+"2432": {
+"name": "Válcování ocelových úzkých pásů za studena",
+"parent": "243"
+},
+"24320": {
+"name": "Válcování ocelových úzkých pásů za studena",
+"parent": "2432"
+},
+"2433": {
+"name": "Tváření ocelových profilů za studena",
+"parent": "243"
+},
+"24330": {
+"name": "Tváření ocelových profilů za studena",
+"parent": "2433"
+},
+"2434": {
+"name": "Tažení ocelového drátu za studena",
+"parent": "243"
+},
+"24340": {
+"name": "Tažení ocelového drátu za studena",
+"parent": "2434"
+},
+"244": {
+"name": "Výroba a hutní zpracování drahých a jiných neželezných kovů",
+"parent": "24"
+},
+"2441": {
+"name": "Výroba a hutní zpracování drahých kovů",
+"parent": "244"
+},
+"24410": {
+"name": "Výroba a hutní zpracování drahých kovů",
+"parent": "2441"
+},
+"2442": {
+"name": "Výroba a hutní zpracování hliníku",
+"parent": "244"
+},
+"24420": {
+"name": "Výroba a hutní zpracování hliníku",
+"parent": "2442"
+},
+"2443": {
+"name": "Výroba a hutní zpracování olova, zinku a cínu",
+"parent": "244"
+},
+"24430": {
+"name": "Výroba a hutní zpracování olova, zinku a cínu",
+"parent": "2443"
+},
+"2444": {
+"name": "Výroba a hutní zpracování mědi",
+"parent": "244"
+},
+"24440": {
+"name": "Výroba a hutní zpracování mědi",
+"parent": "2444"
+},
+"2445": {
+"name": "Výroba a hutní zpracování ostatních neželezných kovů",
+"parent": "244"
+},
+"24450": {
+"name": "Výroba a hutní zpracování ostatních neželezných kovů",
+"parent": "2445"
+},
+"2446": {
+"name": "Zpracování jaderného paliva",
+"parent": "244"
+},
+"24460": {
+"name": "Zpracování jaderného paliva",
+"parent": "2446"
+},
+"245": {
+"name": "Odlévání kovů",
+"parent": "24"
+},
+"2451": {
+"name": "Odlévání litiny",
+"parent": "245"
+},
+"24511": {
+"name": "Odlévání litiny s lupínkovým grafitem",
+"parent": "2451"
+},
+"24512": {
+"name": "Odlévání litiny s kuličkovým grafitem",
+"parent": "2451"
+},
+"24519": {
+"name": "Odlévání ostatní litiny",
+"parent": "2451"
+},
+"2452": {
+"name": "Odlévání oceli",
+"parent": "245"
+},
+"24521": {
+"name": "Odlévání uhlíkatých ocelí",
+"parent": "2452"
+},
+"24522": {
+"name": "Odlévání legovaných ocelí",
+"parent": "2452"
+},
+"2453": {
+"name": "Odlévání lehkých kovů",
+"parent": "245"
+},
+"24530": {
+"name": "Odlévání lehkých kovů",
+"parent": "2453"
+},
+"2454": {
+"name": "Odlévání ostatních neželezných kovů",
+"parent": "245"
+},
+"24540": {
+"name": "Odlévání ostatních neželezných kovů",
+"parent": "2454"
+},
+"25": {
+"name": "Výroba kovových výrobků, kromě strojů a zařízení",
+"parent": "C"
+},
+"251": {
+"name": "Výroba konstrukčních kovových výrobků",
+"parent": "25"
+},
+"2511": {
+"name": "Výroba kovových konstrukcí a jejich dílů",
+"parent": "251"
+},
+"25110": {
+"name": "Výroba kovových konstrukcí a jejich dílů",
+"parent": "2511"
+},
+"2512": {
+"name": "Výroba kovových dveří a oken",
+"parent": "251"
+},
+"25120": {
+"name": "Výroba kovových dveří a oken",
+"parent": "2512"
+},
+"252": {
+"name": "Výroba kovových cisteren, nádrží a podobných nádob",
+"parent": "25"
+},
+"2521": {
+"name": "Výroba radiátorů k ústřednímu topení a parních kotlů",
+"parent": "252"
+},
+"25210": {
+"name": "Výroba radiátorů k ústřednímu topení a parních kotlů",
+"parent": "2521"
+},
+"2522": {
+"name": "Výroba ostatních kovových cisteren, nádrží a podobných nádob",
+"parent": "252"
+},
+"25220": {
+"name": "Výroba ostatních kovových cisteren, nádrží a podobných nádob",
+"parent": "2522"
+},
+"253": {
+"name": "Výroba zbraní a střeliva",
+"parent": "25"
+},
+"2530": {
+"name": "Výroba zbraní a střeliva",
+"parent": "253"
+},
+"25300": {
+"name": "Výroba zbraní a střeliva",
+"parent": "2530"
+},
+"254": {
+"name": "Kování a tváření kovů a prášková metalurgie",
+"parent": "25"
+},
+"2540": {
+"name": "Kování a tváření kovů a prášková metalurgie",
+"parent": "254"
+},
+"25400": {
+"name": "Kování a tváření kovů a prášková metalurgie",
+"parent": "2540"
+},
+"255": {
+"name": "Povrchové úpravy a zušlechťování kovů&#59^ obrábění",
+"parent": "25"
+},
+"2551": {
+"name": "Povlakování kovů",
+"parent": "255"
+},
+"25510": {
+"name": "Povlakování kovů",
+"parent": "2551"
+},
+"2552": {
+"name": "Tepelné zpracování kovů",
+"parent": "255"
+},
+"25520": {
+"name": "Tepelné zpracování kovů",
+"parent": "2552"
+},
+"2553": {
+"name": "Obrábění kovů",
+"parent": "255"
+},
+"25530": {
+"name": "Obrábění kovů",
+"parent": "2553"
+},
+"256": {
+"name": "Výroba nožířských výrobků, nástrojů a železářských výrobků",
+"parent": "25"
+},
+"2561": {
+"name": "Výroba nožířských výrobků",
+"parent": "256"
+},
+"25610": {
+"name": "Výroba nožířských výrobků",
+"parent": "2561"
+},
+"2562": {
+"name": "Výroba zámků a kování",
+"parent": "256"
+},
+"25620": {
+"name": "Výroba zámků a kování",
+"parent": "2562"
+},
+"2563": {
+"name": "Výroba nástrojů a nářadí",
+"parent": "256"
+},
+"25630": {
+"name": "Výroba nástrojů a nářadí",
+"parent": "2563"
+},
+"259": {
+"name": "Výroba ostatních kovových výrobků",
+"parent": "25"
+},
+"2591": {
+"name": "Výroba ocelových sudů a podobných nádob",
+"parent": "259"
+},
+"25910": {
+"name": "Výroba ocelových sudů a podobných nádob",
+"parent": "2591"
+},
+"2592": {
+"name": "Výroba obalů z lehkých kovů",
+"parent": "259"
+},
+"25920": {
+"name": "Výroba obalů z lehkých kovů",
+"parent": "2592"
+},
+"2593": {
+"name": "Výroba drátěných výrobků, řetězů a pružin",
+"parent": "259"
+},
+"25930": {
+"name": "Výroba drátěných výrobků, řetězů a pružin",
+"parent": "2593"
+},
+"2594": {
+"name": "Výroba spojovacích materiálů a výrobků se závity",
+"parent": "259"
+},
+"25940": {
+"name": "Výroba spojovacích materiálů a výrobků se závity",
+"parent": "2594"
+},
+"2599": {
+"name": "Výroba ostatních kovových výrobků j. n.",
+"parent": "259"
+},
+"25990": {
+"name": "Výroba ostatních kovových výrobků j. n.",
+"parent": "2599"
+},
+"26": {
+"name": "Výroba počítačů a elektronických a optických přístrojů a zařízení",
+"parent": "C"
+},
+"261": {
+"name": "Výroba elektronických součástek a desek",
+"parent": "26"
+},
+"2611": {
+"name": "Výroba elektronických součástek",
+"parent": "261"
+},
+"26110": {
+"name": "Výroba elektronických součástek",
+"parent": "2611"
+},
+"2612": {
+"name": "Výroba osazených elektronických desek",
+"parent": "261"
+},
+"26120": {
+"name": "Výroba osazených elektronických desek",
+"parent": "2612"
+},
+"262": {
+"name": "Výroba počítačů a periferních zařízení",
+"parent": "26"
+},
+"2620": {
+"name": "Výroba počítačů a periferních zařízení",
+"parent": "262"
+},
+"26200": {
+"name": "Výroba počítačů a periferních zařízení",
+"parent": "2620"
+},
+"263": {
+"name": "Výroba komunikačních zařízení",
+"parent": "26"
+},
+"2630": {
+"name": "Výroba komunikačních zařízení",
+"parent": "263"
+},
+"26300": {
+"name": "Výroba komunikačních zařízení",
+"parent": "2630"
+},
+"264": {
+"name": "Výroba spotřební elektroniky",
+"parent": "26"
+},
+"2640": {
+"name": "Výroba spotřební elektroniky",
+"parent": "264"
+},
+"26400": {
+"name": "Výroba spotřební elektroniky",
+"parent": "2640"
+},
+"265": {
+"name": "Výroba měřicích, zkušebních a časoměrných přístrojů",
+"parent": "26"
+},
+"2651": {
+"name": "Výroba měřicích, zkušebních a navigačních přístrojů",
+"parent": "265"
+},
+"26510": {
+"name": "Výroba měřicích, zkušebních a navigačních přístrojů",
+"parent": "2651"
+},
+"2652": {
+"name": "Výroba časoměrných přístrojů",
+"parent": "265"
+},
+"26520": {
+"name": "Výroba časoměrných přístrojů",
+"parent": "2652"
+},
+"266": {
+"name": "Výroba ozařovacích, elektroléčebných a elektroterapeutických přístrojů",
+"parent": "26"
+},
+"2660": {
+"name": "Výroba ozařovacích, elektroléčebných a elektroterapeutických přístrojů",
+"parent": "266"
+},
+"26600": {
+"name": "Výroba ozařovacích, elektroléčebných a elektroterapeutických přístrojů",
+"parent": "2660"
+},
+"267": {
+"name": "Výroba optických přístrojů a zařízení, magnetických a optických médií a fotografických přístrojů a zařízení",
+"parent": "26"
+},
+"2670": {
+"name": "Výroba optických přístrojů a zařízení, magnetických a optických médií a fotografických přístrojů a zařízení",
+"parent": "267"
+},
+"26700": {
+"name": "Výroba optických přístrojů a zařízení, magnetických a optických médií a fotografických přístrojů a zařízení",
+"parent": "2670"
+},
+"27": {
+"name": "Výroba elektrických zařízení",
+"parent": "C"
+},
+"271": {
+"name": "Výroba elektrických motorů, generátorů, transformátorů a elektrických rozvodných a kontrolních zařízení",
+"parent": "27"
+},
+"2711": {
+"name": "Výroba elektrických motorů, generátorů a transformátorů",
+"parent": "271"
+},
+"27110": {
+"name": "Výroba elektrických motorů, generátorů a transformátorů",
+"parent": "2711"
+},
+"2712": {
+"name": "Výroba elektrických rozvodných a kontrolních zařízení",
+"parent": "271"
+},
+"27120": {
+"name": "Výroba elektrických rozvodných a kontrolních zařízení",
+"parent": "2712"
+},
+"272": {
+"name": "Výroba baterií a akumulátorů",
+"parent": "27"
+},
+"2720": {
+"name": "Výroba baterií a akumulátorů",
+"parent": "272"
+},
+"27200": {
+"name": "Výroba baterií a akumulátorů",
+"parent": "2720"
+},
+"273": {
+"name": "Výroba optických a elektrických kabelů, elektrických vodičů a elektroinstalačních zařízení",
+"parent": "27"
+},
+"2731": {
+"name": "Výroba optických kabelů",
+"parent": "273"
+},
+"27310": {
+"name": "Výroba optických kabelů",
+"parent": "2731"
+},
+"2732": {
+"name": "Výroba ostatních elektronických a elektrických vodičů a kabelů",
+"parent": "273"
+},
+"27320": {
+"name": "Výroba ostatních elektronických a elektrických vodičů a kabelů",
+"parent": "2732"
+},
+"2733": {
+"name": "Výroba elektroinstalačních zařízení",
+"parent": "273"
+},
+"27330": {
+"name": "Výroba elektroinstalačních zařízení",
+"parent": "2733"
+},
+"274": {
+"name": "Výroba osvětlovacích zařízení",
+"parent": "27"
+},
+"2740": {
+"name": "Výroba osvětlovacích zařízení",
+"parent": "274"
+},
+"27400": {
+"name": "Výroba osvětlovacích zařízení",
+"parent": "2740"
+},
+"275": {
+"name": "Výroba spotřebičů převážně pro domácnost",
+"parent": "27"
+},
+"2751": {
+"name": "Výroba elektrických spotřebičů převážně pro domácnost",
+"parent": "275"
+},
+"27510": {
+"name": "Výroba elektrických spotřebičů převážně pro domácnost",
+"parent": "2751"
+},
+"2752": {
+"name": "Výroba neelektrických spotřebičů převážně pro domácnost",
+"parent": "275"
+},
+"27520": {
+"name": "Výroba neelektrických spotřebičů převážně pro domácnost",
+"parent": "2752"
+},
+"279": {
+"name": "Výroba ostatních elektrických zařízení",
+"parent": "27"
+},
+"2790": {
+"name": "Výroba ostatních elektrických zařízení",
+"parent": "279"
+},
+"27900": {
+"name": "Výroba ostatních elektrických zařízení",
+"parent": "2790"
+},
+"28": {
+"name": "Výroba strojů a zařízení j. n.",
+"parent": "C"
+},
+"281": {
+"name": "Výroba strojů a zařízení pro všeobecné účely",
+"parent": "28"
+},
+"2811": {
+"name": "Výroba motorů a turbín, kromě motorů pro letadla, automobily a motocykly",
+"parent": "281"
+},
+"28110": {
+"name": "Výroba motorů a turbín, kromě motorů pro letadla, automobily a motocykly",
+"parent": "2811"
+},
+"2812": {
+"name": "Výroba hydraulických zařízení",
+"parent": "281"
+},
+"28120": {
+"name": "Výroba hydraulických zařízení",
+"parent": "2812"
+},
+"2813": {
+"name": "Výroba ostatních čerpadel a kompresorů",
+"parent": "281"
+},
+"28130": {
+"name": "Výroba ostatních čerpadel a kompresorů",
+"parent": "2813"
+},
+"2814": {
+"name": "Výroba ostatních potrubních armatur",
+"parent": "281"
+},
+"28140": {
+"name": "Výroba ostatních potrubních armatur",
+"parent": "2814"
+},
+"2815": {
+"name": "Výroba ložisek, ozubených kol, převodů a hnacích prvků",
+"parent": "281"
+},
+"28150": {
+"name": "Výroba ložisek, ozubených kol, převodů a hnacích prvků",
+"parent": "2815"
+},
+"282": {
+"name": "Výroba ostatních strojů a zařízení pro všeobecné účely",
+"parent": "28"
+},
+"2821": {
+"name": "Výroba pecí, kotlů a stálých tepelných zařízení pro domácnosti",
+"parent": "282"
+},
+"28210": {
+"name": "Výroba pecí, kotlů a stálých tepelných zařízení pro domácnosti",
+"parent": "2821"
+},
+"2822": {
+"name": "Výroba zdvihacích a manipulačních zařízení",
+"parent": "282"
+},
+"28220": {
+"name": "Výroba zdvihacích a manipulačních zařízení",
+"parent": "2822"
+},
+"2823": {
+"name": "Výroba kancelářských strojů a zařízení, kromě počítačů a periferních zařízení",
+"parent": "282"
+},
+"28230": {
+"name": "Výroba kancelářských strojů a zařízení, kromě počítačů a periferních zařízení",
+"parent": "2823"
+},
+"2824": {
+"name": "Výroba ručních mechanizovaných nástrojů",
+"parent": "282"
+},
+"28240": {
+"name": "Výroba ručních mechanizovaných nástrojů",
+"parent": "2824"
+},
+"2825": {
+"name": "Výroba klimatizačních zařízení jiných než pro domácnost",
+"parent": "282"
+},
+"28250": {
+"name": "Výroba klimatizačních zařízení jiných než pro domácnost",
+"parent": "2825"
+},
+"2829": {
+"name": "Výroba ostatních strojů a zařízení pro všeobecné účely j. n.",
+"parent": "282"
+},
+"28290": {
+"name": "Výroba ostatních strojů a zařízení pro všeobecné účely j. n.",
+"parent": "2829"
+},
+"283": {
+"name": "Výroba zemědělských a lesnických strojů",
+"parent": "28"
+},
+"2830": {
+"name": "Výroba zemědělských a lesnických strojů",
+"parent": "283"
+},
+"28300": {
+"name": "Výroba zemědělských a lesnických strojů",
+"parent": "2830"
+},
+"284": {
+"name": "Výroba tvářecích strojů na opracování kovů a obráběcích strojů",
+"parent": "28"
+},
+"2841": {
+"name": "Výroba tvářecích a obráběcích strojů na opracování kovů",
+"parent": "284"
+},
+"28410": {
+"name": "Výroba tvářecích a obráběcích strojů na opracování kovů",
+"parent": "2841"
+},
+"2842": {
+"name": "Výroba ostatních obráběcích strojů",
+"parent": "284"
+},
+"28420": {
+"name": "Výroba ostatních obráběcích strojů",
+"parent": "2842"
+},
+"289": {
+"name": "Výroba ostatních strojů pro speciální účely",
+"parent": "28"
+},
+"2891": {
+"name": "Výroba strojů pro metalurgii",
+"parent": "289"
+},
+"28910": {
+"name": "Výroba strojů pro metalurgii",
+"parent": "2891"
+},
+"2892": {
+"name": "Výroba strojů pro těžbu, dobývání a stavebnictví",
+"parent": "289"
+},
+"28920": {
+"name": "Výroba strojů pro těžbu, dobývání a stavebnictví",
+"parent": "2892"
+},
+"2893": {
+"name": "Výroba strojů na výrobu potravin, nápojů a zpracování tabáku",
+"parent": "289"
+},
+"28930": {
+"name": "Výroba strojů na výrobu potravin, nápojů a zpracování tabáku",
+"parent": "2893"
+},
+"2894": {
+"name": "Výroba strojů na výrobu textilu, oděvních výrobků a výrobků z usní",
+"parent": "289"
+},
+"28940": {
+"name": "Výroba strojů na výrobu textilu, oděvních výrobků a výrobků z usní",
+"parent": "2894"
+},
+"2895": {
+"name": "Výroba strojů a přístrojů na výrobu papíru a lepenky",
+"parent": "289"
+},
+"28950": {
+"name": "Výroba strojů a přístrojů na výrobu papíru a lepenky",
+"parent": "2895"
+},
+"2896": {
+"name": "Výroba strojů na výrobu plastů a pryže",
+"parent": "289"
+},
+"28960": {
+"name": "Výroba strojů na výrobu plastů a pryže",
+"parent": "2896"
+},
+"2897": {
+"name": "Výroba strojů pro aditivní výrobu",
+"parent": "289"
+},
+"28970": {
+"name": "Výroba strojů pro aditivní výrobu",
+"parent": "2897"
+},
+"2899": {
+"name": "Výroba ostatních strojů pro speciální účely j. n.",
+"parent": "289"
+},
+"28990": {
+"name": "Výroba ostatních strojů pro speciální účely j. n.",
+"parent": "2899"
+},
+"29": {
+"name": "Výroba motorových vozidel, přívěsů a návěsů",
+"parent": "C"
+},
+"291": {
+"name": "Výroba motorových vozidel",
+"parent": "29"
+},
+"2910": {
+"name": "Výroba motorových vozidel",
+"parent": "291"
+},
+"29100": {
+"name": "Výroba motorových vozidel",
+"parent": "2910"
+},
+"292": {
+"name": "Výroba karoserií motorových vozidel&#59^ výroba přívěsů a návěsů",
+"parent": "29"
+},
+"2920": {
+"name": "Výroba karoserií motorových vozidel&#59^ výroba přívěsů a návěsů",
+"parent": "292"
+},
+"29200": {
+"name": "Výroba karoserií motorových vozidel&#59^ výroba přívěsů a návěsů",
+"parent": "2920"
+},
+"293": {
+"name": "Výroba dílů a příslušenství pro motorová vozidla",
+"parent": "29"
+},
+"2931": {
+"name": "Výroba elektrického a elektronického zařízení pro motorová vozidla",
+"parent": "293"
+},
+"29310": {
+"name": "Výroba elektrického a elektronického zařízení pro motorová vozidla",
+"parent": "2931"
+},
+"2932": {
+"name": "Výroba ostatních dílů a příslušenství pro motorová vozidla",
+"parent": "293"
+},
+"29320": {
+"name": "Výroba ostatních dílů a příslušenství pro motorová vozidla",
+"parent": "2932"
+},
+"30": {
+"name": "Výroba ostatních dopravních prostředků a zařízení",
+"parent": "C"
+},
+"301": {
+"name": "Stavba lodí a člunů",
+"parent": "30"
+},
+"3011": {
+"name": "Stavba civilních lodí a plavidel",
+"parent": "301"
+},
+"30110": {
+"name": "Stavba civilních lodí a plavidel",
+"parent": "3011"
+},
+"3012": {
+"name": "Stavba rekreačních a sportovních člunů",
+"parent": "301"
+},
+"30120": {
+"name": "Stavba rekreačních a sportovních člunů",
+"parent": "3012"
+},
+"3013": {
+"name": "Stavba vojenských lodí a plavidel",
+"parent": "301"
+},
+"30130": {
+"name": "Stavba vojenských lodí a plavidel",
+"parent": "3013"
+},
+"302": {
+"name": "Výroba železničních lokomotiv a kolejových vozidel",
+"parent": "30"
+},
+"3020": {
+"name": "Výroba železničních lokomotiv a kolejových vozidel",
+"parent": "302"
+},
+"30200": {
+"name": "Výroba železničních lokomotiv a kolejových vozidel",
+"parent": "3020"
+},
+"303": {
+"name": "Výroba letadel, kosmických lodí a souvisejících zařízení",
+"parent": "30"
+},
+"3031": {
+"name": "Výroba civilních letadel, kosmických lodí a souvisejících zařízení",
+"parent": "303"
+},
+"30310": {
+"name": "Výroba civilních letadel, kosmických lodí a souvisejících zařízení",
+"parent": "3031"
+},
+"3032": {
+"name": "Výroba vojenských letadel, kosmických lodí a souvisejících zařízení",
+"parent": "303"
+},
+"30320": {
+"name": "Výroba vojenských letadel, kosmických lodí a souvisejících zařízení",
+"parent": "3032"
+},
+"304": {
+"name": "Výroba vojenských bojových vozidel",
+"parent": "30"
+},
+"3040": {
+"name": "Výroba vojenských bojových vozidel",
+"parent": "304"
+},
+"30400": {
+"name": "Výroba vojenských bojových vozidel",
+"parent": "3040"
+},
+"309": {
+"name": "Výroba dopravních prostředků a zařízení j. n.",
+"parent": "30"
+},
+"3091": {
+"name": "Výroba motocyklů",
+"parent": "309"
+},
+"30910": {
+"name": "Výroba motocyklů",
+"parent": "3091"
+},
+"3092": {
+"name": "Výroba jízdních kol a vozíků pro invalidy",
+"parent": "309"
+},
+"30920": {
+"name": "Výroba jízdních kol a vozíků pro invalidy",
+"parent": "3092"
+},
+"3099": {
+"name": "Výroba ostatních dopravních prostředků a zařízení j. n.",
+"parent": "309"
+},
+"30990": {
+"name": "Výroba ostatních dopravních prostředků a zařízení j. n.",
+"parent": "3099"
+},
+"31": {
+"name": "Výroba nábytku",
+"parent": "C"
+},
+"310": {
+"name": "Výroba nábytku",
+"parent": "31"
+},
+"3100": {
+"name": "Výroba nábytku",
+"parent": "310"
+},
+"31000": {
+"name": "Výroba nábytku",
+"parent": "3100"
+},
+"32": {
+"name": "Ostatní zpracovatelský průmysl",
+"parent": "C"
+},
+"321": {
+"name": "Výroba klenotů, bižuterie a příbuzných výrobků",
+"parent": "32"
+},
+"3211": {
+"name": "Ražení mincí",
+"parent": "321"
+},
+"32110": {
+"name": "Ražení mincí",
+"parent": "3211"
+},
+"3212": {
+"name": "Výroba klenotů a příbuzných výrobků",
+"parent": "321"
+},
+"32120": {
+"name": "Výroba klenotů a příbuzných výrobků",
+"parent": "3212"
+},
+"3213": {
+"name": "Výroba bižuterie a příbuzných výrobků",
+"parent": "321"
+},
+"32130": {
+"name": "Výroba bižuterie a příbuzných výrobků",
+"parent": "3213"
+},
+"322": {
+"name": "Výroba hudebních nástrojů",
+"parent": "32"
+},
+"3220": {
+"name": "Výroba hudebních nástrojů",
+"parent": "322"
+},
+"32200": {
+"name": "Výroba hudebních nástrojů",
+"parent": "3220"
+},
+"323": {
+"name": "Výroba sportovních potřeb",
+"parent": "32"
+},
+"3230": {
+"name": "Výroba sportovních potřeb",
+"parent": "323"
+},
+"32300": {
+"name": "Výroba sportovních potřeb",
+"parent": "3230"
+},
+"324": {
+"name": "Výroba her a hraček",
+"parent": "32"
+},
+"3240": {
+"name": "Výroba her a hraček",
+"parent": "324"
+},
+"32400": {
+"name": "Výroba her a hraček",
+"parent": "3240"
+},
+"325": {
+"name": "Výroba lékařských a dentálních nástrojů a potřeb",
+"parent": "32"
+},
+"3250": {
+"name": "Výroba lékařských a dentálních nástrojů a potřeb",
+"parent": "325"
+},
+"32500": {
+"name": "Výroba lékařských a dentálních nástrojů a potřeb",
+"parent": "3250"
+},
+"329": {
+"name": "Zpracovatelský průmysl j. n.",
+"parent": "32"
+},
+"3291": {
+"name": "Výroba košťat a kartáčnických výrobků",
+"parent": "329"
+},
+"32910": {
+"name": "Výroba košťat a kartáčnických výrobků",
+"parent": "3291"
+},
+"3299": {
+"name": "Ostatní zpracovatelský průmysl j. n.",
+"parent": "329"
+},
+"32990": {
+"name": "Ostatní zpracovatelský průmysl j. n.",
+"parent": "3299"
+},
+"33": {
+"name": "Opravy, údržba a instalace strojů a zařízení",
+"parent": "C"
+},
+"331": {
+"name": "Opravy a údržba kovových výrobků, strojů a zařízení",
+"parent": "33"
+},
+"3311": {
+"name": "Opravy a údržba kovových výrobků",
+"parent": "331"
+},
+"33110": {
+"name": "Opravy a údržba kovových výrobků",
+"parent": "3311"
+},
+"3312": {
+"name": "Opravy a údržba strojů",
+"parent": "331"
+},
+"33120": {
+"name": "Opravy a údržba strojů",
+"parent": "3312"
+},
+"3313": {
+"name": "Opravy a údržba elektronických a optických přístrojů a zařízení",
+"parent": "331"
+},
+"33130": {
+"name": "Opravy a údržba elektronických a optických přístrojů a zařízení",
+"parent": "3313"
+},
+"3314": {
+"name": "Opravy a údržba elektrických zařízení",
+"parent": "331"
+},
+"33140": {
+"name": "Opravy a údržba elektrických zařízení",
+"parent": "3314"
+},
+"3315": {
+"name": "Opravy a údržba civilních lodí a člunů",
+"parent": "331"
+},
+"33150": {
+"name": "Opravy a údržba civilních lodí a člunů",
+"parent": "3315"
+},
+"3316": {
+"name": "Opravy a údržba civilních letadel a kosmických lodí",
+"parent": "331"
+},
+"33160": {
+"name": "Opravy a údržba civilních letadel a kosmických lodí",
+"parent": "3316"
+},
+"3317": {
+"name": "Opravy a údržba ostatních civilních dopravních prostředků a zařízení",
+"parent": "331"
+},
+"33171": {
+"name": "Opravy a údržba kolejových vozidel",
+"parent": "3317"
+},
+"33179": {
+"name": "Opravy a údržba ostatních civilních dopravních prostředků a zařízení j. n.",
+"parent": "3317"
+},
+"3318": {
+"name": "Opravy a údržba vojenských bojových vozidel, lodí, člunů, letadel a kosmických lodí",
+"parent": "331"
+},
+"33181": {
+"name": "Opravy a údržba vojenských bojových vozidel",
+"parent": "3318"
+},
+"33182": {
+"name": "Opravy a údržba vojenských lodí a člunů",
+"parent": "3318"
+},
+"33183": {
+"name": "Opravy a údržba vojenských letadel a kosmických lodí",
+"parent": "3318"
+},
+"3319": {
+"name": "Opravy a údržba ostatních zařízení",
+"parent": "331"
+},
+"33190": {
+"name": "Opravy a údržba ostatních zařízení",
+"parent": "3319"
+},
+"332": {
+"name": "Instalace průmyslových strojů a zařízení",
+"parent": "33"
+},
+"3320": {
+"name": "Instalace průmyslových strojů a zařízení",
+"parent": "332"
+},
+"33200": {
+"name": "Instalace průmyslových strojů a zařízení",
+"parent": "3320"
+},
+"35": {
+"name": "Dodávání elektřiny, plynu, páry a klimatizovaného vzduchu",
+"parent": "D"
+},
+"351": {
+"name": "Výroba, přenos a distribuce elektřiny",
+"parent": "35"
+},
+"3511": {
+"name": "Výroba elektřiny z neobnovitelných zdrojů",
+"parent": "351"
+},
+"35110": {
+"name": "Výroba elektřiny z neobnovitelných zdrojů",
+"parent": "3511"
+},
+"3512": {
+"name": "Výroba elektřiny z obnovitelných zdrojů",
+"parent": "351"
+},
+"35120": {
+"name": "Výroba elektřiny z obnovitelných zdrojů",
+"parent": "3512"
+},
+"3513": {
+"name": "Přenos elektřiny",
+"parent": "351"
+},
+"35130": {
+"name": "Přenos elektřiny",
+"parent": "3513"
+},
+"3514": {
+"name": "Distribuce elektřiny",
+"parent": "351"
+},
+"35140": {
+"name": "Distribuce elektřiny",
+"parent": "3514"
+},
+"3515": {
+"name": "Obchod s elektřinou",
+"parent": "351"
+},
+"35150": {
+"name": "Obchod s elektřinou",
+"parent": "3515"
+},
+"3516": {
+"name": "Skladování elektřiny",
+"parent": "351"
+},
+"35160": {
+"name": "Skladování elektřiny",
+"parent": "3516"
+},
+"352": {
+"name": "Výroba plynu a distribuce plynných paliv prostřednictvím sítí",
+"parent": "35"
+},
+"3521": {
+"name": "Výroba plynu",
+"parent": "352"
+},
+"35210": {
+"name": "Výroba plynu",
+"parent": "3521"
+},
+"3522": {
+"name": "Distribuce plynných paliv prostřednictvím sítí",
+"parent": "352"
+},
+"35220": {
+"name": "Distribuce plynných paliv prostřednictvím sítí",
+"parent": "3522"
+},
+"3523": {
+"name": "Obchod s plynem prostřednictvím sítí",
+"parent": "352"
+},
+"35230": {
+"name": "Obchod s plynem prostřednictvím sítí",
+"parent": "3523"
+},
+"3524": {
+"name": "Skladování plynu jako součást služeb síťových dodávek",
+"parent": "352"
+},
+"35240": {
+"name": "Skladování plynu jako součást služeb síťových dodávek",
+"parent": "3524"
+},
+"353": {
+"name": "Dodávání páry a klimatizovaného vzduchu",
+"parent": "35"
+},
+"3530": {
+"name": "Dodávání páry a klimatizovaného vzduchu",
+"parent": "353"
+},
+"35301": {
+"name": "Výroba a distribuce páry",
+"parent": "3530"
+},
+"35302": {
+"name": "Výroba a distribuce klimatizovaného vzduchu",
+"parent": "3530"
+},
+"35303": {
+"name": "Výroba a distribuce chladicí vody",
+"parent": "3530"
+},
+"35304": {
+"name": "Výrobu ledu pro chladicí účely",
+"parent": "3530"
+},
+"354": {
+"name": "Činnosti makléřů a agentů v oblasti elektrické energie a zemního plynu",
+"parent": "35"
+},
+"3540": {
+"name": "Činnosti makléřů a agentů v oblasti elektrické energie a zemního plynu",
+"parent": "354"
+},
+"35400": {
+"name": "Činnosti makléřů a agentů v oblasti elektrické energie a zemního plynu",
+"parent": "3540"
+},
+"36": {
+"name": "Shromažďování, úprava a distribuce vody",
+"parent": "E"
+},
+"360": {
+"name": "Shromažďování, úprava a distribuce vody",
+"parent": "36"
+},
+"3600": {
+"name": "Shromažďování, úprava a distribuce vody",
+"parent": "360"
+},
+"36000": {
+"name": "Shromažďování, úprava a distribuce vody",
+"parent": "3600"
+},
+"37": {
+"name": "Činnosti související s odpadními vodami",
+"parent": "E"
+},
+"370": {
+"name": "Činnosti související s odpadními vodami",
+"parent": "37"
+},
+"3700": {
+"name": "Činnosti související s odpadními vodami",
+"parent": "370"
+},
+"37000": {
+"name": "Činnosti související s odpadními vodami",
+"parent": "3700"
+},
+"38": {
+"name": "Sběr odpadů, zpracování odpadů k dalšímu využití a odstraňování odpadů",
+"parent": "E"
+},
+"381": {
+"name": "Sběr odpadů",
+"parent": "38"
+},
+"3811": {
+"name": "Sběr odpadů, kromě nebezpečných",
+"parent": "381"
+},
+"38110": {
+"name": "Sběr odpadů, kromě nebezpečných",
+"parent": "3811"
+},
+"3812": {
+"name": "Sběr nebezpečných odpadů",
+"parent": "381"
+},
+"38120": {
+"name": "Sběr nebezpečných odpadů",
+"parent": "3812"
+},
+"382": {
+"name": "Zpracování odpadů k dalšímu využití",
+"parent": "38"
+},
+"3821": {
+"name": "Zpracování odpadů k získání materiálů k dalšímu využití",
+"parent": "382"
+},
+"38210": {
+"name": "Zpracování odpadů k získání materiálů k dalšímu využití",
+"parent": "3821"
+},
+"3822": {
+"name": "Zpracování odpadů k energetickému využití",
+"parent": "382"
+},
+"38220": {
+"name": "Zpracování odpadů k energetickému využití",
+"parent": "3822"
+},
+"3823": {
+"name": "Zpracování odpadů k ostatnímu využití",
+"parent": "382"
+},
+"38230": {
+"name": "Zpracování odpadů k ostatnímu využití",
+"parent": "3823"
+},
+"383": {
+"name": "Odstraňování odpadů bez dalšího využití",
+"parent": "38"
+},
+"3831": {
+"name": "Spalování odpadů bez energetického využití",
+"parent": "383"
+},
+"38310": {
+"name": "Spalování odpadů bez energetického využití",
+"parent": "3831"
+},
+"3832": {
+"name": "Skládkování nebo trvalé uložení odpadů",
+"parent": "383"
+},
+"38320": {
+"name": "Skládkování nebo trvalé uložení odpadů",
+"parent": "3832"
+},
+"3833": {
+"name": "Ostatní odstraňování odpadů",
+"parent": "383"
+},
+"38330": {
+"name": "Ostatní odstraňování odpadů",
+"parent": "3833"
+},
+"39": {
+"name": "Sanace a jiné činnosti související s odpady",
+"parent": "E"
+},
+"390": {
+"name": "Sanace a jiné činnosti související s odpady",
+"parent": "39"
+},
+"3900": {
+"name": "Sanace a jiné činnosti související s odpady",
+"parent": "390"
+},
+"39000": {
+"name": "Sanace a jiné činnosti související s odpady",
+"parent": "3900"
+},
+"41": {
+"name": "Výstavba bytových a nebytových budov",
+"parent": "F"
+},
+"410": {
+"name": "Výstavba bytových a nebytových budov",
+"parent": "41"
+},
+"4100": {
+"name": "Výstavba bytových a nebytových budov",
+"parent": "410"
+},
+"41000": {
+"name": "Výstavba bytových a nebytových budov",
+"parent": "4100"
+},
+"42": {
+"name": "Výstavba inženýrských děl",
+"parent": "F"
+},
+"421": {
+"name": "Výstavba silnic a železnic",
+"parent": "42"
+},
+"4211": {
+"name": "Výstavba silnic a dálnic",
+"parent": "421"
+},
+"42110": {
+"name": "Výstavba silnic a dálnic",
+"parent": "4211"
+},
+"4212": {
+"name": "Výstavba železnic a podzemních drah",
+"parent": "421"
+},
+"42120": {
+"name": "Výstavba železnic a podzemních drah",
+"parent": "4212"
+},
+"4213": {
+"name": "Výstavba mostů a tunelů",
+"parent": "421"
+},
+"42130": {
+"name": "Výstavba mostů a tunelů",
+"parent": "4213"
+},
+"422": {
+"name": "Výstavba inženýrských sítí",
+"parent": "42"
+},
+"4221": {
+"name": "Výstavba inženýrských sítí pro kapaliny a plyny",
+"parent": "422"
+},
+"42210": {
+"name": "Výstavba inženýrských sítí pro kapaliny a plyny",
+"parent": "4221"
+},
+"4222": {
+"name": "Výstavba inženýrských sítí pro elektřinu a telekomunikace",
+"parent": "422"
+},
+"42220": {
+"name": "Výstavba inženýrských sítí pro elektřinu a telekomunikace",
+"parent": "4222"
+},
+"429": {
+"name": "Výstavba ostatních inženýrských děl",
+"parent": "42"
+},
+"4291": {
+"name": "Výstavba vodních děl",
+"parent": "429"
+},
+"42910": {
+"name": "Výstavba vodních děl",
+"parent": "4291"
+},
+"4299": {
+"name": "Výstavba ostatních inženýrských děl j. n.",
+"parent": "429"
+},
+"42990": {
+"name": "Výstavba ostatních inženýrských děl j. n.",
+"parent": "4299"
+},
+"43": {
+"name": "Specializované stavební činnosti",
+"parent": "F"
+},
+"431": {
+"name": "Demolice a příprava staveniště",
+"parent": "43"
+},
+"4311": {
+"name": "Demolice",
+"parent": "431"
+},
+"43110": {
+"name": "Demolice",
+"parent": "4311"
+},
+"4312": {
+"name": "Příprava staveniště",
+"parent": "431"
+},
+"43120": {
+"name": "Příprava staveniště",
+"parent": "4312"
+},
+"4313": {
+"name": "Průzkumné vrtné práce",
+"parent": "431"
+},
+"43130": {
+"name": "Průzkumné vrtné práce",
+"parent": "4313"
+},
+"432": {
+"name": "Elektroinstalační, instalatérské a ostatní stavebně instalační činnosti",
+"parent": "43"
+},
+"4321": {
+"name": "Elektrické instalace",
+"parent": "432"
+},
+"43210": {
+"name": "Elektrické instalace",
+"parent": "4321"
+},
+"4322": {
+"name": "Instalace rozvodů vody, odpadu, topení a klimatizace",
+"parent": "432"
+},
+"43221": {
+"name": "Instalace vodovodních, odpadních a plynových zařízení a rozvodů",
+"parent": "4322"
+},
+"43222": {
+"name": "Instalace tepelných, chladicích a klimatizačních zařízení a rozvodů",
+"parent": "4322"
+},
+"4323": {
+"name": "Instalace izolací",
+"parent": "432"
+},
+"43230": {
+"name": "Instalace izolací",
+"parent": "4323"
+},
+"4324": {
+"name": "Ostatní stavební instalace",
+"parent": "432"
+},
+"43240": {
+"name": "Ostatní stavební instalace",
+"parent": "4324"
+},
+"433": {
+"name": "Kompletační a dokončovací stavební práce",
+"parent": "43"
+},
+"4331": {
+"name": "Omítkářské práce",
+"parent": "433"
+},
+"43310": {
+"name": "Omítkářské práce",
+"parent": "4331"
+},
+"4332": {
+"name": "Truhlářské práce",
+"parent": "433"
+},
+"43320": {
+"name": "Truhlářské práce",
+"parent": "4332"
+},
+"4333": {
+"name": "Obkládání stěn a pokládání podlahových krytin",
+"parent": "433"
+},
+"43330": {
+"name": "Obkládání stěn a pokládání podlahových krytin",
+"parent": "4333"
+},
+"4334": {
+"name": "Sklenářské, malířské a natěračské práce",
+"parent": "433"
+},
+"43340": {
+"name": "Sklenářské, malířské a natěračské práce",
+"parent": "4334"
+},
+"4335": {
+"name": "Ostatní kompletační a dokončovací stavební práce",
+"parent": "433"
+},
+"43350": {
+"name": "Ostatní kompletační a dokončovací stavební práce",
+"parent": "4335"
+},
+"434": {
+"name": "Specializované stavební činnosti při výstavbě budov",
+"parent": "43"
+},
+"4341": {
+"name": "Pokrývačské práce",
+"parent": "434"
+},
+"43410": {
+"name": "Pokrývačské práce",
+"parent": "4341"
+},
+"4342": {
+"name": "Ostatní specializované stavební činnosti při výstavbě budov",
+"parent": "434"
+},
+"43420": {
+"name": "Ostatní specializované stavební činnosti při výstavbě budov",
+"parent": "4342"
+},
+"435": {
+"name": "Specializované stavební činnosti při výstavbě inženýrských děl",
+"parent": "43"
+},
+"4350": {
+"name": "Specializované stavební činnosti při výstavbě inženýrských děl",
+"parent": "435"
+},
+"43500": {
+"name": "Specializované stavební činnosti při výstavbě inženýrských děl",
+"parent": "4350"
+},
+"436": {
+"name": "Zprostředkování v oblasti specializovaných stavebních činností",
+"parent": "43"
+},
+"4360": {
+"name": "Zprostředkování v oblasti specializovaných stavebních činností",
+"parent": "436"
+},
+"43600": {
+"name": "Zprostředkování v oblasti specializovaných stavebních činností",
+"parent": "4360"
+},
+"439": {
+"name": "Ostatní specializované stavební činnosti",
+"parent": "43"
+},
+"4391": {
+"name": "Zednické práce",
+"parent": "439"
+},
+"43910": {
+"name": "Zednické práce",
+"parent": "4391"
+},
+"4399": {
+"name": "Ostatní specializované stavební činnosti j. n.",
+"parent": "439"
+},
+"43990": {
+"name": "Ostatní specializované stavební činnosti j. n.",
+"parent": "4399"
+},
+"46": {
+"name": "Velkoobchod",
+"parent": "G"
+},
+"461": {
+"name": "Zprostředkování v oblasti velkoobchodu za provizi",
+"parent": "46"
+},
+"4611": {
+"name": "Zprostředkování v oblasti velkoobchodu za provizi se základními zemědělskými produkty, živými zvířaty, textilními surovinami a polotovary",
+"parent": "461"
+},
+"46110": {
+"name": "Zprostředkování v oblasti velkoobchodu za provizi se základními zemědělskými produkty, živými zvířaty, textilními surovinami a polotovary",
+"parent": "4611"
+},
+"4612": {
+"name": "Zprostředkování v oblasti velkoobchodu za provizi s palivy, rudami, kovy a technickými chemikáliemi",
+"parent": "461"
+},
+"46120": {
+"name": "Zprostředkování v oblasti velkoobchodu za provizi s palivy, rudami, kovy a technickými chemikáliemi",
+"parent": "4612"
+},
+"4613": {
+"name": "Zprostředkování v oblasti velkoobchodu za provizi se dřevem a stavebními materiály",
+"parent": "461"
+},
+"46130": {
+"name": "Zprostředkování v oblasti velkoobchodu za provizi se dřevem a stavebními materiály",
+"parent": "4613"
+},
+"4614": {
+"name": "Zprostředkování v oblasti velkoobchodu za provizi se stroji, průmyslovým zařízením, loděmi a letadly",
+"parent": "461"
+},
+"46140": {
+"name": "Zprostředkování v oblasti velkoobchodu za provizi se stroji, průmyslovým zařízením, loděmi a letadly",
+"parent": "4614"
+},
+"4615": {
+"name": "Zprostředkování v oblasti velkoobchodu za provizi s nábytkem, železářským zbožím a potřebami převážně pro domácnost",
+"parent": "461"
+},
+"46150": {
+"name": "Zprostředkování v oblasti velkoobchodu za provizi s nábytkem, železářským zbožím a potřebami převážně pro domácnost",
+"parent": "4615"
+},
+"4616": {
+"name": "Zprostředkování v oblasti velkoobchodu za provizi s textilem, oděvy, kožešinami, obuví a koženými výrobky",
+"parent": "461"
+},
+"46160": {
+"name": "Zprostředkování v oblasti velkoobchodu za provizi s textilem, oděvy, kožešinami, obuví a koženými výrobky",
+"parent": "4616"
+},
+"4617": {
+"name": "Zprostředkování v oblasti velkoobchodu za provizi s potravinami, nápoji a tabákovými výrobky",
+"parent": "461"
+},
+"46170": {
+"name": "Zprostředkování v oblasti velkoobchodu za provizi s potravinami, nápoji a tabákovými výrobky",
+"parent": "4617"
+},
+"4618": {
+"name": "Zprostředkování v oblasti specializovaného velkoobchodu za provizi s ostatním zbožím",
+"parent": "461"
+},
+"46180": {
+"name": "Zprostředkování v oblasti specializovaného velkoobchodu za provizi s ostatním zbožím",
+"parent": "4618"
+},
+"4619": {
+"name": "Zprostředkování v oblasti nespecializovaného velkoobchodu za provizi",
+"parent": "461"
+},
+"46190": {
+"name": "Zprostředkování v oblasti nespecializovaného velkoobchodu za provizi",
+"parent": "4619"
+},
+"462": {
+"name": "Velkoobchod se základními zemědělskými produkty a živými zvířaty",
+"parent": "46"
+},
+"4621": {
+"name": "Velkoobchod s obilím, surovým tabákem, osivy a krmivy",
+"parent": "462"
+},
+"46210": {
+"name": "Velkoobchod s obilím, surovým tabákem, osivy a krmivy",
+"parent": "4621"
+},
+"4622": {
+"name": "Velkoobchod s květinami a jinými rostlinami",
+"parent": "462"
+},
+"46220": {
+"name": "Velkoobchod s květinami a jinými rostlinami",
+"parent": "4622"
+},
+"4623": {
+"name": "Velkoobchod s živými zvířaty",
+"parent": "462"
+},
+"46230": {
+"name": "Velkoobchod s živými zvířaty",
+"parent": "4623"
+},
+"4624": {
+"name": "Velkoobchod se surovými kůžemi, kožešinami a usněmi",
+"parent": "462"
+},
+"46240": {
+"name": "Velkoobchod se surovými kůžemi, kožešinami a usněmi",
+"parent": "4624"
+},
+"463": {
+"name": "Velkoobchod s potravinami, nápoji a tabákovými výrobky",
+"parent": "46"
+},
+"4631": {
+"name": "Velkoobchod s ovocem a zeleninou",
+"parent": "463"
+},
+"46310": {
+"name": "Velkoobchod s ovocem a zeleninou",
+"parent": "4631"
+},
+"4632": {
+"name": "Velkoobchod s masem, masnými výrobky, rybami a rybími výrobky",
+"parent": "463"
+},
+"46320": {
+"name": "Velkoobchod s masem, masnými výrobky, rybami a rybími výrobky",
+"parent": "4632"
+},
+"4633": {
+"name": "Velkoobchod s mléčnými výrobky, vejci, jedlými oleji a tuky",
+"parent": "463"
+},
+"46330": {
+"name": "Velkoobchod s mléčnými výrobky, vejci, jedlými oleji a tuky",
+"parent": "4633"
+},
+"4634": {
+"name": "Velkoobchod s nápoji",
+"parent": "463"
+},
+"46340": {
+"name": "Velkoobchod s nápoji",
+"parent": "4634"
+},
+"4635": {
+"name": "Velkoobchod s tabákovými výrobky",
+"parent": "463"
+},
+"46350": {
+"name": "Velkoobchod s tabákovými výrobky",
+"parent": "4635"
+},
+"4636": {
+"name": "Velkoobchod s cukrem, čokoládou a cukrovinkami",
+"parent": "463"
+},
+"46360": {
+"name": "Velkoobchod s cukrem, čokoládou a cukrovinkami",
+"parent": "4636"
+},
+"4637": {
+"name": "Velkoobchod s kávou, čajem, kakaem a kořením",
+"parent": "463"
+},
+"46370": {
+"name": "Velkoobchod s kávou, čajem, kakaem a kořením",
+"parent": "4637"
+},
+"4638": {
+"name": "Specializovaný velkoobchod s ostatními potravinami",
+"parent": "463"
+},
+"46380": {
+"name": "Specializovaný velkoobchod s ostatními potravinami",
+"parent": "4638"
+},
+"4639": {
+"name": "Nespecializovaný velkoobchod s potravinami, nápoji a tabákovými výrobky",
+"parent": "463"
+},
+"46390": {
+"name": "Nespecializovaný velkoobchod s potravinami, nápoji a tabákovými výrobky",
+"parent": "4639"
+},
+"464": {
+"name": "Velkoobchod s výrobky převážně pro domácnost",
+"parent": "46"
+},
+"4641": {
+"name": "Velkoobchod s textilem",
+"parent": "464"
+},
+"46410": {
+"name": "Velkoobchod s textilem",
+"parent": "4641"
+},
+"4642": {
+"name": "Velkoobchod s oděvy a obuví",
+"parent": "464"
+},
+"46420": {
+"name": "Velkoobchod s oděvy a obuví",
+"parent": "4642"
+},
+"4643": {
+"name": "Velkoobchod s elektrospotřebiči a elektronikou převážně pro domácnost",
+"parent": "464"
+},
+"46430": {
+"name": "Velkoobchod s elektrospotřebiči a elektronikou převážně pro domácnost",
+"parent": "4643"
+},
+"4644": {
+"name": "Velkoobchod s porcelánovými, keramickými a skleněnými výrobky a čisticími prostředky",
+"parent": "464"
+},
+"46440": {
+"name": "Velkoobchod s porcelánovými, keramickými a skleněnými výrobky a čisticími prostředky",
+"parent": "4644"
+},
+"4645": {
+"name": "Velkoobchod s parfémy a kosmetickými přípravky",
+"parent": "464"
+},
+"46450": {
+"name": "Velkoobchod s parfémy a kosmetickými přípravky",
+"parent": "4645"
+},
+"4646": {
+"name": "Velkoobchod s farmaceutickými a zdravotnickými výrobky",
+"parent": "464"
+},
+"46460": {
+"name": "Velkoobchod s farmaceutickými a zdravotnickými výrobky",
+"parent": "4646"
+},
+"4647": {
+"name": "Velkoobchod s nábytkem, koberci a osvětlovacími zařízeními pro domácnosti, kanceláře a obchody",
+"parent": "464"
+},
+"46470": {
+"name": "Velkoobchod s nábytkem, koberci a osvětlovacími zařízeními pro domácnosti, kanceláře a obchody",
+"parent": "4647"
+},
+"4648": {
+"name": "Velkoobchod s hodinami, hodinkami a klenoty",
+"parent": "464"
+},
+"46480": {
+"name": "Velkoobchod s hodinami, hodinkami a klenoty",
+"parent": "4648"
+},
+"4649": {
+"name": "Velkoobchod s ostatními výrobky převážně pro domácnost",
+"parent": "464"
+},
+"46490": {
+"name": "Velkoobchod s ostatními výrobky převážně pro domácnost",
+"parent": "4649"
+},
+"465": {
+"name": "Velkoobchod s počítačovými a komunikačními zařízeními",
+"parent": "46"
+},
+"4650": {
+"name": "Velkoobchod s počítačovými a komunikačními zařízeními",
+"parent": "465"
+},
+"46500": {
+"name": "Velkoobchod s počítačovými a komunikačními zařízeními",
+"parent": "4650"
+},
+"466": {
+"name": "Velkoobchod s ostatními stroji, strojním zařízením a příslušenstvím",
+"parent": "46"
+},
+"4661": {
+"name": "Velkoobchod se zemědělskými stroji, strojním zařízením a příslušenstvím",
+"parent": "466"
+},
+"46610": {
+"name": "Velkoobchod se zemědělskými stroji, strojním zařízením a příslušenstvím",
+"parent": "4661"
+},
+"4662": {
+"name": "Velkoobchod s obráběcími stroji",
+"parent": "466"
+},
+"46620": {
+"name": "Velkoobchod s obráběcími stroji",
+"parent": "4662"
+},
+"4663": {
+"name": "Velkoobchod s těžebními a stavebními stroji a zařízením",
+"parent": "466"
+},
+"46630": {
+"name": "Velkoobchod s těžebními a stavebními stroji a zařízením",
+"parent": "4663"
+},
+"4664": {
+"name": "Velkoobchod s ostatními stroji a zařízením",
+"parent": "466"
+},
+"46640": {
+"name": "Velkoobchod s ostatními stroji a zařízením",
+"parent": "4664"
+},
+"467": {
+"name": "Velkoobchod s motorovými vozidly, motocykly, jejich díly a příslušenstvím",
+"parent": "46"
+},
+"4671": {
+"name": "Velkoobchod s motorovými vozidly",
+"parent": "467"
+},
+"46710": {
+"name": "Velkoobchod s motorovými vozidly",
+"parent": "4671"
+},
+"4672": {
+"name": "Velkoobchod s díly a příslušenstvím pro motorová vozidla",
+"parent": "467"
+},
+"46720": {
+"name": "Velkoobchod s díly a příslušenstvím pro motorová vozidla",
+"parent": "4672"
+},
+"4673": {
+"name": "Velkoobchod s motocykly a jejich díly a příslušenstvím",
+"parent": "467"
+},
+"46730": {
+"name": "Velkoobchod s motocykly a jejich díly a příslušenstvím",
+"parent": "4673"
+},
+"468": {
+"name": "Ostatní specializovaný velkoobchod",
+"parent": "46"
+},
+"4681": {
+"name": "Velkoobchod s pevnými, kapalnými a plynnými palivy a příbuznými výrobky",
+"parent": "468"
+},
+"46810": {
+"name": "Velkoobchod s pevnými, kapalnými a plynnými palivy a příbuznými výrobky",
+"parent": "4681"
+},
+"4682": {
+"name": "Velkoobchod s rudami, kovy a hutními výrobky",
+"parent": "468"
+},
+"46820": {
+"name": "Velkoobchod s rudami, kovy a hutními výrobky",
+"parent": "4682"
+},
+"4683": {
+"name": "Velkoobchod se dřevem, stavebními materiály a sanitárním vybavením",
+"parent": "468"
+},
+"46830": {
+"name": "Velkoobchod se dřevem, stavebními materiály a sanitárním vybavením",
+"parent": "4683"
+},
+"4684": {
+"name": "Velkoobchod s železářským zbožím a instalatérskými a topenářskými potřebami",
+"parent": "468"
+},
+"46840": {
+"name": "Velkoobchod s železářským zbožím a instalatérskými a topenářskými potřebami",
+"parent": "4684"
+},
+"4685": {
+"name": "Velkoobchod s chemickými výrobky",
+"parent": "468"
+},
+"46850": {
+"name": "Velkoobchod s chemickými výrobky",
+"parent": "4685"
+},
+"4686": {
+"name": "Velkoobchod s ostatními meziprodukty",
+"parent": "468"
+},
+"46860": {
+"name": "Velkoobchod s ostatními meziprodukty",
+"parent": "4686"
+},
+"4687": {
+"name": "Velkoobchod s odpadem a šrotem",
+"parent": "468"
+},
+"46870": {
+"name": "Velkoobchod s odpadem a šrotem",
+"parent": "4687"
+},
+"4689": {
+"name": "Ostatní specializovaný velkoobchod j. n.",
+"parent": "468"
+},
+"46890": {
+"name": "Ostatní specializovaný velkoobchod j. n.",
+"parent": "4689"
+},
+"469": {
+"name": "Nespecializovaný velkoobchod",
+"parent": "46"
+},
+"4690": {
+"name": "Nespecializovaný velkoobchod",
+"parent": "469"
+},
+"46900": {
+"name": "Nespecializovaný velkoobchod",
+"parent": "4690"
+},
+"47": {
+"name": "Maloobchod",
+"parent": "G"
+},
+"471": {
+"name": "Nespecializovaný maloobchod",
+"parent": "47"
+},
+"4711": {
+"name": "Nespecializovaný maloobchod s převahou potravin, nápojů a tabákových výrobků",
+"parent": "471"
+},
+"47110": {
+"name": "Nespecializovaný maloobchod s převahou potravin, nápojů a tabákových výrobků",
+"parent": "4711"
+},
+"4712": {
+"name": "Ostatní nespecializovaný maloobchod",
+"parent": "471"
+},
+"47120": {
+"name": "Ostatní nespecializovaný maloobchod",
+"parent": "4712"
+},
+"472": {
+"name": "Maloobchod s potravinami, nápoji a tabákovými výrobky",
+"parent": "47"
+},
+"4721": {
+"name": "Maloobchod s ovocem a zeleninou",
+"parent": "472"
+},
+"47210": {
+"name": "Maloobchod s ovocem a zeleninou",
+"parent": "4721"
+},
+"4722": {
+"name": "Maloobchod s masem a masnými výrobky",
+"parent": "472"
+},
+"47220": {
+"name": "Maloobchod s masem a masnými výrobky",
+"parent": "4722"
+},
+"4723": {
+"name": "Maloobchod s rybami, korýši a měkkýši",
+"parent": "472"
+},
+"47230": {
+"name": "Maloobchod s rybami, korýši a měkkýši",
+"parent": "4723"
+},
+"4724": {
+"name": "Maloobchod s pekařskými a cukrářskými výrobky a cukrovinkami",
+"parent": "472"
+},
+"47240": {
+"name": "Maloobchod s pekařskými a cukrářskými výrobky a cukrovinkami",
+"parent": "4724"
+},
+"4725": {
+"name": "Maloobchod s nápoji",
+"parent": "472"
+},
+"47250": {
+"name": "Maloobchod s nápoji",
+"parent": "4725"
+},
+"4726": {
+"name": "Maloobchod s tabákovými výrobky",
+"parent": "472"
+},
+"47260": {
+"name": "Maloobchod s tabákovými výrobky",
+"parent": "4726"
+},
+"4727": {
+"name": "Specializovaný maloobchod s ostatními potravinami",
+"parent": "472"
+},
+"47270": {
+"name": "Specializovaný maloobchod s ostatními potravinami",
+"parent": "4727"
+},
+"473": {
+"name": "Maloobchod s pohonnými hmotami",
+"parent": "47"
+},
+"4730": {
+"name": "Maloobchod s pohonnými hmotami",
+"parent": "473"
+},
+"47300": {
+"name": "Maloobchod s pohonnými hmotami",
+"parent": "4730"
+},
+"474": {
+"name": "Maloobchod s počítačovým a komunikačním zařízením",
+"parent": "47"
+},
+"4740": {
+"name": "Maloobchod s počítačovým a komunikačním zařízením",
+"parent": "474"
+},
+"47400": {
+"name": "Maloobchod s počítačovým a komunikačním zařízením",
+"parent": "4740"
+},
+"475": {
+"name": "Maloobchod s ostatními výrobky převážně pro domácnost",
+"parent": "47"
+},
+"4751": {
+"name": "Maloobchod s textilem",
+"parent": "475"
+},
+"47510": {
+"name": "Maloobchod s textilem",
+"parent": "4751"
+},
+"4752": {
+"name": "Maloobchod s železářským zbožím, stavebními materiály, barvami a sklem",
+"parent": "475"
+},
+"47520": {
+"name": "Maloobchod s železářským zbožím, stavebními materiály, barvami a sklem",
+"parent": "4752"
+},
+"4753": {
+"name": "Maloobchod s koberci, podlahovými krytinami a nástěnnými obklady",
+"parent": "475"
+},
+"47530": {
+"name": "Maloobchod s koberci, podlahovými krytinami a nástěnnými obklady",
+"parent": "4753"
+},
+"4754": {
+"name": "Maloobchod s elektrospotřebiči a elektronikou převážně pro domácnost",
+"parent": "475"
+},
+"47540": {
+"name": "Maloobchod s elektrospotřebiči a elektronikou převážně pro domácnost",
+"parent": "4754"
+},
+"4755": {
+"name": "Maloobchod s nábytkem, osvětlovacími zařízeními, nádobím a ostatními výrobky převážně pro domácnost",
+"parent": "475"
+},
+"47550": {
+"name": "Maloobchod s nábytkem, osvětlovacími zařízeními, nádobím a ostatními výrobky převážně pro domácnost",
+"parent": "4755"
+},
+"476": {
+"name": "Maloobchod s výrobky pro kulturní rozhled a rekreaci",
+"parent": "47"
+},
+"4761": {
+"name": "Maloobchod s knihami",
+"parent": "476"
+},
+"47610": {
+"name": "Maloobchod s knihami",
+"parent": "4761"
+},
+"4762": {
+"name": "Maloobchod s novinami a ostatními periodickými publikacemi a papírnickým zbožím",
+"parent": "476"
+},
+"47621": {
+"name": "Maloobchod s novinami a ostatními periodickými publikacemi",
+"parent": "4762"
+},
+"47622": {
+"name": "Maloobchod s papírnickým zbožím",
+"parent": "4762"
+},
+"4763": {
+"name": "Maloobchod se sportovním vybavením",
+"parent": "476"
+},
+"47630": {
+"name": "Maloobchod se sportovním vybavením",
+"parent": "4763"
+},
+"4764": {
+"name": "Maloobchod s hrami a hračkami",
+"parent": "476"
+},
+"47640": {
+"name": "Maloobchod s hrami a hračkami",
+"parent": "4764"
+},
+"4769": {
+"name": "Maloobchod s výrobky pro kulturní rozhled a rekreaci j. n.",
+"parent": "476"
+},
+"47690": {
+"name": "Maloobchod s výrobky pro kulturní rozhled a rekreaci j. n.",
+"parent": "4769"
+},
+"477": {
+"name": "Maloobchod s ostatním zbožím, kromě motorových vozidel a motocyklů",
+"parent": "47"
+},
+"4771": {
+"name": "Maloobchod s oděvy",
+"parent": "477"
+},
+"47710": {
+"name": "Maloobchod s oděvy",
+"parent": "4771"
+},
+"4772": {
+"name": "Maloobchod s obuví a koženými výrobky",
+"parent": "477"
+},
+"47720": {
+"name": "Maloobchod s obuví a koženými výrobky",
+"parent": "4772"
+},
+"4773": {
+"name": "Maloobchod s farmaceutickými výrobky",
+"parent": "477"
+},
+"47730": {
+"name": "Maloobchod s farmaceutickými výrobky",
+"parent": "4773"
+},
+"4774": {
+"name": "Maloobchod se zdravotnickými a ortopedickými výrobky",
+"parent": "477"
+},
+"47740": {
+"name": "Maloobchod se zdravotnickými a ortopedickými výrobky",
+"parent": "4774"
+},
+"4775": {
+"name": "Maloobchod s kosmetickými a toaletními výrobky",
+"parent": "477"
+},
+"47750": {
+"name": "Maloobchod s kosmetickými a toaletními výrobky",
+"parent": "4775"
+},
+"4776": {
+"name": "Maloobchod s květinami, rostlinami, hnojivy, zvířaty pro zájmový chov a krmivy pro ně",
+"parent": "477"
+},
+"47760": {
+"name": "Maloobchod s květinami, rostlinami, hnojivy, zvířaty pro zájmový chov a krmivy pro ně",
+"parent": "4776"
+},
+"4777": {
+"name": "Maloobchod s hodinami, hodinkami a klenoty",
+"parent": "477"
+},
+"47770": {
+"name": "Maloobchod s hodinami, hodinkami a klenoty",
+"parent": "4777"
+},
+"4778": {
+"name": "Maloobchod s ostatním novým zbožím",
+"parent": "477"
+},
+"47780": {
+"name": "Maloobchod s ostatním novým zbožím",
+"parent": "4778"
+},
+"4779": {
+"name": "Maloobchod s použitým zbožím",
+"parent": "477"
+},
+"47791": {
+"name": "Maloobchod s použitými knihami a starožitnostmi",
+"parent": "4779"
+},
+"47799": {
+"name": "Maloobchod s ostatním použitým zbožím",
+"parent": "4779"
+},
+"478": {
+"name": "Maloobchod s motorovými vozidly, motocykly, jejich díly a příslušenstvím",
+"parent": "47"
+},
+"4781": {
+"name": "Maloobchod s motorovými vozidly",
+"parent": "478"
+},
+"47810": {
+"name": "Maloobchod s motorovými vozidly",
+"parent": "4781"
+},
+"4782": {
+"name": "Maloobchod s díly a příslušenstvím pro motorová vozidla",
+"parent": "478"
+},
+"47820": {
+"name": "Maloobchod s díly a příslušenstvím pro motorová vozidla",
+"parent": "4782"
+},
+"4783": {
+"name": "Maloobchod s motocykly a díly a příslušenstvím pro motocykly",
+"parent": "478"
+},
+"47830": {
+"name": "Maloobchod s motocykly a díly a příslušenstvím pro motocykly",
+"parent": "4783"
+},
+"479": {
+"name": "Zprostředkování v oblasti maloobchodu",
+"parent": "47"
+},
+"4791": {
+"name": "Zprostředkování v oblasti nespecializovaného maloobchodu",
+"parent": "479"
+},
+"47910": {
+"name": "Zprostředkování v oblasti nespecializovaného maloobchodu",
+"parent": "4791"
+},
+"4792": {
+"name": "Zprostředkování v oblasti specializovaného maloobchodu",
+"parent": "479"
+},
+"47920": {
+"name": "Zprostředkování v oblasti specializovaného maloobchodu",
+"parent": "4792"
+},
+"49": {
+"name": "Pozemní a potrubní doprava",
+"parent": "H"
+},
+"491": {
+"name": "Kolejová osobní doprava",
+"parent": "49"
+},
+"4911": {
+"name": "Dálková železniční osobní doprava",
+"parent": "491"
+},
+"49110": {
+"name": "Dálková železniční osobní doprava",
+"parent": "4911"
+},
+"4912": {
+"name": "Ostatní kolejová osobní doprava",
+"parent": "491"
+},
+"49120": {
+"name": "Ostatní kolejová osobní doprava",
+"parent": "4912"
+},
+"492": {
+"name": "Kolejová nákladní doprava",
+"parent": "49"
+},
+"4920": {
+"name": "Kolejová nákladní doprava",
+"parent": "492"
+},
+"49200": {
+"name": "Kolejová nákladní doprava",
+"parent": "4920"
+},
+"493": {
+"name": "Ostatní pozemní osobní doprava",
+"parent": "49"
+},
+"4931": {
+"name": "Pravidelná silniční osobní doprava",
+"parent": "493"
+},
+"49310": {
+"name": "Pravidelná silniční osobní doprava",
+"parent": "4931"
+},
+"4932": {
+"name": "Nepravidelná silniční osobní doprava",
+"parent": "493"
+},
+"49320": {
+"name": "Nepravidelná silniční osobní doprava",
+"parent": "4932"
+},
+"4933": {
+"name": "Osobní doprava vozidlem s řidičem na vyžádání",
+"parent": "493"
+},
+"49330": {
+"name": "Osobní doprava vozidlem s řidičem na vyžádání",
+"parent": "4933"
+},
+"4934": {
+"name": "Osobní doprava visutými lanovkami a lyžařskými vleky",
+"parent": "493"
+},
+"49340": {
+"name": "Osobní doprava visutými lanovkami a lyžařskými vleky",
+"parent": "4934"
+},
+"4939": {
+"name": "Ostatní pozemní osobní doprava j. n.",
+"parent": "493"
+},
+"49390": {
+"name": "Ostatní pozemní osobní doprava j. n.",
+"parent": "4939"
+},
+"494": {
+"name": "Silniční nákladní doprava a stěhovací služby",
+"parent": "49"
+},
+"4941": {
+"name": "Silniční nákladní doprava",
+"parent": "494"
+},
+"49410": {
+"name": "Silniční nákladní doprava",
+"parent": "4941"
+},
+"4942": {
+"name": "Stěhovací služby",
+"parent": "494"
+},
+"49420": {
+"name": "Stěhovací služby",
+"parent": "4942"
+},
+"495": {
+"name": "Potrubní doprava",
+"parent": "49"
+},
+"4950": {
+"name": "Potrubní doprava",
+"parent": "495"
+},
+"49500": {
+"name": "Potrubní doprava",
+"parent": "4950"
+},
+"50": {
+"name": "Vodní doprava",
+"parent": "H"
+},
+"501": {
+"name": "Námořní a pobřežní osobní doprava",
+"parent": "50"
+},
+"5010": {
+"name": "Námořní a pobřežní osobní doprava",
+"parent": "501"
+},
+"50100": {
+"name": "Námořní a pobřežní osobní doprava",
+"parent": "5010"
+},
+"502": {
+"name": "Námořní a pobřežní nákladní doprava",
+"parent": "50"
+},
+"5020": {
+"name": "Námořní a pobřežní nákladní doprava",
+"parent": "502"
+},
+"50200": {
+"name": "Námořní a pobřežní nákladní doprava",
+"parent": "5020"
+},
+"503": {
+"name": "Vnitrozemská vodní osobní doprava",
+"parent": "50"
+},
+"5030": {
+"name": "Vnitrozemská vodní osobní doprava",
+"parent": "503"
+},
+"50300": {
+"name": "Vnitrozemská vodní osobní doprava",
+"parent": "5030"
+},
+"504": {
+"name": "Vnitrozemská vodní nákladní doprava",
+"parent": "50"
+},
+"5040": {
+"name": "Vnitrozemská vodní nákladní doprava",
+"parent": "504"
+},
+"50400": {
+"name": "Vnitrozemská vodní nákladní doprava",
+"parent": "5040"
+},
+"51": {
+"name": "Letecká doprava",
+"parent": "H"
+},
+"511": {
+"name": "Letecká osobní doprava",
+"parent": "51"
+},
+"5110": {
+"name": "Letecká osobní doprava",
+"parent": "511"
+},
+"51100": {
+"name": "Letecká osobní doprava",
+"parent": "5110"
+},
+"512": {
+"name": "Letecká nákladní doprava a kosmická doprava",
+"parent": "51"
+},
+"5121": {
+"name": "Letecká nákladní doprava",
+"parent": "512"
+},
+"51210": {
+"name": "Letecká nákladní doprava",
+"parent": "5121"
+},
+"5122": {
+"name": "Kosmická doprava",
+"parent": "512"
+},
+"51220": {
+"name": "Kosmická doprava",
+"parent": "5122"
+},
+"52": {
+"name": "Skladování a podpůrné činnosti pro dopravu",
+"parent": "H"
+},
+"521": {
+"name": "Skladování",
+"parent": "52"
+},
+"5210": {
+"name": "Skladování",
+"parent": "521"
+},
+"52100": {
+"name": "Skladování",
+"parent": "5210"
+},
+"522": {
+"name": "Podpůrné činnosti pro dopravu",
+"parent": "52"
+},
+"5221": {
+"name": "Činnosti související s pozemní dopravou",
+"parent": "522"
+},
+"52210": {
+"name": "Činnosti související s pozemní dopravou",
+"parent": "5221"
+},
+"5222": {
+"name": "Činnosti související s vodní dopravou",
+"parent": "522"
+},
+"52220": {
+"name": "Činnosti související s vodní dopravou",
+"parent": "5222"
+},
+"5223": {
+"name": "Činnosti související s leteckou dopravou",
+"parent": "522"
+},
+"52230": {
+"name": "Činnosti související s leteckou dopravou",
+"parent": "5223"
+},
+"5224": {
+"name": "Manipulace s nákladem",
+"parent": "522"
+},
+"52240": {
+"name": "Manipulace s nákladem",
+"parent": "5224"
+},
+"5225": {
+"name": "Logistické činnosti",
+"parent": "522"
+},
+"52250": {
+"name": "Logistické činnosti",
+"parent": "5225"
+},
+"5226": {
+"name": "Ostatní podpůrné činnosti pro dopravu",
+"parent": "522"
+},
+"52260": {
+"name": "Ostatní podpůrné činnosti pro dopravu",
+"parent": "5226"
+},
+"523": {
+"name": "Zprostředkování v oblasti dopravy",
+"parent": "52"
+},
+"5231": {
+"name": "Zprostředkování v oblasti nákladní dopravy",
+"parent": "523"
+},
+"52310": {
+"name": "Zprostředkování v oblasti nákladní dopravy",
+"parent": "5231"
+},
+"5232": {
+"name": "Zprostředkování v oblasti osobní dopravy",
+"parent": "523"
+},
+"52320": {
+"name": "Zprostředkování v oblasti osobní dopravy",
+"parent": "5232"
+},
+"53": {
+"name": "Poštovní a kurýrní činnosti",
+"parent": "H"
+},
+"531": {
+"name": "Základní poštovní služby poskytované na základě poštovní licence",
+"parent": "53"
+},
+"5310": {
+"name": "Základní poštovní služby poskytované na základě poštovní licence",
+"parent": "531"
+},
+"53100": {
+"name": "Základní poštovní služby poskytované na základě poštovní licence",
+"parent": "5310"
+},
+"532": {
+"name": "Ostatní poštovní a kurýrní činnosti",
+"parent": "53"
+},
+"5320": {
+"name": "Ostatní poštovní a kurýrní činnosti",
+"parent": "532"
+},
+"53200": {
+"name": "Ostatní poštovní a kurýrní činnosti",
+"parent": "5320"
+},
+"533": {
+"name": "Zprostředkování v oblasti poštovních a kurýrních činností",
+"parent": "53"
+},
+"5330": {
+"name": "Zprostředkování v oblasti poštovních a kurýrních činností",
+"parent": "533"
+},
+"53300": {
+"name": "Zprostředkování v oblasti poštovních a kurýrních činností",
+"parent": "5330"
+},
+"55": {
+"name": "Poskytování ubytování",
+"parent": "I"
+},
+"551": {
+"name": "Ubytování v hotelích a podobných ubytovacích zařízeních",
+"parent": "55"
+},
+"5510": {
+"name": "Ubytování v hotelích a podobných ubytovacích zařízeních",
+"parent": "551"
+},
+"55100": {
+"name": "Ubytování v hotelích a podobných ubytovacích zařízeních",
+"parent": "5510"
+},
+"552": {
+"name": "Rekreační a ostatní krátkodobé ubytování",
+"parent": "55"
+},
+"5520": {
+"name": "Rekreační a ostatní krátkodobé ubytování",
+"parent": "552"
+},
+"55200": {
+"name": "Rekreační a ostatní krátkodobé ubytování",
+"parent": "5520"
+},
+"553": {
+"name": "Kempy a parkoviště pro rekreační vozidla",
+"parent": "55"
+},
+"5530": {
+"name": "Kempy a parkoviště pro rekreační vozidla",
+"parent": "553"
+},
+"55300": {
+"name": "Kempy a parkoviště pro rekreační vozidla",
+"parent": "5530"
+},
+"554": {
+"name": "Zprostředkování v oblasti ubytování",
+"parent": "55"
+},
+"5540": {
+"name": "Zprostředkování v oblasti ubytování",
+"parent": "554"
+},
+"55400": {
+"name": "Zprostředkování v oblasti ubytování",
+"parent": "5540"
+},
+"559": {
+"name": "Ostatní ubytování",
+"parent": "55"
+},
+"5590": {
+"name": "Ostatní ubytování",
+"parent": "559"
+},
+"55900": {
+"name": "Ostatní ubytování",
+"parent": "5590"
+},
+"56": {
+"name": "Poskytování stravování a podávání nápojů",
+"parent": "I"
+},
+"561": {
+"name": "Poskytování stravování v restauracích, u stánků a mobilních zařízení",
+"parent": "56"
+},
+"5611": {
+"name": "Poskytování stravování v restauracích",
+"parent": "561"
+},
+"56110": {
+"name": "Poskytování stravování v restauracích",
+"parent": "5611"
+},
+"5612": {
+"name": "Poskytování stravování u stánků a mobilních zařízení",
+"parent": "561"
+},
+"56120": {
+"name": "Poskytování stravování u stánků a mobilních zařízení",
+"parent": "5612"
+},
+"562": {
+"name": "Cateringové činnosti, poskytování smluvních a ostatních stravovacích služeb",
+"parent": "56"
+},
+"5621": {
+"name": "Cateringové činnosti",
+"parent": "562"
+},
+"56210": {
+"name": "Cateringové činnosti",
+"parent": "5621"
+},
+"5622": {
+"name": "Poskytování smluvních a ostatních stravovacích služeb",
+"parent": "562"
+},
+"56220": {
+"name": "Poskytování smluvních a ostatních stravovacích služeb",
+"parent": "5622"
+},
+"563": {
+"name": "Podávání nápojů",
+"parent": "56"
+},
+"5630": {
+"name": "Podávání nápojů",
+"parent": "563"
+},
+"56300": {
+"name": "Podávání nápojů",
+"parent": "5630"
+},
+"564": {
+"name": "Zprostředkování v oblasti stravování a podávání nápojů",
+"parent": "56"
+},
+"5640": {
+"name": "Zprostředkování v oblasti stravování a podávání nápojů",
+"parent": "564"
+},
+"56400": {
+"name": "Zprostředkování v oblasti stravování a podávání nápojů",
+"parent": "5640"
+},
+"58": {
+"name": "Vydavatelské činnosti",
+"parent": "J"
+},
+"581": {
+"name": "Vydávání knih, novin a ostatní vydavatelské činnosti, kromě vydávání softwaru",
+"parent": "58"
+},
+"5811": {
+"name": "Vydávání knih",
+"parent": "581"
+},
+"58110": {
+"name": "Vydávání knih",
+"parent": "5811"
+},
+"5812": {
+"name": "Vydávání novin",
+"parent": "581"
+},
+"58121": {
+"name": "Vydávání tištěných novin",
+"parent": "5812"
+},
+"58122": {
+"name": "Vydávání novin v jiných formách než tištěných",
+"parent": "5812"
+},
+"5813": {
+"name": "Vydávání časopisů a ostatních periodik",
+"parent": "581"
+},
+"58131": {
+"name": "Vydávání tištěných časopisů",
+"parent": "5813"
+},
+"58132": {
+"name": "Vydávání časopisů v jiných formách než tištěných",
+"parent": "5813"
+},
+"58139": {
+"name": "Vydávání ostatních periodik",
+"parent": "5813"
+},
+"5819": {
+"name": "Ostatní vydavatelské činnosti, kromě vydávání softwaru",
+"parent": "581"
+},
+"58190": {
+"name": "Ostatní vydavatelské činnosti, kromě vydávání softwaru",
+"parent": "5819"
+},
+"582": {
+"name": "Vydávání softwaru",
+"parent": "58"
+},
+"5821": {
+"name": "Vydávání videoher",
+"parent": "582"
+},
+"58210": {
+"name": "Vydávání videoher",
+"parent": "5821"
+},
+"5829": {
+"name": "Ostatní vydávání softwaru",
+"parent": "582"
+},
+"58290": {
+"name": "Ostatní vydávání softwaru",
+"parent": "5829"
+},
+"59": {
+"name": "Činnosti v oblasti filmů, videozáznamů a televizních pořadů, pořizování zvukových nahrávek a hudební vydavatelské činnosti",
+"parent": "J"
+},
+"591": {
+"name": "Činnosti v oblasti filmů, videozáznamů a televizních pořadů",
+"parent": "59"
+},
+"5911": {
+"name": "Produkce filmů, videozáznamů a televizních pořadů",
+"parent": "591"
+},
+"59110": {
+"name": "Produkce filmů, videozáznamů a televizních pořadů",
+"parent": "5911"
+},
+"5912": {
+"name": "Postprodukce filmů, videozáznamů a televizních pořadů",
+"parent": "591"
+},
+"59120": {
+"name": "Postprodukce filmů, videozáznamů a televizních pořadů",
+"parent": "5912"
+},
+"5913": {
+"name": "Distribuce filmů a videozáznamů",
+"parent": "591"
+},
+"59130": {
+"name": "Distribuce filmů a videozáznamů",
+"parent": "5913"
+},
+"5914": {
+"name": "Promítání filmů",
+"parent": "591"
+},
+"59140": {
+"name": "Promítání filmů",
+"parent": "5914"
+},
+"592": {
+"name": "Pořizování zvukových nahrávek a hudební vydavatelské činnosti",
+"parent": "59"
+},
+"5920": {
+"name": "Pořizování zvukových nahrávek a hudební vydavatelské činnosti",
+"parent": "592"
+},
+"59200": {
+"name": "Pořizování zvukových nahrávek a hudební vydavatelské činnosti",
+"parent": "5920"
+},
+"60": {
+"name": "Tvorba programů, vysílání, činnosti zpravodajských tiskových kanceláří a agentur a ostatní činnosti související s distribucí obsahu",
+"parent": "J"
+},
+"601": {
+"name": "Rozhlasové vysílání a distribuce zvukových záznamů",
+"parent": "60"
+},
+"6010": {
+"name": "Rozhlasové vysílání a distribuce zvukových záznamů",
+"parent": "601"
+},
+"60101": {
+"name": "Rozhlasové vysílání",
+"parent": "6010"
+},
+"60102": {
+"name": "Distribuce zvukových záznamů",
+"parent": "6010"
+},
+"602": {
+"name": "Tvorba televizních programů, televizní vysílání a distribuce videozáznamů",
+"parent": "60"
+},
+"6020": {
+"name": "Tvorba televizních programů, televizní vysílání a distribuce videozáznamů",
+"parent": "602"
+},
+"60200": {
+"name": "Tvorba televizních programů, televizní vysílání a distribuce videozáznamů",
+"parent": "6020"
+},
+"603": {
+"name": "Činnosti zpravodajských kanceláří a agentur a ostatní činnosti související s distribucí obsahu",
+"parent": "60"
+},
+"6031": {
+"name": "Činnosti zpravodajských kanceláří a agentur",
+"parent": "603"
+},
+"60310": {
+"name": "Činnosti zpravodajských kanceláří a agentur",
+"parent": "6031"
+},
+"6039": {
+"name": "Ostatní činnosti související s distribucí obsahu",
+"parent": "603"
+},
+"60390": {
+"name": "Ostatní činnosti související s distribucí obsahu",
+"parent": "6039"
+},
+"61": {
+"name": "Telekomunikační činnosti",
+"parent": "K"
+},
+"611": {
+"name": "Činnosti související s kabelovou, bezdrátovou a satelitní telekomunikační sítí",
+"parent": "61"
+},
+"6110": {
+"name": "Činnosti související s kabelovou, bezdrátovou a satelitní telekomunikační sítí",
+"parent": "611"
+},
+"61100": {
+"name": "Činnosti související s kabelovou, bezdrátovou a satelitní telekomunikační sítí",
+"parent": "6110"
+},
+"612": {
+"name": "Činnosti v oblasti přeprodeje telekomunikačních služeb a zprostředkování telekomunikačních činností",
+"parent": "61"
+},
+"6120": {
+"name": "Činnosti v oblasti přeprodeje telekomunikačních služeb a zprostředkování telekomunikačních činností",
+"parent": "612"
+},
+"61200": {
+"name": "Činnosti v oblasti přeprodeje telekomunikačních služeb a zprostředkování telekomunikačních činností",
+"parent": "6120"
+},
+"619": {
+"name": "Ostatní telekomunikační činnosti",
+"parent": "61"
+},
+"6190": {
+"name": "Ostatní telekomunikační činnosti",
+"parent": "619"
+},
+"61900": {
+"name": "Ostatní telekomunikační činnosti",
+"parent": "6190"
+},
+"62": {
+"name": "Počítačové programování, poradenství a související činnosti",
+"parent": "K"
+},
+"621": {
+"name": "Počítačové programování",
+"parent": "62"
+},
+"6210": {
+"name": "Počítačové programování",
+"parent": "621"
+},
+"62101": {
+"name": "Programování a vývoj počítačových her, herního softwaru a herních nástrojů",
+"parent": "6210"
+},
+"62109": {
+"name": "Ostatní počítačové programování",
+"parent": "6210"
+},
+"622": {
+"name": "Poradenství v oblasti počítačů a správa počítačových systémů",
+"parent": "62"
+},
+"6220": {
+"name": "Poradenství v oblasti počítačů a správa počítačových systémů",
+"parent": "622"
+},
+"62200": {
+"name": "Poradenství v oblasti počítačů a správa počítačových systémů",
+"parent": "6220"
+},
+"629": {
+"name": "Ostatní činnosti v oblasti informačních technologií a počítačů",
+"parent": "62"
+},
+"6290": {
+"name": "Ostatní činnosti v oblasti informačních technologií a počítačů",
+"parent": "629"
+},
+"62900": {
+"name": "Ostatní činnosti v oblasti informačních technologií a počítačů",
+"parent": "6290"
+},
+"63": {
+"name": "Poskytování počítačové infrastruktury, zpracování dat, hosting a ostatní informační činnosti",
+"parent": "K"
+},
+"631": {
+"name": "Poskytování počítačové infrastruktury, zpracování dat, hosting a související činnosti",
+"parent": "63"
+},
+"6310": {
+"name": "Poskytování počítačové infrastruktury, zpracování dat, hosting a související činnosti",
+"parent": "631"
+},
+"63100": {
+"name": "Poskytování počítačové infrastruktury, zpracování dat, hosting a související činnosti",
+"parent": "6310"
+},
+"639": {
+"name": "Činnosti webových vyhledávacích portálů a ostatní informační činnosti",
+"parent": "63"
+},
+"6391": {
+"name": "Činnosti webových vyhledávacích portálů",
+"parent": "639"
+},
+"63910": {
+"name": "Činnosti webových vyhledávacích portálů",
+"parent": "6391"
+},
+"6392": {
+"name": "Ostatní informační činnosti",
+"parent": "639"
+},
+"63920": {
+"name": "Ostatní informační činnosti",
+"parent": "6392"
+},
+"64": {
+"name": "Finanční činnosti, kromě pojišťování a penzijního financování",
+"parent": "L"
+},
+"641": {
+"name": "Peněžní zprostředkování",
+"parent": "64"
+},
+"6411": {
+"name": "Centrální bankovnictví",
+"parent": "641"
+},
+"64110": {
+"name": "Centrální bankovnictví",
+"parent": "6411"
+},
+"6419": {
+"name": "Ostatní peněžní zprostředkování",
+"parent": "641"
+},
+"64190": {
+"name": "Ostatní peněžní zprostředkování",
+"parent": "6419"
+},
+"642": {
+"name": "Činnosti holdingových společností a účelových finančních společností",
+"parent": "64"
+},
+"6421": {
+"name": "Činnosti holdingových společností",
+"parent": "642"
+},
+"64210": {
+"name": "Činnosti holdingových společností",
+"parent": "6421"
+},
+"6422": {
+"name": "Činnosti účelových finančních společností",
+"parent": "642"
+},
+"64220": {
+"name": "Činnosti účelových finančních společností",
+"parent": "6422"
+},
+"643": {
+"name": "Činnosti svěřenských a jiných fondů a podobných finančních entit",
+"parent": "64"
+},
+"6431": {
+"name": "Činnosti investičních fondů peněžního trhu a investičních fondů jiných než peněžního trhu",
+"parent": "643"
+},
+"64310": {
+"name": "Činnosti investičních fondů peněžního trhu a investičních fondů jiných než peněžního trhu",
+"parent": "6431"
+},
+"6432": {
+"name": "Činnosti svěřenských fondů, majetkových a agenturních účtů",
+"parent": "643"
+},
+"64320": {
+"name": "Činnosti svěřenských fondů, majetkových a agenturních účtů",
+"parent": "6432"
+},
+"649": {
+"name": "Ostatní finanční činnosti, kromě pojišťování a penzijního financování",
+"parent": "64"
+},
+"6491": {
+"name": "Finanční leasing",
+"parent": "649"
+},
+"64910": {
+"name": "Finanční leasing",
+"parent": "6491"
+},
+"6492": {
+"name": "Ostatní poskytování úvěrů",
+"parent": "649"
+},
+"64921": {
+"name": "Poskytování spotřebitelských úvěrů společnostmi, které nepřijímají vklady",
+"parent": "6492"
+},
+"64922": {
+"name": "Poskytování jiných úvěrů společnostmi, které nepřijímají vklady",
+"parent": "6492"
+},
+"64923": {
+"name": "Činnosti zastaváren",
+"parent": "6492"
+},
+"64924": {
+"name": "Faktoringové činnosti",
+"parent": "6492"
+},
+"64929": {
+"name": "Ostatní poskytování úvěrů j. n.",
+"parent": "6492"
+},
+"6499": {
+"name": "Ostatní finanční činnosti, kromě pojišťování a penzijního financování j. n.",
+"parent": "649"
+},
+"64991": {
+"name": "Obchodování s cennými papíry na vlastní účet",
+"parent": "6499"
+},
+"64999": {
+"name": "Jiné finanční činnosti, kromě pojišťování a penzijního financování j. n.",
+"parent": "6499"
+},
+"65": {
+"name": "Pojišťovací a zajišťovací činnosti, penzijní financování, kromě povinného sociálního zabezpečení",
+"parent": "L"
+},
+"651": {
+"name": "Pojišťovací činnosti",
+"parent": "65"
+},
+"6511": {
+"name": "Činnosti v oblasti životního pojištění",
+"parent": "651"
+},
+"65110": {
+"name": "Činnosti v oblasti životního pojištění",
+"parent": "6511"
+},
+"6512": {
+"name": "Činnosti v oblasti neživotního pojištění",
+"parent": "651"
+},
+"65120": {
+"name": "Činnosti v oblasti neživotního pojištění",
+"parent": "6512"
+},
+"652": {
+"name": "Zajišťovací činnosti",
+"parent": "65"
+},
+"6520": {
+"name": "Zajišťovací činnosti",
+"parent": "652"
+},
+"65200": {
+"name": "Zajišťovací činnosti",
+"parent": "6520"
+},
+"653": {
+"name": "Penzijní financování",
+"parent": "65"
+},
+"6530": {
+"name": "Penzijní financování",
+"parent": "653"
+},
+"65300": {
+"name": "Penzijní financování",
+"parent": "6530"
+},
+"66": {
+"name": "Pomocné činnosti k finančním a pojišťovacím činnostem",
+"parent": "L"
+},
+"661": {
+"name": "Pomocné činnosti k finančním činnostem, kromě pojišťování a penzijního financování",
+"parent": "66"
+},
+"6611": {
+"name": "Řízení a správa finančních trhů",
+"parent": "661"
+},
+"66110": {
+"name": "Řízení a správa finančních trhů",
+"parent": "6611"
+},
+"6612": {
+"name": "Obchodování s cennými papíry a komoditami na burzách",
+"parent": "661"
+},
+"66120": {
+"name": "Obchodování s cennými papíry a komoditami na burzách",
+"parent": "6612"
+},
+"6619": {
+"name": "Ostatní pomocné činnosti k finančním činnostem, kromě pojišťování a penzijního financování",
+"parent": "661"
+},
+"66190": {
+"name": "Ostatní pomocné činnosti k finančním činnostem, kromě pojišťování a penzijního financování",
+"parent": "6619"
+},
+"662": {
+"name": "Pomocné činnosti k pojišťování a penzijnímu financování",
+"parent": "66"
+},
+"6621": {
+"name": "Vyhodnocování rizik a škod",
+"parent": "662"
+},
+"66210": {
+"name": "Vyhodnocování rizik a škod",
+"parent": "6621"
+},
+"6622": {
+"name": "Činnosti pojišťovacích makléřů a agentů",
+"parent": "662"
+},
+"66220": {
+"name": "Činnosti pojišťovacích makléřů a agentů",
+"parent": "6622"
+},
+"6629": {
+"name": "Pomocné činnosti k pojišťování a penzijnímu financování j. n.",
+"parent": "662"
+},
+"66290": {
+"name": "Pomocné činnosti k pojišťování a penzijnímu financování j. n.",
+"parent": "6629"
+},
+"663": {
+"name": "Správa fondů",
+"parent": "66"
+},
+"6630": {
+"name": "Správa fondů",
+"parent": "663"
+},
+"66300": {
+"name": "Správa fondů",
+"parent": "6630"
+},
+"68": {
+"name": "Činnosti v oblasti nemovitostí",
+"parent": "M"
+},
+"681": {
+"name": "Činnosti v oblasti vlastních nemovitostí a developerské činnosti",
+"parent": "68"
+},
+"6811": {
+"name": "Nákup a následný prodej vlastních nemovitostí",
+"parent": "681"
+},
+"68110": {
+"name": "Nákup a následný prodej vlastních nemovitostí",
+"parent": "6811"
+},
+"6812": {
+"name": "Developerské činnosti",
+"parent": "681"
+},
+"68120": {
+"name": "Developerské činnosti",
+"parent": "6812"
+},
+"682": {
+"name": "Pronájem a správa vlastních nebo pronajatých nemovitostí",
+"parent": "68"
+},
+"6820": {
+"name": "Pronájem a správa vlastních nebo pronajatých nemovitostí",
+"parent": "682"
+},
+"68200": {
+"name": "Pronájem a správa vlastních nebo pronajatých nemovitostí",
+"parent": "6820"
+},
+"683": {
+"name": "Činnosti v oblasti nemovitostí na základě smlouvy nebo dohody",
+"parent": "68"
+},
+"6831": {
+"name": "Zprostředkování v oblasti nemovitostí",
+"parent": "683"
+},
+"68310": {
+"name": "Zprostředkování v oblasti nemovitostí",
+"parent": "6831"
+},
+"6832": {
+"name": "Ostatní činnosti v oblasti nemovitostí na základě smlouvy nebo dohody",
+"parent": "683"
+},
+"68320": {
+"name": "Ostatní činnosti v oblasti nemovitostí na základě smlouvy nebo dohody",
+"parent": "6832"
+},
+"69": {
+"name": "Právní a účetnické činnosti",
+"parent": "N"
+},
+"691": {
+"name": "Právní činnosti",
+"parent": "69"
+},
+"6910": {
+"name": "Právní činnosti",
+"parent": "691"
+},
+"69100": {
+"name": "Právní činnosti",
+"parent": "6910"
+},
+"692": {
+"name": "Účetnické a auditorské činnosti&#59^ daňové poradenství",
+"parent": "69"
+},
+"6920": {
+"name": "Účetnické a auditorské činnosti&#59^ daňové poradenství",
+"parent": "692"
+},
+"69200": {
+"name": "Účetnické a auditorské činnosti&#59^ daňové poradenství",
+"parent": "6920"
+},
+"70": {
+"name": "Činnosti řízení podniků a poradenství v oblasti podnikání",
+"parent": "N"
+},
+"701": {
+"name": "Činnosti řízení podniků",
+"parent": "70"
+},
+"7010": {
+"name": "Činnosti řízení podniků",
+"parent": "701"
+},
+"70100": {
+"name": "Činnosti řízení podniků",
+"parent": "7010"
+},
+"702": {
+"name": "Poradenství v oblasti podnikání a řízení podniků",
+"parent": "70"
+},
+"7020": {
+"name": "Poradenství v oblasti podnikání a řízení podniků",
+"parent": "702"
+},
+"70200": {
+"name": "Poradenství v oblasti podnikání a řízení podniků",
+"parent": "7020"
+},
+"71": {
+"name": "Architektonické a inženýrské činnosti&#59^ technické zkoušky a analýzy",
+"parent": "N"
+},
+"711": {
+"name": "Architektonické a inženýrské činnosti a související technické poradenství",
+"parent": "71"
+},
+"7111": {
+"name": "Architektonické činnosti",
+"parent": "711"
+},
+"71110": {
+"name": "Architektonické činnosti",
+"parent": "7111"
+},
+"7112": {
+"name": "Inženýrské činnosti a související technické poradenství",
+"parent": "711"
+},
+"71120": {
+"name": "Inženýrské činnosti a související technické poradenství",
+"parent": "7112"
+},
+"712": {
+"name": "Technické zkoušky a analýzy",
+"parent": "71"
+},
+"7120": {
+"name": "Technické zkoušky a analýzy",
+"parent": "712"
+},
+"71200": {
+"name": "Technické zkoušky a analýzy",
+"parent": "7120"
+},
+"72": {
+"name": "Výzkum a vývoj",
+"parent": "N"
+},
+"721": {
+"name": "Výzkum a vývoj v oblasti přírodních a technických věd",
+"parent": "72"
+},
+"7210": {
+"name": "Výzkum a vývoj v oblasti přírodních a technických věd",
+"parent": "721"
+},
+"72100": {
+"name": "Výzkum a vývoj v oblasti přírodních a technických věd",
+"parent": "7210"
+},
+"722": {
+"name": "Výzkum a vývoj v oblasti společenských a humanitních věd",
+"parent": "72"
+},
+"7220": {
+"name": "Výzkum a vývoj v oblasti společenských a humanitních věd",
+"parent": "722"
+},
+"72200": {
+"name": "Výzkum a vývoj v oblasti společenských a humanitních věd",
+"parent": "7220"
+},
+"73": {
+"name": "Činnosti v oblasti reklamy, průzkumu trhu a vztahů s veřejností",
+"parent": "N"
+},
+"731": {
+"name": "Reklamní činnosti",
+"parent": "73"
+},
+"7311": {
+"name": "Činnosti reklamních agentur",
+"parent": "731"
+},
+"73110": {
+"name": "Činnosti reklamních agentur",
+"parent": "7311"
+},
+"7312": {
+"name": "Zastupování médií při prodeji reklamního času a prostoru",
+"parent": "731"
+},
+"73120": {
+"name": "Zastupování médií při prodeji reklamního času a prostoru",
+"parent": "7312"
+},
+"732": {
+"name": "Průzkum trhu a veřejného mínění",
+"parent": "73"
+},
+"7320": {
+"name": "Průzkum trhu a veřejného mínění",
+"parent": "732"
+},
+"73200": {
+"name": "Průzkum trhu a veřejného mínění",
+"parent": "7320"
+},
+"733": {
+"name": "Činnosti v oblasti vztahů s veřejností a komunikace",
+"parent": "73"
+},
+"7330": {
+"name": "Činnosti v oblasti vztahů s veřejností a komunikace",
+"parent": "733"
+},
+"73300": {
+"name": "Činnosti v oblasti vztahů s veřejností a komunikace",
+"parent": "7330"
+},
+"74": {
+"name": "Ostatní odborné, vědecké a technické činnosti",
+"parent": "N"
+},
+"741": {
+"name": "Specializované návrhářské činnosti",
+"parent": "74"
+},
+"7411": {
+"name": "Činnosti v oblasti průmyslového a módního designu",
+"parent": "741"
+},
+"74111": {
+"name": "Činnosti v oblasti průmyslového designu",
+"parent": "7411"
+},
+"74112": {
+"name": "Činnosti v oblasti módního designu",
+"parent": "7411"
+},
+"7412": {
+"name": "Činnosti v oblasti grafického designu a vizuální komunikace",
+"parent": "741"
+},
+"74120": {
+"name": "Činnosti v oblasti grafického designu a vizuální komunikace",
+"parent": "7412"
+},
+"7413": {
+"name": "Navrhování interiérů",
+"parent": "741"
+},
+"74130": {
+"name": "Navrhování interiérů",
+"parent": "7413"
+},
+"7414": {
+"name": "Ostatní specializované návrhářské činnosti",
+"parent": "741"
+},
+"74140": {
+"name": "Ostatní specializované návrhářské činnosti",
+"parent": "7414"
+},
+"742": {
+"name": "Fotografické činnosti",
+"parent": "74"
+},
+"7420": {
+"name": "Fotografické činnosti",
+"parent": "742"
+},
+"74200": {
+"name": "Fotografické činnosti",
+"parent": "7420"
+},
+"743": {
+"name": "Překladatelské a tlumočnické činnosti",
+"parent": "74"
+},
+"7430": {
+"name": "Překladatelské a tlumočnické činnosti",
+"parent": "743"
+},
+"74300": {
+"name": "Překladatelské a tlumočnické činnosti",
+"parent": "7430"
+},
+"749": {
+"name": "Ostatní odborné, vědecké a technické činnosti j. n.",
+"parent": "74"
+},
+"7491": {
+"name": "Činnosti v oblasti zprostředkování a marketingu patentů",
+"parent": "749"
+},
+"74910": {
+"name": "Činnosti v oblasti zprostředkování a marketingu patentů",
+"parent": "7491"
+},
+"7499": {
+"name": "Všechny ostatní odborné, vědecké a technické činnosti j. n.",
+"parent": "749"
+},
+"74990": {
+"name": "Všechny ostatní odborné, vědecké a technické činnosti j. n.",
+"parent": "7499"
+},
+"75": {
+"name": "Veterinární činnosti",
+"parent": "N"
+},
+"750": {
+"name": "Veterinární činnosti",
+"parent": "75"
+},
+"7500": {
+"name": "Veterinární činnosti",
+"parent": "750"
+},
+"75000": {
+"name": "Veterinární činnosti",
+"parent": "7500"
+},
+"77": {
+"name": "Činnosti v oblasti pronájmu a leasingu",
+"parent": "O"
+},
+"771": {
+"name": "Pronájem a leasing motorových vozidel",
+"parent": "77"
+},
+"7711": {
+"name": "Pronájem a leasing osobních automobilů a lehkých motorových vozidel",
+"parent": "771"
+},
+"77110": {
+"name": "Pronájem a leasing osobních automobilů a lehkých motorových vozidel",
+"parent": "7711"
+},
+"7712": {
+"name": "Pronájem a leasing nákladních automobilů",
+"parent": "771"
+},
+"77120": {
+"name": "Pronájem a leasing nákladních automobilů",
+"parent": "7712"
+},
+"772": {
+"name": "Pronájem a leasing výrobků pro osobní potřebu a převážně pro domácnost",
+"parent": "77"
+},
+"7721": {
+"name": "Pronájem a leasing rekreačních a sportovních potřeb",
+"parent": "772"
+},
+"77210": {
+"name": "Pronájem a leasing rekreačních a sportovních potřeb",
+"parent": "7721"
+},
+"7722": {
+"name": "Pronájem a leasing ostatních výrobků pro osobní potřebu a převážně pro domácnost",
+"parent": "772"
+},
+"77220": {
+"name": "Pronájem a leasing ostatních výrobků pro osobní potřebu a převážně pro domácnost",
+"parent": "7722"
+},
+"773": {
+"name": "Pronájem a leasing ostatních strojů, zařízení a hmotných statků",
+"parent": "77"
+},
+"7731": {
+"name": "Pronájem a leasing zemědělských strojů a zařízení",
+"parent": "773"
+},
+"77310": {
+"name": "Pronájem a leasing zemědělských strojů a zařízení",
+"parent": "7731"
+},
+"7732": {
+"name": "Pronájem a leasing stavebních strojů a zařízení",
+"parent": "773"
+},
+"77320": {
+"name": "Pronájem a leasing stavebních strojů a zařízení",
+"parent": "7732"
+},
+"7733": {
+"name": "Pronájem a leasing kancelářských strojů a zařízení, včetně počítačů",
+"parent": "773"
+},
+"77330": {
+"name": "Pronájem a leasing kancelářských strojů a zařízení, včetně počítačů",
+"parent": "7733"
+},
+"7734": {
+"name": "Pronájem a leasing vodních dopravních prostředků",
+"parent": "773"
+},
+"77340": {
+"name": "Pronájem a leasing vodních dopravních prostředků",
+"parent": "7734"
+},
+"7735": {
+"name": "Pronájem a leasing leteckých dopravních prostředků",
+"parent": "773"
+},
+"77350": {
+"name": "Pronájem a leasing leteckých dopravních prostředků",
+"parent": "7735"
+},
+"7739": {
+"name": "Pronájem a leasing ostatních strojů, zařízení a hmotných statků j. n.",
+"parent": "773"
+},
+"77390": {
+"name": "Pronájem a leasing ostatních strojů, zařízení a hmotných statků j. n.",
+"parent": "7739"
+},
+"774": {
+"name": "Leasing duševního vlastnictví a podobných produktů, kromě děl chráněných autorským právem",
+"parent": "77"
+},
+"7740": {
+"name": "Leasing duševního vlastnictví a podobných produktů, kromě děl chráněných autorským právem",
+"parent": "774"
+},
+"77400": {
+"name": "Leasing duševního vlastnictví a podobných produktů, kromě děl chráněných autorským právem",
+"parent": "7740"
+},
+"775": {
+"name": "Zprostředkování v oblasti pronájmu a leasingu hmotných statků a nefinančních nehmotných aktiv",
+"parent": "77"
+},
+"7751": {
+"name": "Zprostředkování v oblasti pronájmu a leasingu automobilů, obytných automobilů a přívěsů",
+"parent": "775"
+},
+"77510": {
+"name": "Zprostředkování v oblasti pronájmu a leasingu automobilů, obytných automobilů a přívěsů",
+"parent": "7751"
+},
+"7752": {
+"name": "Zprostředkování v oblasti pronájmu a leasingu jiných hmotných statků a nefinančních nehmotných aktiv",
+"parent": "775"
+},
+"77520": {
+"name": "Zprostředkování v oblasti pronájmu a leasingu jiných hmotných statků a nefinančních nehmotných aktiv",
+"parent": "7752"
+},
+"78": {
+"name": "Činnosti související se zaměstnáním",
+"parent": "O"
+},
+"781": {
+"name": "Činnosti agentur zprostředkujících zaměstnání",
+"parent": "78"
+},
+"7810": {
+"name": "Činnosti agentur zprostředkujících zaměstnání",
+"parent": "781"
+},
+"78100": {
+"name": "Činnosti agentur zprostředkujících zaměstnání",
+"parent": "7810"
+},
+"782": {
+"name": "Činnosti agentur zprostředkujících práci na přechodnou dobu a ostatní poskytování lidských zdrojů",
+"parent": "78"
+},
+"7820": {
+"name": "Činnosti agentur zprostředkujících práci na přechodnou dobu a ostatní poskytování lidských zdrojů",
+"parent": "782"
+},
+"78200": {
+"name": "Činnosti agentur zprostředkujících práci na přechodnou dobu a ostatní poskytování lidských zdrojů",
+"parent": "7820"
+},
+"79": {
+"name": "Činnosti cestovních agentur, kanceláří a ostatní rezervační a související činnosti",
+"parent": "O"
+},
+"791": {
+"name": "Činnosti cestovních agentur a cestovních kanceláří",
+"parent": "79"
+},
+"7911": {
+"name": "Činnosti cestovních agentur",
+"parent": "791"
+},
+"79110": {
+"name": "Činnosti cestovních agentur",
+"parent": "7911"
+},
+"7912": {
+"name": "Činnosti cestovních kanceláří",
+"parent": "791"
+},
+"79120": {
+"name": "Činnosti cestovních kanceláří",
+"parent": "7912"
+},
+"799": {
+"name": "Ostatní rezervační a související činnosti",
+"parent": "79"
+},
+"7990": {
+"name": "Ostatní rezervační a související činnosti",
+"parent": "799"
+},
+"79900": {
+"name": "Ostatní rezervační a související činnosti",
+"parent": "7990"
+},
+"80": {
+"name": "Pátrací a bezpečnostní činnosti",
+"parent": "O"
+},
+"800": {
+"name": "Pátrací a bezpečnostní činnosti",
+"parent": "80"
+},
+"8001": {
+"name": "Pátrací činnosti a činnosti soukromých bezpečnostních agentur",
+"parent": "800"
+},
+"80010": {
+"name": "Pátrací činnosti a činnosti soukromých bezpečnostních agentur",
+"parent": "8001"
+},
+"8009": {
+"name": "Bezpečnostní činnosti j. n.",
+"parent": "800"
+},
+"80090": {
+"name": "Bezpečnostní činnosti j. n.",
+"parent": "8009"
+},
+"81": {
+"name": "Činnosti související se stavbami a úpravou krajiny",
+"parent": "O"
+},
+"811": {
+"name": "Kombinované podpůrné činnosti",
+"parent": "81"
+},
+"8110": {
+"name": "Kombinované podpůrné činnosti",
+"parent": "811"
+},
+"81100": {
+"name": "Kombinované podpůrné činnosti",
+"parent": "8110"
+},
+"812": {
+"name": "Úklidové činnosti",
+"parent": "81"
+},
+"8121": {
+"name": "Všeobecný úklid budov",
+"parent": "812"
+},
+"81210": {
+"name": "Všeobecný úklid budov",
+"parent": "8121"
+},
+"8122": {
+"name": "Specializované čištění a úklid budov a průmyslových zařízení",
+"parent": "812"
+},
+"81220": {
+"name": "Specializované čištění a úklid budov a průmyslových zařízení",
+"parent": "8122"
+},
+"8123": {
+"name": "Ostatní úklidové činnosti",
+"parent": "812"
+},
+"81230": {
+"name": "Ostatní úklidové činnosti",
+"parent": "8123"
+},
+"813": {
+"name": "Činnosti související s úpravou krajiny",
+"parent": "81"
+},
+"8130": {
+"name": "Činnosti související s úpravou krajiny",
+"parent": "813"
+},
+"81300": {
+"name": "Činnosti související s úpravou krajiny",
+"parent": "8130"
+},
+"82": {
+"name": "Administrativní, kancelářské a jiné podpůrné činnosti pro podnikání",
+"parent": "O"
+},
+"821": {
+"name": "Administrativní a kancelářské činnosti",
+"parent": "82"
+},
+"8210": {
+"name": "Administrativní a kancelářské činnosti",
+"parent": "821"
+},
+"82100": {
+"name": "Administrativní a kancelářské činnosti",
+"parent": "8210"
+},
+"822": {
+"name": "Činnosti call center",
+"parent": "82"
+},
+"8220": {
+"name": "Činnosti call center",
+"parent": "822"
+},
+"82200": {
+"name": "Činnosti call center",
+"parent": "8220"
+},
+"823": {
+"name": "Pořádání kongresů a veletrhů",
+"parent": "82"
+},
+"8230": {
+"name": "Pořádání kongresů a veletrhů",
+"parent": "823"
+},
+"82300": {
+"name": "Pořádání kongresů a veletrhů",
+"parent": "8230"
+},
+"824": {
+"name": "Zprostředkování v oblasti podpůrných činností pro podnikání j. n.",
+"parent": "82"
+},
+"8240": {
+"name": "Zprostředkování v oblasti podpůrných činností pro podnikání j. n.",
+"parent": "824"
+},
+"82400": {
+"name": "Zprostředkování v oblasti podpůrných činností pro podnikání j. n.",
+"parent": "8240"
+},
+"829": {
+"name": "Podpůrné činnosti pro podnikání j. n.",
+"parent": "82"
+},
+"8291": {
+"name": "Inkasní činnosti, ověřování solventnosti zákazníka",
+"parent": "829"
+},
+"82910": {
+"name": "Inkasní činnosti, ověřování solventnosti zákazníka",
+"parent": "8291"
+},
+"8292": {
+"name": "Balicí činnosti",
+"parent": "829"
+},
+"82920": {
+"name": "Balicí činnosti",
+"parent": "8292"
+},
+"8299": {
+"name": "Ostatní podpůrné činnosti pro podnikání j. n.",
+"parent": "829"
+},
+"82990": {
+"name": "Ostatní podpůrné činnosti pro podnikání j. n.",
+"parent": "8299"
+},
+"84": {
+"name": "Činnosti v oblasti veřejné správy, obrany a povinného sociálního zabezpečení",
+"parent": "P"
+},
+"841": {
+"name": "Činnosti v oblasti veřejné správy a hospodářské, sociální a environmentální politiky",
+"parent": "84"
+},
+"8411": {
+"name": "Všeobecné činnosti veřejné správy",
+"parent": "841"
+},
+"84110": {
+"name": "Všeobecné činnosti veřejné správy",
+"parent": "8411"
+},
+"8412": {
+"name": "Regulace činností souvisejících s poskytováním zdravotní péče, vzděláváním, kulturou a jiných služeb pro společnost",
+"parent": "841"
+},
+"84121": {
+"name": "Regulace činností souvisejících s poskytováním zdravotní péče",
+"parent": "8412"
+},
+"84122": {
+"name": "Regulace činností souvisejících se vzděláváním",
+"parent": "8412"
+},
+"84123": {
+"name": "Regulace činností souvisejících s kulturou",
+"parent": "8412"
+},
+"84124": {
+"name": "Regulace činností souvisejících se sportem",
+"parent": "8412"
+},
+"84125": {
+"name": "Regulace činností souvisejících s poskytováním sociální péče, kromě povinného sociálního zabezpečení",
+"parent": "8412"
+},
+"84129": {
+"name": "Regulace činností souvisejících s poskytováním ostatních služeb pro společnost j. n.",
+"parent": "8412"
+},
+"8413": {
+"name": "Regulace a podpora podnikatelského prostředí",
+"parent": "841"
+},
+"84130": {
+"name": "Regulace a podpora podnikatelského prostředí",
+"parent": "8413"
+},
+"842": {
+"name": "Činnosti pro společnost jako celek",
+"parent": "84"
+},
+"8421": {
+"name": "Činnosti v oblasti zahraničních věcí",
+"parent": "842"
+},
+"84210": {
+"name": "Činnosti v oblasti zahraničních věcí",
+"parent": "8421"
+},
+"8422": {
+"name": "Činnosti v oblasti obrany",
+"parent": "842"
+},
+"84220": {
+"name": "Činnosti v oblasti obrany",
+"parent": "8422"
+},
+"8423": {
+"name": "Činnosti v oblasti spravedlnosti a soudnictví",
+"parent": "842"
+},
+"84230": {
+"name": "Činnosti v oblasti spravedlnosti a soudnictví",
+"parent": "8423"
+},
+"8424": {
+"name": "Činnosti v oblasti veřejného pořádku a bezpečnosti",
+"parent": "842"
+},
+"84240": {
+"name": "Činnosti v oblasti veřejného pořádku a bezpečnosti",
+"parent": "8424"
+},
+"8425": {
+"name": "Činnosti v oblasti požární ochrany",
+"parent": "842"
+},
+"84250": {
+"name": "Činnosti v oblasti požární ochrany",
+"parent": "8425"
+},
+"843": {
+"name": "Činnosti v oblasti povinného sociální zabezpečení",
+"parent": "84"
+},
+"8430": {
+"name": "Činnosti v oblasti povinného sociální zabezpečení",
+"parent": "843"
+},
+"84300": {
+"name": "Činnosti v oblasti povinného sociální zabezpečení",
+"parent": "8430"
+},
+"85": {
+"name": "Vzdělávání",
+"parent": "Q"
+},
+"851": {
+"name": "Preprimární vzdělávání",
+"parent": "85"
+},
+"8510": {
+"name": "Preprimární vzdělávání",
+"parent": "851"
+},
+"85100": {
+"name": "Preprimární vzdělávání",
+"parent": "8510"
+},
+"852": {
+"name": "Primární vzdělávání",
+"parent": "85"
+},
+"8520": {
+"name": "Primární vzdělávání",
+"parent": "852"
+},
+"85200": {
+"name": "Primární vzdělávání",
+"parent": "8520"
+},
+"853": {
+"name": "Sekundární a postsekundární neterciární vzdělávání",
+"parent": "85"
+},
+"8531": {
+"name": "Sekundární všeobecné vzdělávání",
+"parent": "853"
+},
+"85311": {
+"name": "Sekundární všeobecné vzdělávání na druhém stupni základních škol",
+"parent": "8531"
+},
+"85312": {
+"name": "Sekundární všeobecné vzdělávání na středních školách",
+"parent": "8531"
+},
+"8532": {
+"name": "Sekundární odborné vzdělávání",
+"parent": "853"
+},
+"85321": {
+"name": "Sekundární odborné vzdělávání v uměleckých oborech",
+"parent": "8532"
+},
+"85322": {
+"name": "Sekundární odborné vzdělávání bez maturitní zkoušky v jiných než uměleckých oborech",
+"parent": "8532"
+},
+"85323": {
+"name": "Sekundární odborné vzdělávání s maturitní zkouškou v jiných než uměleckých oborech",
+"parent": "8532"
+},
+"8533": {
+"name": "Postsekundární neterciární vzdělávání",
+"parent": "853"
+},
+"85330": {
+"name": "Postsekundární neterciární vzdělávání",
+"parent": "8533"
+},
+"854": {
+"name": "Terciární vzdělávání",
+"parent": "85"
+},
+"8540": {
+"name": "Terciární vzdělávání",
+"parent": "854"
+},
+"85401": {
+"name": "Terciární vzdělávání v uměleckých oborech",
+"parent": "8540"
+},
+"85402": {
+"name": "Terciární vzdělávání v jiných než uměleckých oborech",
+"parent": "8540"
+},
+"855": {
+"name": "Ostatní vzdělávání",
+"parent": "85"
+},
+"8551": {
+"name": "Sportovní a rekreační vzdělávání",
+"parent": "855"
+},
+"85510": {
+"name": "Sportovní a rekreační vzdělávání",
+"parent": "8551"
+},
+"8552": {
+"name": "Umělecké vzdělávání",
+"parent": "855"
+},
+"85520": {
+"name": "Umělecké vzdělávání",
+"parent": "8552"
+},
+"8553": {
+"name": "Činnosti autoškol",
+"parent": "855"
+},
+"85530": {
+"name": "Činnosti autoškol",
+"parent": "8553"
+},
+"8559": {
+"name": "Ostatní vzdělávání j. n.",
+"parent": "855"
+},
+"85591": {
+"name": "Vzdělávání v jazykových školách",
+"parent": "8559"
+},
+"85599": {
+"name": "Jiné vzdělávání j. n.",
+"parent": "8559"
+},
+"856": {
+"name": "Podpůrné činnosti v oblasti vzdělávání",
+"parent": "85"
+},
+"8561": {
+"name": "Zprostředkování v oblasti vzdělávání",
+"parent": "856"
+},
+"85610": {
+"name": "Zprostředkování v oblasti vzdělávání",
+"parent": "8561"
+},
+"8569": {
+"name": "Podpůrné činnosti v oblasti vzdělávání j. n.",
+"parent": "856"
+},
+"85690": {
+"name": "Podpůrné činnosti v oblasti vzdělávání j. n.",
+"parent": "8569"
+},
+"86": {
+"name": "Zdravotní péče",
+"parent": "R"
+},
+"861": {
+"name": "Lůžková zdravotní péče",
+"parent": "86"
+},
+"8610": {
+"name": "Lůžková zdravotní péče",
+"parent": "861"
+},
+"86100": {
+"name": "Lůžková zdravotní péče",
+"parent": "8610"
+},
+"862": {
+"name": "Ambulantní a zubní zdravotní péče",
+"parent": "86"
+},
+"8621": {
+"name": "Všeobecná ambulantní zdravotní péče",
+"parent": "862"
+},
+"86210": {
+"name": "Všeobecná ambulantní zdravotní péče",
+"parent": "8621"
+},
+"8622": {
+"name": "Specializovaná ambulantní zdravotní péče",
+"parent": "862"
+},
+"86220": {
+"name": "Specializovaná ambulantní zdravotní péče",
+"parent": "8622"
+},
+"8623": {
+"name": "Zubní péče",
+"parent": "862"
+},
+"86230": {
+"name": "Zubní péče",
+"parent": "8623"
+},
+"869": {
+"name": "Ostatní činnosti související se zdravotní péčí",
+"parent": "86"
+},
+"8691": {
+"name": "Činnosti související s diagnostickým zobrazováním a zdravotnické laboratorní činnosti",
+"parent": "869"
+},
+"86910": {
+"name": "Činnosti související s diagnostickým zobrazováním a zdravotnické laboratorní činnosti",
+"parent": "8691"
+},
+"8692": {
+"name": "Přeprava pacientů vozidly zdravotnické dopravní služby",
+"parent": "869"
+},
+"86920": {
+"name": "Přeprava pacientů vozidly zdravotnické dopravní služby",
+"parent": "8692"
+},
+"8693": {
+"name": "Činnosti psychologů a psychoterapeutů, kromě lékařů",
+"parent": "869"
+},
+"86930": {
+"name": "Činnosti psychologů a psychoterapeutů, kromě lékařů",
+"parent": "8693"
+},
+"8694": {
+"name": "Ošetřovatelské činnosti a činnosti porodních asistentek",
+"parent": "869"
+},
+"86940": {
+"name": "Ošetřovatelské činnosti a činnosti porodních asistentek",
+"parent": "8694"
+},
+"8695": {
+"name": "Činnosti fyzioterapeutů",
+"parent": "869"
+},
+"86950": {
+"name": "Činnosti fyzioterapeutů",
+"parent": "8695"
+},
+"8696": {
+"name": "Činnosti v oblasti tradiční, doplňkové a alternativní medicíny",
+"parent": "869"
+},
+"86960": {
+"name": "Činnosti v oblasti tradiční, doplňkové a alternativní medicíny",
+"parent": "8696"
+},
+"8697": {
+"name": "Zprostředkování v oblasti zdravotní péče",
+"parent": "869"
+},
+"86970": {
+"name": "Zprostředkování v oblasti zdravotní péče",
+"parent": "8697"
+},
+"8699": {
+"name": "Ostatní činnosti související se zdravotní péčí j. n.",
+"parent": "869"
+},
+"86990": {
+"name": "Ostatní činnosti související se zdravotní péčí j. n.",
+"parent": "8699"
+},
+"87": {
+"name": "Pobytové služby sociální péče",
+"parent": "R"
+},
+"871": {
+"name": "Pobytové služby sociální péče ve zdravotnických zařízeních lůžkové péče",
+"parent": "87"
+},
+"8710": {
+"name": "Pobytové služby sociální péče ve zdravotnických zařízeních lůžkové péče",
+"parent": "871"
+},
+"87100": {
+"name": "Pobytové služby sociální péče ve zdravotnických zařízeních lůžkové péče",
+"parent": "8710"
+},
+"872": {
+"name": "Pobytové služby sociální péče pro osoby s duševním onemocněním, mentálním postižením nebo osoby závislé na návykových látkách",
+"parent": "87"
+},
+"8720": {
+"name": "Pobytové služby sociální péče pro osoby s duševním onemocněním, mentálním postižením nebo osoby závislé na návykových látkách",
+"parent": "872"
+},
+"87200": {
+"name": "Pobytové služby sociální péče pro osoby s duševním onemocněním, mentálním postižením nebo osoby závislé na návykových látkách",
+"parent": "8720"
+},
+"873": {
+"name": "Pobytové služby sociální péče pro seniory nebo osoby s fyzickým nebo smyslovým postižením",
+"parent": "87"
+},
+"8730": {
+"name": "Pobytové služby sociální péče pro seniory nebo osoby s fyzickým nebo smyslovým postižením",
+"parent": "873"
+},
+"87300": {
+"name": "Pobytové služby sociální péče pro seniory nebo osoby s fyzickým nebo smyslovým postižením",
+"parent": "8730"
+},
+"879": {
+"name": "Ostatní pobytové služby sociální péče",
+"parent": "87"
+},
+"8791": {
+"name": "Zprostředkování v oblasti pobytových služeb sociální péče",
+"parent": "879"
+},
+"87910": {
+"name": "Zprostředkování v oblasti pobytových služeb sociální péče",
+"parent": "8791"
+},
+"8799": {
+"name": "Ostatní pobytové služby sociální péče j. n.",
+"parent": "879"
+},
+"87990": {
+"name": "Ostatní pobytové služby sociální péče j. n.",
+"parent": "8799"
+},
+"88": {
+"name": "Ambulantní nebo terénní sociální služby",
+"parent": "R"
+},
+"881": {
+"name": "Ambulantní nebo terénní sociální služby pro seniory nebo osoby se zdravotním postižením",
+"parent": "88"
+},
+"8810": {
+"name": "Ambulantní nebo terénní sociální služby pro seniory nebo osoby se zdravotním postižením",
+"parent": "881"
+},
+"88100": {
+"name": "Ambulantní nebo terénní sociální služby pro seniory nebo osoby se zdravotním postižením",
+"parent": "8810"
+},
+"889": {
+"name": "Ostatní ambulantní nebo terénní sociální služby",
+"parent": "88"
+},
+"8891": {
+"name": "Služby pro děti",
+"parent": "889"
+},
+"88910": {
+"name": "Služby pro děti",
+"parent": "8891"
+},
+"8899": {
+"name": "Ostatní ambulantní nebo terénní sociální služby j. n.",
+"parent": "889"
+},
+"88990": {
+"name": "Ostatní ambulantní nebo terénní sociální služby j. n.",
+"parent": "8899"
+},
+"90": {
+"name": "Umělecká tvorba a činnosti v oblasti scénických umění",
+"parent": "S"
+},
+"901": {
+"name": "Umělecká tvorba",
+"parent": "90"
+},
+"9011": {
+"name": "Literární a hudební tvorba",
+"parent": "901"
+},
+"90111": {
+"name": "Literární tvorba",
+"parent": "9011"
+},
+"90112": {
+"name": "Hudební tvorba",
+"parent": "9011"
+},
+"9012": {
+"name": "Výtvarná tvorba",
+"parent": "901"
+},
+"90120": {
+"name": "Výtvarná tvorba",
+"parent": "9012"
+},
+"9013": {
+"name": "Ostatní umělecká tvorba",
+"parent": "901"
+},
+"90130": {
+"name": "Ostatní umělecká tvorba",
+"parent": "9013"
+},
+"902": {
+"name": "Činnosti v oblasti scénických umění",
+"parent": "90"
+},
+"9020": {
+"name": "Činnosti v oblasti scénických umění",
+"parent": "902"
+},
+"90200": {
+"name": "Činnosti v oblasti scénických umění",
+"parent": "9020"
+},
+"903": {
+"name": "Podpůrné činnosti pro uměleckou tvorbu a scénická umění",
+"parent": "90"
+},
+"9031": {
+"name": "Provozování kulturních zařízení a areálů",
+"parent": "903"
+},
+"90310": {
+"name": "Provozování kulturních zařízení a areálů",
+"parent": "9031"
+},
+"9039": {
+"name": "Ostatní podpůrné činnosti pro uměleckou tvorbu a scénická umění",
+"parent": "903"
+},
+"90390": {
+"name": "Ostatní podpůrné činnosti pro uměleckou tvorbu a scénická umění",
+"parent": "9039"
+},
+"91": {
+"name": "Činnosti knihoven, archivů, muzeí a jiných kulturních zařízení",
+"parent": "S"
+},
+"911": {
+"name": "Činnosti knihoven a archivů",
+"parent": "91"
+},
+"9111": {
+"name": "Činnosti knihoven",
+"parent": "911"
+},
+"91110": {
+"name": "Činnosti knihoven",
+"parent": "9111"
+},
+"9112": {
+"name": "Činnosti archivů",
+"parent": "911"
+},
+"91120": {
+"name": "Činnosti archivů",
+"parent": "9112"
+},
+"912": {
+"name": "Činnosti muzeí, galerií, provozování historických a kulturních památek",
+"parent": "91"
+},
+"9121": {
+"name": "Činnosti muzeí a galerií",
+"parent": "912"
+},
+"91210": {
+"name": "Činnosti muzeí a galerií",
+"parent": "9121"
+},
+"9122": {
+"name": "Provozování historických a kulturních památek",
+"parent": "912"
+},
+"91220": {
+"name": "Provozování historických a kulturních památek",
+"parent": "9122"
+},
+"913": {
+"name": "Konzervování, restaurování a jiné podpůrné činnosti pro kulturní dědictví",
+"parent": "91"
+},
+"9130": {
+"name": "Konzervování, restaurování a jiné podpůrné činnosti pro kulturní dědictví",
+"parent": "913"
+},
+"91300": {
+"name": "Konzervování, restaurování a jiné podpůrné činnosti pro kulturní dědictví",
+"parent": "9130"
+},
+"914": {
+"name": "Činnosti botanických a zoologických zahrad, přírodních rezervací a národních parků",
+"parent": "91"
+},
+"9141": {
+"name": "Činnosti botanických a zoologických zahrad",
+"parent": "914"
+},
+"91410": {
+"name": "Činnosti botanických a zoologických zahrad",
+"parent": "9141"
+},
+"9142": {
+"name": "Činnosti přírodních rezervací a národních parků",
+"parent": "914"
+},
+"91420": {
+"name": "Činnosti přírodních rezervací a národních parků",
+"parent": "9142"
+},
+"92": {
+"name": "Činnosti heren, kasin a sázkových kanceláří",
+"parent": "S"
+},
+"920": {
+"name": "Činnosti heren, kasin a sázkových kanceláří",
+"parent": "92"
+},
+"9200": {
+"name": "Činnosti heren, kasin a sázkových kanceláří",
+"parent": "920"
+},
+"92000": {
+"name": "Činnosti heren, kasin a sázkových kanceláří",
+"parent": "9200"
+},
+"93": {
+"name": "Činnosti v oblasti sportu, zábavy a rekreace",
+"parent": "S"
+},
+"931": {
+"name": "Činnosti v oblasti sportu",
+"parent": "93"
+},
+"9311": {
+"name": "Provozování sportovních zařízení",
+"parent": "931"
+},
+"93110": {
+"name": "Provozování sportovních zařízení",
+"parent": "9311"
+},
+"9312": {
+"name": "Činnosti sportovních klubů",
+"parent": "931"
+},
+"93120": {
+"name": "Činnosti sportovních klubů",
+"parent": "9312"
+},
+"9313": {
+"name": "Činnosti fitcenter",
+"parent": "931"
+},
+"93130": {
+"name": "Činnosti fitcenter",
+"parent": "9313"
+},
+"9319": {
+"name": "Činnosti v oblasti sportu j. n.",
+"parent": "931"
+},
+"93190": {
+"name": "Činnosti v oblasti sportu j. n.",
+"parent": "9319"
+},
+"932": {
+"name": "Činnosti v oblasti zábavy a rekreace",
+"parent": "93"
+},
+"9321": {
+"name": "Činnosti zábavních parků",
+"parent": "932"
+},
+"93210": {
+"name": "Činnosti zábavních parků",
+"parent": "9321"
+},
+"9329": {
+"name": "Činnosti v oblasti zábavy a rekreace j. n.",
+"parent": "932"
+},
+"93290": {
+"name": "Činnosti v oblasti zábavy a rekreace j. n.",
+"parent": "9329"
+},
+"94": {
+"name": "Činnosti organizací sdružujících osoby za účelem prosazování společných a veřejných zájmů",
+"parent": "T"
+},
+"941": {
+"name": "Činnosti podnikatelských, zaměstnavatelských a profesních organizací",
+"parent": "94"
+},
+"9411": {
+"name": "Činnosti podnikatelských a zaměstnavatelských organizací",
+"parent": "941"
+},
+"94110": {
+"name": "Činnosti podnikatelských a zaměstnavatelských organizací",
+"parent": "9411"
+},
+"9412": {
+"name": "Činnosti profesních organizací",
+"parent": "941"
+},
+"94120": {
+"name": "Činnosti profesních organizací",
+"parent": "9412"
+},
+"942": {
+"name": "Činnosti odborových svazů",
+"parent": "94"
+},
+"9420": {
+"name": "Činnosti odborových svazů",
+"parent": "942"
+},
+"94200": {
+"name": "Činnosti odborových svazů",
+"parent": "9420"
+},
+"949": {
+"name": "Činnosti ostatních organizací sdružujících osoby za účelem prosazování společných a veřejných zájmů",
+"parent": "94"
+},
+"9491": {
+"name": "Činnosti náboženských organizací",
+"parent": "949"
+},
+"94910": {
+"name": "Činnosti náboženských organizací",
+"parent": "9491"
+},
+"9492": {
+"name": "Činnosti politických organizací",
+"parent": "949"
+},
+"94920": {
+"name": "Činnosti politických organizací",
+"parent": "9492"
+},
+"9499": {
+"name": "Činnosti ostatních organizací sdružujících osoby za účelem prosazování společných a veřejných zájmů j. n.",
+"parent": "949"
+},
+"94991": {
+"name": "Činnosti organizací dětí a mládeže",
+"parent": "9499"
+},
+"94992": {
+"name": "Činnosti organizací na podporu kulturní činnosti",
+"parent": "9499"
+},
+"94993": {
+"name": "Činnosti organizací na podporu rekreační a zájmové činnosti",
+"parent": "9499"
+},
+"94994": {
+"name": "Činnosti spotřebitelských organizací",
+"parent": "9499"
+},
+"94995": {
+"name": "Činnosti environmentálních a ekologických hnutí",
+"parent": "9499"
+},
+"94996": {
+"name": "Činnosti organizací na ochranu a zlepšení postavení etnických, menšinových a jiných speciálních skupin",
+"parent": "9499"
+},
+"94997": {
+"name": "Činnosti občanských iniciativ, protestních hnutí",
+"parent": "9499"
+},
+"94999": {
+"name": "Činnosti jiných organizací sdružujících osoby za účelem prosazování společných a veřejných zájmů j. n.",
+"parent": "9499"
+},
+"95": {
+"name": "Opravy a údržba počítačů, výrobků pro osobní potřebu a převážně pro domácnost a motorových vozidel a motocyklů",
+"parent": "T"
+},
+"951": {
+"name": "Opravy a údržba počítačů a komunikačních zařízení",
+"parent": "95"
+},
+"9510": {
+"name": "Opravy a údržba počítačů a komunikačních zařízení",
+"parent": "951"
+},
+"95100": {
+"name": "Opravy a údržba počítačů a komunikačních zařízení",
+"parent": "9510"
+},
+"952": {
+"name": "Opravy a údržba výrobků pro osobní potřebu a převážně pro domácnost",
+"parent": "95"
+},
+"9521": {
+"name": "Opravy a údržba spotřební elektroniky",
+"parent": "952"
+},
+"95210": {
+"name": "Opravy a údržba spotřební elektroniky",
+"parent": "9521"
+},
+"9522": {
+"name": "Opravy a údržba přístrojů a zařízení převážně pro domácnost, dům a zahradu",
+"parent": "952"
+},
+"95220": {
+"name": "Opravy a údržba přístrojů a zařízení převážně pro domácnost, dům a zahradu",
+"parent": "9522"
+},
+"9523": {
+"name": "Opravy a údržba obuvi a kožených výrobků",
+"parent": "952"
+},
+"95230": {
+"name": "Opravy a údržba obuvi a kožených výrobků",
+"parent": "9523"
+},
+"9524": {
+"name": "Opravy a údržba nábytku a bytového zařízení",
+"parent": "952"
+},
+"95240": {
+"name": "Opravy a údržba nábytku a bytového zařízení",
+"parent": "9524"
+},
+"9525": {
+"name": "Opravy a údržba hodin, hodinek a klenotů",
+"parent": "952"
+},
+"95250": {
+"name": "Opravy a údržba hodin, hodinek a klenotů",
+"parent": "9525"
+},
+"9529": {
+"name": "Opravy a údržba výrobků pro osobní potřebu a převážně pro domácnost j. n.",
+"parent": "952"
+},
+"95290": {
+"name": "Opravy a údržba výrobků pro osobní potřebu a převážně pro domácnost j. n.",
+"parent": "9529"
+},
+"953": {
+"name": "Opravy a údržba motorových vozidel a motocyklů",
+"parent": "95"
+},
+"9531": {
+"name": "Opravy a údržba motorových vozidel",
+"parent": "953"
+},
+"95310": {
+"name": "Opravy a údržba motorových vozidel",
+"parent": "9531"
+},
+"9532": {
+"name": "Opravy a údržba motocyklů",
+"parent": "953"
+},
+"95320": {
+"name": "Opravy a údržba motocyklů",
+"parent": "9532"
+},
+"954": {
+"name": "Zprostředkování v oblasti oprav a údržby počítačů, výrobků pro osobní potřebu a převážně pro domácnost a motorových vozidel a motocyklů",
+"parent": "95"
+},
+"9540": {
+"name": "Zprostředkování v oblasti oprav a údržby počítačů, výrobků pro osobní potřebu a převážně pro domácnost a motorových vozidel a motocyklů",
+"parent": "954"
+},
+"95400": {
+"name": "Zprostředkování v oblasti oprav a údržby počítačů, výrobků pro osobní potřebu a převážně pro domácnost a motorových vozidel a motocyklů",
+"parent": "9540"
+},
+"96": {
+"name": "Poskytování osobních služeb",
+"parent": "T"
+},
+"961": {
+"name": "Praní a čištění textilních a kožešinových výrobků",
+"parent": "96"
+},
+"9610": {
+"name": "Praní a čištění textilních a kožešinových výrobků",
+"parent": "961"
+},
+"96101": {
+"name": "Praní a čištění textilních a kožešinových výrobků pro oblast zdravotnictví",
+"parent": "9610"
+},
+"96102": {
+"name": "Praní a čištění textilních a kožešinových výrobků pro oblast ubytování a stravování",
+"parent": "9610"
+},
+"96103": {
+"name": "Praní a čištění textilních a kožešinových výrobků pro jiné oblasti podnikání",
+"parent": "9610"
+},
+"96104": {
+"name": "Praní a čištění textilních a kožešinových výrobků pro veřejnost",
+"parent": "9610"
+},
+"962": {
+"name": "Kadeřnické a kosmetické činnosti, činnosti denních lázní a podobné činnosti",
+"parent": "96"
+},
+"9621": {
+"name": "Kadeřnické a holičské činnosti",
+"parent": "962"
+},
+"96210": {
+"name": "Kadeřnické a holičské činnosti",
+"parent": "9621"
+},
+"9622": {
+"name": "Kosmetické a podobné činnosti",
+"parent": "962"
+},
+"96220": {
+"name": "Kosmetické a podobné činnosti",
+"parent": "9622"
+},
+"9623": {
+"name": "Činnosti denních lázní, saun a parních lázní",
+"parent": "962"
+},
+"96230": {
+"name": "Činnosti denních lázní, saun a parních lázní",
+"parent": "9623"
+},
+"963": {
+"name": "Pohřební a související činnosti",
+"parent": "96"
+},
+"9630": {
+"name": "Pohřební a související činnosti",
+"parent": "963"
+},
+"96300": {
+"name": "Pohřební a související činnosti",
+"parent": "9630"
+},
+"964": {
+"name": "Zprostředkování v oblasti osobních služeb",
+"parent": "96"
+},
+"9640": {
+"name": "Zprostředkování v oblasti osobních služeb",
+"parent": "964"
+},
+"96400": {
+"name": "Zprostředkování v oblasti osobních služeb",
+"parent": "9640"
+},
+"969": {
+"name": "Poskytování ostatních osobních služeb",
+"parent": "96"
+},
+"9691": {
+"name": "Poskytování osobních služeb v domácnostech",
+"parent": "969"
+},
+"96910": {
+"name": "Poskytování osobních služeb v domácnostech",
+"parent": "9691"
+},
+"9699": {
+"name": "Poskytování ostatních osobních služeb j. n.",
+"parent": "969"
+},
+"96990": {
+"name": "Poskytování ostatních osobních služeb j. n.",
+"parent": "9699"
+},
+"97": {
+"name": "Činnosti domácností jako zaměstnavatelů domácího personálu",
+"parent": "U"
+},
+"970": {
+"name": "Činnosti domácností jako zaměstnavatelů domácího personálu",
+"parent": "97"
+},
+"9700": {
+"name": "Činnosti domácností jako zaměstnavatelů domácího personálu",
+"parent": "970"
+},
+"97000": {
+"name": "Činnosti domácností jako zaměstnavatelů domácího personálu",
+"parent": "9700"
+},
+"98": {
+"name": "Činnosti domácností produkujících blíže neurčené výrobky a služby pro vlastní potřebu",
+"parent": "U"
+},
+"981": {
+"name": "Činnosti domácností produkujících blíže neurčené výrobky pro vlastní potřebu",
+"parent": "98"
+},
+"9810": {
+"name": "Činnosti domácností produkujících blíže neurčené výrobky pro vlastní potřebu",
+"parent": "981"
+},
+"98100": {
+"name": "Činnosti domácností produkujících blíže neurčené výrobky pro vlastní potřebu",
+"parent": "9810"
+},
+"982": {
+"name": "Činnosti domácností poskytujících blíže neurčené služby pro vlastní potřebu",
+"parent": "98"
+},
+"9820": {
+"name": "Činnosti domácností poskytujících blíže neurčené služby pro vlastní potřebu",
+"parent": "982"
+},
+"98200": {
+"name": "Činnosti domácností poskytujících blíže neurčené služby pro vlastní potřebu",
+"parent": "9820"
+},
+"99": {
+"name": "Činnosti exteritoriálních organizací a institucí",
+"parent": "V"
+},
+"990": {
+"name": "Činnosti exteritoriálních organizací a institucí",
+"parent": "99"
+},
+"9900": {
+"name": "Činnosti exteritoriálních organizací a institucí",
+"parent": "990"
+},
+"99000": {
+"name": "Činnosti exteritoriálních organizací a institucí",
+"parent": "9900"
+},
+"A": {
+"name": "Zemědělství, lesnictví a rybářství"
+},
+"B": {
+"name": "Těžba a dobývání nerostných surovin"
+},
+"C": {
+"name": "Zpracovatelský průmysl"
+},
+"D": {
+"name": "Dodávání elektřiny, plynu, páry a klimatizovaného vzduchu"
+},
+"E": {
+"name": "Zásobování vodou&#59^ činnosti související s odpadními vodami, odpady a sanacemi"
+},
+"F": {
+"name": "Stavební činnosti"
+},
+"G": {
+"name": "Velkoobchod a maloobchod"
+},
+"H": {
+"name": "Doprava a skladování"
+},
+"I": {
+"name": "Poskytování ubytování a stravování"
+},
+"J": {
+"name": "Vydavatelské činnosti, vysílání a tvorba obsahu a distribuční činnosti"
+},
+"K": {
+"name": "Telekomunikační činnosti, počítačové programování a poradenství, poskytování počítačové infrastruktury a ostatní informační činnosti"
+},
+"L": {
+"name": "Finanční a pojišťovací činnosti"
+},
+"M": {
+"name": "Činnosti v oblasti nemovitostí"
+},
+"N": {
+"name": "Odborné, vědecké a technické činnosti"
+},
+"O": {
+"name": "Administrativní a podpůrné činnosti"
+},
+"P": {
+"name": "Činnosti v oblasti veřejné správy, obrany a povinného sociálního zabezpečení"
+},
+"Q": {
+"name": "Vzdělávání"
+},
+"R": {
+"name": "Zdravotní a sociální péče"
+},
+"S": {
+"name": "Činnosti v oblasti kultury, sportu a rekreace"
+},
+"T": {
+"name": "Ostatní činnosti"
+},
+"U": {
+"name": "Činnosti domácností jako zaměstnavatelů&#59^ činnosti domácností produkujících blíže neurčené výrobky a služby pro vlastní potřebu"
+},
+"V": {
+"name": "Činnosti exteritoriálních organizací a institucí"
+},
+"Y": {
+"name": "Výroba, obchod a služby neuvedené v přílohách 1 až 3 živnostenského zákona"
+}
+},
+"legal_form": {
+"000": {
+"name": "Zatím neurčeno"
+},
+"101": {
+"name": "Fyzická osoba podnikající dle živnostenského zákona"
+},
+"105": {
+"name": "Fyzická osoba podnikající dle jiných zákonů než živnostenského a zákona o zemědělství"
+},
+"107": {
+"name": "Zemědělský podnikatel - fyzická osoba"
+},
+"111": {
+"name": "Veřejná obchodní společnost"
+},
+"112": {
+"name": "Společnost s ručením omezeným"
+},
+"113": {
+"name": "Společnost komanditní"
+},
+"115": {
+"name": "Společný podnik"
+},
+"116": {
+"name": "Zájmové sdružení"
+},
+"117": {
+"name": "Nadace"
+},
+"118": {
+"name": "Nadační fond"
+},
+"121": {
+"name": "Akciová společnost"
+},
+"141": {
+"name": "Obecně prospěšná společnost"
+},
+"145": {
+"name": "Společenství vlastníků jednotek"
+},
+"151": {
+"name": "Komoditní burza"
+},
+"161": {
+"name": "Ústav"
+},
+"205": {
+"name": "Družstvo"
+},
+"301": {
+"name": "Státní podnik"
+},
+"313": {
+"name": "Česká národní banka"
+},
+"325": {
+"name": "Organizační složka státu"
+},
+"326": {
+"name": "Stálý rozhodčí soud"
+},
+"331": {
+"name": "Příspěvková organizace"
+},
+"352": {
+"name": "Státní organizace Správa železnic"
+},
+"353": {
+"name": "Rada pro veřejný dohled nad auditem"
+},
+"361": {
+"name": "Veřejnoprávní instituce (ČT,ČRo,ČTK)"
+},
+"381": {
+"name": "Fond (ze zákona)"
+},
+"391": {
+"name": "Zdravotní pojišťovna"
+},
+"421": {
+"name": "Odštěpný závod zahraniční právnické osoby"
+},
+"422": {
+"name": "Organizační složka zahraničního nadačního fondu"
+},
+"423": {
+"name": "Organizační složka zahraniční nadace"
+},
+"424": {
+"name": "Zahraniční fyzická osoba"
+},
+"425": {
+"name": "Odštěpný závod zahraniční fyzické osoby"
+},
+"426": {
+"name": "Zastoupení zahraniční banky"
+},
+"501": {
+"name": "Odštěpný závod nebo jiná organizační složka podniku zapisující se do obchodního rejstříku"
+},
+"521": {
+"name": "Samostatná drobná provozovna obecního úřadu"
+},
+"541": {
+"name": "Podílový, penzijní fond"
+},
+"601": {
+"name": "Vysoká škola (veřejná, státní)"
+},
+"641": {
+"name": "Školská právnická osoba"
+},
+"661": {
+"name": "Veřejná výzkumná instituce"
+},
+"704": {
+"name": "Zvláštní organizace pro zastoupení českých zájmů v mezinárodních nevládních organizacích"
+},
+"705": {
+"name": "Podnik nebo hospodářské zařízení sdružení"
+},
+"706": {
+"name": "Spolek"
+},
+"707": {
+"name": "Odborová organizace"
+},
+"708": {
+"name": "Organizace zaměstnavatelů"
+},
+"711": {
+"name": "Politická strana, politické hnutí"
+},
+"715": {
+"name": "Podnik nebo hospodářské zařízení politické strany"
+},
+"721": {
+"name": "Církve a náboženské společnosti"
+},
+"722": {
+"name": "Evidované církevní právnické osoby"
+},
+"723": {
+"name": "Svazy církví a náboženských společností"
+},
+"733": {
+"name": "Organizační jednotka odborové organizace a organizace zaměstnavatelů"
+},
+"734": {
+"name": "Organizační jednotka zvláštní organizace pro zastoupení českých zájmů v mezinárodních nevládních organizacích"
+},
+"736": {
+"name": "Pobočný spolek"
+},
+"741": {
+"name": "Stavovská organizace - profesní komora"
+},
+"745": {
+"name": "Komora (s výjimkou profesních komor)"
+},
+"751": {
+"name": "Zájmové sdružení právnických osob"
+},
+"761": {
+"name": "Honební společenstvo"
+},
+"771": {
+"name": "Dobrovolný svazek obcí"
+},
+"801": {
+"name": "Obec nebo městská část hlavního města Prahy"
+},
+"804": {
+"name": "Kraj a hl.m.Praha"
+},
+"901": {
+"name": "Zastupitelský orgán jiných států"
+},
+"906": {
+"name": "Zahraniční spolek"
+},
+"907": {
+"name": "Mezinárodní odborová organizace"
+},
+"908": {
+"name": "Mezinárodní organizace zaměstnavatelů"
+},
+"911": {
+"name": "Zahraniční kulturní, informační středisko, rozhlasová, tisková a televizní agentura"
+},
+"921": {
+"name": "Mezinárodní nevládní organizace"
+},
+"922": {
+"name": "Organizační jednotka mezinárodní nevládní organizace"
+},
+"931": {
+"name": "Evropské hospodářské zájmové sdružení"
+},
+"932": {
+"name": "Evropská společnost"
+},
+"933": {
+"name": "Evropská družstevní společnost"
+},
+"936": {
+"name": "Zahraniční pobočný spolek"
+},
+"941": {
+"name": "Evropské seskupení pro územní spolupráci"
+},
+"950": {
+"name": "Subjekt právním řádem výslovně neupravený"
+},
+"951": {
+"name": "Mezinárodní vojenská organizace vzniklá na základě mezinárodní smlouvy"
+},
+"952": {
+"name": "Konsorcium evropské výzkumné infrastruktury"
+},
+"960": {
+"name": "Právnická osoba zřízená zvláštním zákonem zapisovaná do veřejného rejstříku"
+}
+},
+"employees": {
+"000": {
+"name": "Neuvedeno"
+},
+"110": {
+"name": "Bez zaměstnanců"
+},
+"120": {
+"name": "1 - 5 zaměstnanců"
+},
+"130": {
+"name": "6 - 9 zaměstnanců"
+},
+"210": {
+"name": "10 - 19 zaměstnanců"
+},
+"220": {
+"name": "20 - 24 zaměstnanci"
+},
+"230": {
+"name": "25 - 49 zaměstnanců"
+},
+"240": {
+"name": "50 - 99 zaměstnanců"
+},
+"310": {
+"name": "100 - 199 zaměstnanců"
+},
+"320": {
+"name": "200 - 249 zaměstnanců"
+},
+"330": {
+"name": "250 - 499 zaměstnanců"
+},
+"340": {
+"name": "500 - 999 zaměstnanců"
+},
+"410": {
+"name": "1000 - 1499 zaměstnanců"
+},
+"420": {
+"name": "1500 - 1999 zaměstnanců"
+},
+"430": {
+"name": "2000 - 2499 zaměstnanců"
+},
+"440": {
+"name": "2500 - 2999 zaměstnanců"
+},
+"450": {
+"name": "3000 - 3999 zaměstnanců"
+},
+"460": {
+"name": "4000 - 4999 zaměstnanců"
+},
+"470": {
+"name": "5000 - 9999 zaměstnanců"
+},
+"510": {
+"name": "10 000 a více zaměstnanců"
+}
+}
+}

@@ -6,7 +6,7 @@ import pymupdf
 import pytest
 
 from src.extraction.types import PageWords, Word
-from src.pipeline import REQUIRES, STAGES, _few_values, main, run_pipeline, write_result
+from src.pipeline import REQUIRES, STAGES, Context, _few_values, main, run_pipeline, stage_company, write_result
 from src.result import PipelineOptions, Result
 from tests.synthetic import make_digital_pdf, make_scanned_pdf
 
@@ -16,7 +16,7 @@ MICRO = ROOT / "data/raw/25080776_2025_statement.pdf"
 
 @pytest.fixture
 def tiny_pdf(tmp_path: Path) -> Path:
-    return make_digital_pdf(tmp_path / "12345678_2025_statement.pdf")
+    return make_digital_pdf(tmp_path / "12345679_2025_statement.pdf")
 
 
 def test_missing_statements_are_reported(tmp_path):
@@ -94,6 +94,32 @@ def test_a_statement_read_cleanly_has_no_such_warning(tiny_pdf):
     ]
 
 
+def _company(ico: str | None, printed_name: str | None = None) -> tuple[Result, Context]:
+    result = Result(file="x.pdf")
+    result.statements.metadata.ico, result.statements.metadata.company_name = ico, printed_name
+    ctx = Context(pdf_path=Path("x.pdf"), options=PipelineOptions(), doc=None)  # type: ignore[arg-type]
+    stage_company(result, ctx)
+    return result, ctx
+
+
+def test_the_company_is_looked_up_by_its_ico():
+    """CIPW-44: ARES is off in tests (conftest.py), so the dataset snapshot answers."""
+    result, ctx = _company("26161516", "MONDI ŠTĚTÍ A.S.")
+    assert (result.company.name, result.company.nace_section, result.warnings) == ("Mondi Štětí a.s.", "C", [])
+    assert ctx.notes["company"].startswith("ARES lookup disabled: dataset snapshot of")
+
+
+def test_a_misread_ico_is_reported():
+    result, _ = _company("26161516", "Česká pošta, s.p.")  # the statement names another company
+    assert result.warnings == [
+        "company: the statement names 'Česká pošta, s.p.', ARES 'Mondi Štětí a.s.' for IČO 26161516; check the IČO"
+    ]
+    result, _ = _company("25556149")
+    assert result.company is None and "wrong check digit" in result.warnings[0]
+    result, ctx = _company(None)
+    assert result.warnings == [] and ctx.notes["company"] == "no IČO on the statement or in the file name"
+
+
 def test_text_mode_on_scan_fails_read(tiny_pdf, tmp_path):
     scan = make_scanned_pdf(tiny_pdf, tmp_path / "scan.pdf")
     result = run_pipeline(scan, PipelineOptions(skip_report=True, read_mode="text"))
@@ -159,7 +185,7 @@ def test_group_report_reads_the_individual_statements(tmp_path):
     from tests.test_locate import _pdf
 
     pdf = _pdf(
-        tmp_path / "12345678_2025_report.pdf",
+        tmp_path / "12345679_2025_report.pdf",
         ["<p>Konsolidovaná účetní závěrka</p>" + asset_page_html(), liability_page_html(),
          "<p>Individuální účetní závěrka</p>" + asset_page_html(), liability_page_html()],
     )  # fmt: skip

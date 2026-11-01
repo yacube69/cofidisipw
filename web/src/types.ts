@@ -185,6 +185,23 @@ export interface Audit {
   corrections: Correction[];
 }
 
+/** The company in the public register ARES by the IČO of the statement (CIPW-44). */
+export interface Company {
+  ico: string;
+  name: string | null;
+  legal_form: string | null;
+  address: string | null;
+  founded: string | null;
+  nace: string | null;
+  nace_name: string | null;
+  nace_section: string | null;
+  nace_section_name: string | null;
+  nace_2008: string | null;
+  employees: string | null;
+  source: "ares" | "cache" | "snapshot";
+  retrieved: string | null;
+}
+
 export interface ResultView {
   id: string;
   tool_version: string;
@@ -194,6 +211,7 @@ export interface ResultView {
   consolidation: "individual" | "consolidated" | null;
   page_sizes: Record<string, [number, number]>;
   statements: FinancialStatements;
+  company?: Company | null; // results saved before CIPW-44 have none
   validation: ValidationReport | null;
   ratios: { ratios: Ratio[] } | null;
   bankruptcy: Bankruptcy | null;

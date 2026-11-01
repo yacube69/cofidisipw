@@ -81,7 +81,7 @@ def test_identify_wrapped_label_does_not_match_its_second_half():
 
 
 def test_digital_synthetic_statement_is_extracted_exactly(tmp_path):
-    pdf = make_digital_pdf(tmp_path / "12345678_2025_statement.pdf")
+    pdf = make_digital_pdf(tmp_path / "12345679_2025_statement.pdf")
     with pymupdf.open(pdf) as doc:
         pws = [read_page(doc, p) for p in (1, 2)]
     fs = parse_statements(pws, PAGES)
@@ -97,7 +97,7 @@ def test_digital_synthetic_statement_is_extracted_exactly(tmp_path):
     assert fs.get("liabilities_short_term") == 300_000 * k
     assert fs.flagged() == []
     m = fs.metadata
-    assert (m.ico, m.unit_multiplier, m.scope, m.period_end) == ("12345678", 1000, "abbreviated", date(2025, 12, 31))
+    assert (m.ico, m.unit_multiplier, m.scope, m.period_end) == ("12345679", 1000, "abbreviated", date(2025, 12, 31))
     assert m.company_name == "Testovací firma s.r.o"
     v = fs.value("total_assets")
     assert v.page == 1 and v.source == "text_layer" and v.bbox is not None and v.raw == "1 000 000"

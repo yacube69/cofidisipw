@@ -42,6 +42,7 @@ from src.extraction.parallel import pmap
 from src.extraction.parser import parse_statements
 from src.extraction.reading import read_page
 from src.extraction.reread import reread
+from src.integrations.ares import lookup, name_differs
 from src.line_items import load_dictionary
 from src.ratios.bankruptcy import compute_bankruptcy
 from src.ratios.engine import compute_ratios
@@ -183,6 +184,25 @@ def _few_values(result: Result) -> list[str]:
     return []
 
 
+def stage_company(result: Result, ctx: Context) -> StageStatus:
+    """CIPW-44: name, legal form, address, industry (CZ-NACE) and size of the company from ARES by its IČO, and a
+    warning when ARES does not know the IČO or names another company than the statement (a misread IČO)."""
+    meta = result.statements.metadata
+    if not meta.ico:
+        ctx.notes["company"] = "no IČO on the statement or in the file name"
+        return "skipped"
+    result.company, note = lookup(meta.ico, ctx.settings)
+    ctx.notes["company"] = note
+    if result.company is None and ("check digit" in note or "not in ARES" in note):
+        result.warnings.append(f"company: {note}; enter the right IČO")
+    elif result.company is not None and name_differs(meta.company_name, result.company.name):
+        result.warnings.append(
+            f"company: the statement names {meta.company_name!r}, ARES {result.company.name!r} for IČO {meta.ico}; "
+            "check the IČO"
+        )
+    return "ok"
+
+
 def stage_validate(result: Result, ctx: Context) -> StageStatus:
     """CIPW-10: accounting identity checks, plausibility and OCR-quality warnings; the checks restore lost minus
     signs and decide which values need review (src/validation/review.py)."""
@@ -250,6 +270,7 @@ STAGES: list[tuple[str, Stage]] = [
     ("locate", stage_locate),
     ("read", stage_read),
     ("parse", stage_parse),
+    ("company", stage_company),
     ("validate", stage_validate),
     ("reread", stage_reread),
     ("ratios", stage_ratios),
@@ -263,6 +284,7 @@ STAGES: list[tuple[str, Stage]] = [
 REQUIRES: dict[str, list[str]] = {
     "read": ["locate"],
     "parse": ["read"],
+    "company": ["parse"],
     "validate": ["parse"],
     "reread": ["validate"],
     "ratios": ["validate"],

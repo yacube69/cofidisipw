@@ -41,6 +41,7 @@ They run in this order. A stage is a function `stage(result, ctx) -> StageStatus
 | `locate` | CIPW-6 | real | `pages` | – |
 | `read` | CIPW-7 | real | `page_words` | `locate` |
 | `parse` | CIPW-32 | real | `statements` (amounts already normalized to CZK, see below) | `read` |
+| `company` | CIPW-44 | real | `company` (ARES by IČO, `docs/ares.md`) | `parse` |
 | `validate` | CIPW-10 | real | `validation` | `parse` |
 | `reread` | CIPW-11 | stub | nothing yet | `validate` |
 | `ratios` | CIPW-12 | stub | `ratios` | `validate` |
@@ -73,6 +74,7 @@ A stage that fails does not stop the run: stages that do not depend on it still 
 | `pages` | `{"balance_sheet": [..], "income_statement": [..]}` | `locate`, 1-based |
 | `page_words` | list of `PageWords` | `read`: words with boxes per page, see `docs/ocr.md` |
 | `statements` | `FinancialStatements` | `parse`: metadata + every line item with value, source page, box, confidence, `needs_review`; see `docs/schema.md` |
+| `company` | `Company` \| None | `company`: name, legal form, address, CZ-NACE and size from ARES, with its source (ARES, a saved answer, the dataset snapshot); None when unknown, the step's note says why |
 | `validation` | `ValidationReport` | `validate`: one `CheckResult` per accounting check (`passed`, `severity`, expected / actual) |
 | `ratios` | `RatioReport` | `ratios`: per ratio formula, inputs, value and flag for both periods |
 | `bankruptcy` | dict | `bankruptcy`: score and zone per model (format set by CIPW-13) |

@@ -112,6 +112,7 @@ export default function App() {
   const rows = useMemo(() => (result ? valueRows(result, dictionary) : []), [result, dictionary]);
   const summaries = useMemo(() => (result ? stepSummaries(result, rows) : []), [result, rows]);
   const meta = result?.statements.metadata;
+  const company = result?.company ?? null;
   // a count next to a step only for what needs a person: values to review, failed checks
   const counts: Partial<Record<StepId, number>> = {
     extraction: rows.filter((r) => r.confidence === "review").length,
@@ -150,10 +151,11 @@ export default function App() {
             <header className="result-head">
               <div>
                 <div className="eyebrow">{result.file}</div>
-                <h1>{meta?.company_name || (ico ? `Company IČO ${ico}` : "Company name not printed")}</h1>
+                <h1>{meta?.company_name || company?.name || (ico ? `Company IČO ${ico}` : "Company name not printed")}</h1>
                 <div className="meta">
-                  {!meta?.company_name && <span>Name not printed on the statement</span>}
+                  {!meta?.company_name && <span>{company?.name ? "Name from ARES" : "Name not printed on the statement"}</span>}
                   <span>IČO {ico || "–"}</span>
+                  {company?.nace && <span title={`CZ-NACE ${company.nace}, section ${company.nace_section ?? "–"}`}>{company.nace_name ?? `CZ-NACE ${company.nace}`}</span>}
                   <span>Balance sheet date {formatDate(meta?.period_end ?? null)}</span>
                   <span>{meta?.scope === "abbreviated" ? "Abbreviated" : meta?.scope === "full" ? "Full" : "Unknown"} statement</span>
                   {result.consolidation && <span>{result.consolidation === "individual" ? "Individual" : "Consolidated"}</span>}

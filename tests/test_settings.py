@@ -22,6 +22,8 @@ def clean_env(monkeypatch, tmp_path):
         monkeypatch.delenv(name, raising=False)
     monkeypatch.setitem(Settings.model_config, "env_file", tmp_path / "missing.env")
     monkeypatch.setenv("FIDES_PATHS__LOGS", str(tmp_path / "logs"))
+    monkeypatch.setenv("FIDES_ARES__ENABLED", "false")  # no network in tests (CIPW-44)
+    monkeypatch.setenv("FIDES_ARES__CACHE", str(tmp_path / "ares"))
     yield monkeypatch
     monkeypatch.undo()  # restore the environment and config before reading the settings again
     reload_settings()
@@ -77,7 +79,7 @@ def test_a_key_in_the_committed_yaml_is_refused(clean_env, tmp_path):
 
 def test_every_result_has_the_audit_block_and_a_run_log(clean_env, tmp_path):
     reload_settings()
-    result = run_pipeline(make_digital_pdf(tmp_path / "12345678_2025_statement.pdf"), PipelineOptions(skip_report=True))
+    result = run_pipeline(make_digital_pdf(tmp_path / "12345679_2025_statement.pdf"), PipelineOptions(skip_report=True))
     audit = result.audit
     assert audit is not None and len(audit.run_id) == 12
     assert audit.tool_version and audit.settings_hash and audit.dictionary_version.startswith("v1 ")
@@ -94,7 +96,7 @@ def test_every_result_has_the_audit_block_and_a_run_log(clean_env, tmp_path):
 def test_offline_mode_runs_without_an_api_key(clean_env, tmp_path):
     clean_env.setenv("FIDES_OFFLINE", "true")
     reload_settings()
-    result = run_pipeline(make_digital_pdf(tmp_path / "12345678_2025_statement.pdf"))
+    result = run_pipeline(make_digital_pdf(tmp_path / "12345679_2025_statement.pdf"))
     status = {s.stage: (s.status, s.note) for s in result.stages}
     assert status["report"] == ("skipped", "offline mode: no LLM call")
     assert status["check_numbers"][0] == "skipped"

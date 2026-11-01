@@ -27,7 +27,7 @@ Where a value comes from, highest first:
 
 | Setting | Default | |
 | --- | --- | --- |
-| `offline` | false | no LLM call at all: the AI report step is skipped, everything else runs; needs no API key |
+| `offline` | false | no call to the internet: no LLM (the AI report step is skipped) and no ARES lookup; everything else runs; needs no API key |
 | `log_runs` | true | JSON-lines log of every run in `paths.logs` |
 | `paths.*` | `data/raw`, `data/ground_truth`, `data/fixtures`, `outputs`, `outputs/logs`, `config/line_items.yaml`, `prompts` | relative to the repository root (`/workspace` in the image) |
 | `ocr.*` | dpi 300, psm 6, adaptive 31/15, shading removal, deskew, line removal, grey second pass, `tessdata: models/tessdata` | compared in CIPW-25, see `docs/ocr.md`; the model folder is set through `TESSDATA_PREFIX` |
@@ -38,10 +38,11 @@ Where a value comes from, highest first:
 | `llm.max_cost_usd` | 0.50 | upper limit for one AI report (CIPW-16) |
 | `llm.api_key` | – | `ANTHROPIC_API_KEY` only; a key in `config/fides.yaml` is refused |
 | `api.max_upload_mb`, `api.max_results` | 60, 20 | web app API |
+| `ares.enabled`, `ares.url`, `ares.timeout`, `ares.cache` | true, the public ARES REST API, 5 s, `outputs/cache/ares` | company data by IČO (CIPW-44, `docs/ares.md`); off: saved answers and the dataset snapshot only |
 
 The API key never appears in `Settings.public()`, the settings hash, a result or a log.
 
-**Offline mode:** `FIDES_OFFLINE=true` (or `offline: true` in the YAML). The report and its number check are skipped with the note "offline mode: no LLM call", `Result.audit.offline` is true, and the result is complete apart from the report. `python scripts/hello_llm.py` reports offline mode instead of failing.
+**Offline mode:** `FIDES_OFFLINE=true` (or `offline: true` in the YAML). The report and its number check are skipped with the note "offline mode: no LLM call", `Result.audit.offline` is true, and the result is complete apart from the report. ARES is not asked either: the company comes from a saved answer or the dataset snapshot (`docs/ares.md`). `python scripts/hello_llm.py` reports offline mode instead of failing.
 
 ## Run log
 

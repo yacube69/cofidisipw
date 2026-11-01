@@ -18,7 +18,7 @@ K = 1000
 @pytest.fixture
 def statement(tmp_path):
     """The synthetic statement read from its text layer, with its pages marked as OCR so the re-read runs."""
-    pdf = make_digital_pdf(tmp_path / "12345678_2025_statement.pdf")
+    pdf = make_digital_pdf(tmp_path / "12345679_2025_statement.pdf")
     doc = pymupdf.open(pdf)
     fs = parse_statements([read_page(doc, p) for p in (1, 2)], PAGES)
     fs.metadata.extraction_source = {1: "ocr", 2: "ocr"}

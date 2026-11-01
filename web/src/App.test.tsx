@@ -116,6 +116,48 @@ describe("App", () => {
     expect([form.get("balance_sheet_pages"), form.get("income_statement_pages")]).toEqual(["75-76", "77"]);
   });
 
+  it("names the company from ARES when the statement does not print its name", async () => {
+    const view = sampleView();
+    view.statements.metadata.company_name = null;
+    view.company = {
+      ico: "26161516", name: "Mondi Štětí a.s.", legal_form: "Akciová společnost", address: "Litoměřická 272, 41108 Štětí",
+      founded: "2000-03-06", nace: "17120", nace_name: "Výroba papíru a lepenky", nace_section: "C",
+      nace_section_name: "Zpracovatelský průmysl", nace_2008: "17120", employees: "1000 - 1499 zaměstnanců",
+      source: "snapshot", retrieved: "2026-11-01",
+    };
+    const ploma = { ...view.company, ico: "25556045", name: "PLOMA, a.s.", nace: "16200", nace_name: "Výroba dřevěných výrobků" };
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => {
+      if (url.startsWith("/api/company/")) {
+        return url.endsWith("25556045")
+          ? new Response(JSON.stringify(ploma), { status: 200, headers: { "Content-Type": "application/json" } })
+          : new Response(JSON.stringify({ detail: "IČO 27920992 is not in ARES" }), { status: 404 });
+      }
+      const body = url === "/api/samples" ? [{ id: "mondi-2025", label: "Mondi" }] : url === "/api/dictionary" ? dictionary : view;
+      return new Response(JSON.stringify(body), { status: 200, headers: { "Content-Type": "application/json" } });
+    }));
+    render(<App />);
+    fireEvent.click(within(await screen.findByRole("navigation", { name: "Samples" })).getByRole("button", { name: "Mondi" }));
+    expect(await screen.findByRole("heading", { level: 1, name: "Mondi Štětí a.s." })).toBeTruthy();
+    const head = document.querySelector("header.result-head .meta") as HTMLElement;
+    expect(within(head).getByText("Name from ARES")).toBeTruthy();
+    expect(within(head).getByText("Výroba papíru a lepenky")).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /About this result/ }));
+    const about = document.querySelector("dialog.about") as HTMLDialogElement;
+    expect(within(about).getByText("Company in ARES")).toBeTruthy();
+    expect(within(about).getByText("Akciová společnost")).toBeTruthy();
+    expect(within(about).getByText(/dataset snapshot \(offline\)/)).toBeTruthy();
+    about.close();
+
+    // the Ratios step: the result's own company, then the one of an IČO the user corrects
+    fireEvent.click(within(screen.getByRole("navigation", { name: "Steps" })).getByText("Ratios"));
+    const field = await screen.findByPlaceholderText("26161516");
+    expect(screen.getByText(/Mondi Štětí a\.s\. · Výroba papíru a lepenky \(CZ-NACE 17120\)/)).toBeTruthy();
+    fireEvent.change(field, { target: { value: "25556045" } });
+    expect(await screen.findByText(/PLOMA, a\.s\. · Výroba dřevěných výrobků/)).toBeTruthy();
+    fireEvent.change(field, { target: { value: "27920992" } });
+    expect(await screen.findByText("IČO 27920992 is not in ARES")).toBeTruthy();
+  });
+
   it("says so when the service is not reachable", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response("down", { status: 502, statusText: "Bad Gateway" })));
     render(<App />);

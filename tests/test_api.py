@@ -52,7 +52,7 @@ def test_dictionary_has_names_and_labels():
 
 
 def test_analyse_a_digital_pdf(tmp_path):
-    pdf = make_digital_pdf(tmp_path / "12345678_2025_statement.pdf")
+    pdf = make_digital_pdf(tmp_path / "12345679_2025_statement.pdf")
     with pdf.open("rb") as f:
         response = client.post("/api/analyse", files={"file": (pdf.name, f, "application/pdf")})
     assert response.status_code == 200, response.text
@@ -68,7 +68,7 @@ def test_analyse_a_digital_pdf(tmp_path):
 
 def test_analyse_reads_the_pages_the_user_entered(tmp_path):
     """An annual report where the locator picks the wrong pages: the user enters them, the locator is not used."""
-    pdf = make_digital_pdf(tmp_path / "12345678_2025_statement.pdf")
+    pdf = make_digital_pdf(tmp_path / "12345679_2025_statement.pdf")
     form = {"balance_sheet_pages": "1 - 2", "income_statement_pages": ""}
     with pdf.open("rb") as f:
         response = client.post("/api/analyse", files={"file": (pdf.name, f, "application/pdf")}, data=form)
@@ -84,6 +84,14 @@ def test_analyse_reads_the_pages_the_user_entered(tmp_path):
 def test_analyse_rejects_a_file_that_is_not_a_pdf():
     response = client.post("/api/analyse", files={"file": ("notes.pdf", b"hello", "application/pdf")})
     assert response.status_code == 415 and response.json()["detail"] == "That is not a PDF file"
+
+
+def test_company_by_ico():
+    """CIPW-44: ARES is off in tests, so the dataset snapshot answers; an IČO with a wrong check digit is refused."""
+    found = client.get("/api/company/26161516")
+    assert found.status_code == 200 and found.json()["name"] == "Mondi Štětí a.s." and found.json()["nace"] == "17120"
+    wrong = client.get("/api/company/25556149")
+    assert wrong.status_code == 404 and "wrong check digit" in wrong.json()["detail"]
 
 
 def test_unknown_result_and_page():

@@ -4,6 +4,9 @@ import tempfile
 # Runs at import time so skipif conditions in tests already see the configured Tesseract (src/settings.py).
 # Test runs write their run logs to a temporary folder, not to outputs/logs.
 os.environ.setdefault("FIDES_PATHS__LOGS", os.path.join(tempfile.gettempdir(), "fides-test-logs"))
+# No network in tests: company data comes from the dataset snapshot; tests of the lookup mock ARES (test_ares.py).
+os.environ.setdefault("FIDES_ARES__ENABLED", "false")
+os.environ.setdefault("FIDES_ARES__CACHE", tempfile.mkdtemp(prefix="fides-test-ares-"))  # not this computer's answers
 
 from src.settings import get_settings  # noqa: E402
 

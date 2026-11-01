@@ -46,6 +46,7 @@ A value is **Review** when the parser flagged it, OCR confidence is below 75 or 
 | `GET /api/health` | liveness |
 | `GET /api/samples` | saved samples (open without OCR) |
 | `GET /api/dictionary` | line items: key, code, Czech label, English name |
+| `GET /api/company/{ico}` | the company in ARES (name, legal form, address, CZ-NACE, size; `docs/ares.md`), 404 with the reason when unknown |
 | `POST /api/analyse` | PDF (form field `file`, optional `scope` = individual / consolidated, `balance_sheet_pages` and `income_statement_pages` such as `75-76`, which replace the page locator) → result view |
 | `GET /api/results/{id}` | result view: `Result` without `page_words`, plus `id`, `page_sizes` (PDF points) and `stubbed_stages` |
 | `GET /api/results/{id}/pages/{page}` | page image (JPEG, 144 dpi) |

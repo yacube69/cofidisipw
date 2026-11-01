@@ -50,7 +50,7 @@ def asset_page_html(title: str = "ROZVAHA") -> str:
         for c, label, r, g, a, n, p, s in ASSET_ROWS
     )
     return (
-        f"{_STYLE}<p>Obchodní firma: Testovací firma s.r.o.<br>Identifikační číslo: 12345678<br>"
+        f"{_STYLE}<p>Obchodní firma: Testovací firma s.r.o.<br>Identifikační číslo: 12345679<br>"
         f"Rozvahový den: 31. prosince 2025</p><h1>{title}</h1>"
         '<p class="sub">ve zkráceném rozsahu (v celých tisících Kč)</p>'
         "<table><tr><th>označ.</th><th>AKTIVA</th><th>řád.</th><th>Brutto</th><th>Korekce</th>"

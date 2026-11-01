@@ -30,8 +30,8 @@ needs_ocr = pytest.mark.skipif(not _tesseract_ok(), reason="Tesseract with Czech
 @pytest.fixture(scope="module")
 def pdfs(tmp_path_factory):
     d = tmp_path_factory.mktemp("synthetic")
-    digital = make_digital_pdf(d / "12345678_2025_statement.pdf")
-    scan = make_scanned_pdf(digital, d / "12345678_2025_scan.pdf")
+    digital = make_digital_pdf(d / "12345679_2025_statement.pdf")
+    scan = make_scanned_pdf(digital, d / "12345679_2025_scan.pdf")
     return digital, scan
 
 

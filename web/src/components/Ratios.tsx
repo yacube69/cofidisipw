@@ -1,7 +1,9 @@
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { api } from "../lib/api";
 import { formatChange, formatNumber, formatRatio } from "../lib/format";
 import { ratioLight } from "../lib/summary";
-import type { BankruptcyModel, Light, Ratio, ResultView, Zone } from "../types";
+import type { BankruptcyModel, Company, Light, Ratio, ResultView, Zone } from "../types";
 import { Badge, MockBadge, MockBanner } from "./ui";
 
 const GROUPS = [
@@ -75,7 +77,26 @@ interface Props {
   onIcoChange: (ico: string) => void;
 }
 
+/** The company of an IČO in ARES (CIPW-44): the result's own one, or looked up when the user enters another IČO. */
+function useCompany(result: ResultView, ico: string): { company?: Company; error?: string } {
+  const [found, setFound] = useState<{ ico: string; company?: Company; error?: string } | null>(null);
+  const own = result.company && result.company.ico === ico ? result.company : null;
+  useEffect(() => {
+    if (own || !/^\d{8}$/.test(ico)) return;
+    let current = true;
+    api.company(ico)
+      .then((company) => current && setFound({ ico, company }))
+      .catch((e: Error) => current && setFound({ ico, error: e.message }));
+    return () => {
+      current = false;
+    };
+  }, [ico, own]);
+  if (own) return { company: own };
+  return found?.ico === ico ? found : {};
+}
+
 export function Ratios({ result, ico, onIcoChange }: Props) {
+  const { company, error } = useCompany(result, ico);
   const ratios = result.ratios?.ratios ?? [];
   const b = result.bankruptcy;
   const stub = result.stubbed_stages;
@@ -123,9 +144,14 @@ export function Ratios({ result, ico, onIcoChange }: Props) {
           />
           {icoInvalid ? (
             <span className="error">IČO has 8 digits</span>
+          ) : error ? (
+            <span className="error">{error}</span>
           ) : (
             <span className="hint">
-              {printedIco && ico !== printedIco ? `The statement says ${printedIco}` : "Read from the statement; it finds the industry to compare with"}
+              {company
+                ? `${company.name ?? "Name unknown"} · ${company.nace_name ?? "industry unknown"}${company.nace ? ` (CZ-NACE ${company.nace})` : ""}`
+                : "Read from the statement; ARES gives the industry to compare with"}
+              {printedIco && ico !== printedIco && ` · the statement says ${printedIco}`}
             </span>
           )}
         </label>

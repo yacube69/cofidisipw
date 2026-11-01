@@ -2,6 +2,14 @@
 
 What changed for the people who use Fides, one section per version. The version is set in `pyproject.toml` (the web app's `web/package.json` must match, `tests/test_api.py` checks it). A tag `vX.Y.Z` publishes a GitHub release with the section of that version and the Docker image `ghcr.io/yacube69/cofidisipw:X.Y.Z` (`docs/run.md`).
 
+## Unreleased
+
+### The app
+
+- **The company from ARES.** Fides looks the IČO up in the public register ARES: name, legal form, address, industry (CZ-NACE) and size. The name shows when the statement does not print it, the industry sits in the header, everything else in *About this result*.
+- **Wrong IČO warnings.** A warning appears when the IČO has a wrong check digit, is not in ARES, or belongs to a company of another name.
+- **Works offline.** Without network the companies of our dataset come from a saved snapshot (`docs/ares.md`).
+
 ## 0.2.0 — 2026-11-01
 
 ### The app

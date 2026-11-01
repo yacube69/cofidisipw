@@ -17,6 +17,7 @@ src/extraction/        # page locator, text/OCR layer, parser, vision baseline
 src/validation/        # accounting checks, re-read logic
 src/ratios/            # ratio engine, bankruptcy models
 src/report/            # AI assessment
+src/integrations/      # public registers: ARES lookup by IČO (CIPW-44)
 src/api.py             # API for the web app (CIPW-41)
 web/                   # web app: React + TypeScript (CIPW-41)
 prompts/               # versioned prompts (vision baseline, AI report)

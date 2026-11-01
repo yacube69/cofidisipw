@@ -110,6 +110,15 @@ class LlmSettings(BaseModel):
     api_key: SecretStr | None = Field(None, description="From ANTHROPIC_API_KEY in the environment or .env only.")
 
 
+class AresSettings(BaseModel):
+    """Company data by IČO from the public register ARES (CIPW-44, src/integrations/ares.py)."""
+
+    enabled: bool = Field(True, description="Ask ARES; off: only saved answers and the dataset snapshot.")
+    url: str = "https://ares.gov.cz/ekonomicke-subjekty-v-be/rest"
+    timeout: float = Field(5.0, gt=0, description="Seconds to wait for ARES before the company stays unknown.")
+    cache: str = Field("", description="Folder of the saved answers; '' = paths.outputs/cache/ares.")
+
+
 class ApiSettings(BaseModel):
     max_upload_mb: int = Field(60, gt=0)
     max_results: int = Field(20, gt=0, description="Analysed files kept in memory by the API.")
@@ -126,7 +135,8 @@ class Settings(BaseSettings):
         yaml_file_encoding="utf-8",
     )
 
-    offline: bool = Field(False, description="No LLM call at all: the AI report step is skipped.")
+    offline: bool = Field(False, description="No call to the internet: no LLM (the AI report step is skipped) and "
+                          "no ARES lookup (company data from saved answers and the dataset snapshot only).")
     log_runs: bool = Field(True, description="Write a JSON-lines log of every pipeline run to paths.logs.")
     paths: Paths = Field(default_factory=Paths)
     ocr: OcrSettings = Field(default_factory=OcrSettings)
@@ -135,6 +145,7 @@ class Settings(BaseSettings):
     tesseract: TesseractSettings = Field(default_factory=TesseractSettings)
     llm: LlmSettings = Field(default_factory=LlmSettings)
     api: ApiSettings = Field(default_factory=ApiSettings)
+    ares: AresSettings = Field(default_factory=AresSettings)
 
     @classmethod
     def settings_customise_sources(

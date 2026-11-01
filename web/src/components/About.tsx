@@ -5,6 +5,7 @@ import type { ResultView } from "../types";
 import { Status } from "./ui";
 
 const STAGE_TONE = { ok: "ok", stub: "neutral", skipped: "neutral", error: "bad" } as const;
+const SOURCE = { ares: "ARES, asked now", cache: "ARES, saved answer", snapshot: "dataset snapshot (offline)" } as const;
 
 function when(iso: string | null): string {
   if (!iso) return "–";
@@ -74,6 +75,23 @@ export function About({ result }: { result: ResultView }) {
               </Row>
             </dl>
           </>
+        )}
+        <h3 style={{ margin: "16px 0 8px", fontSize: 14 }}>Company in ARES</h3>
+        {!result.company ? (
+          <p className="muted" style={{ margin: 0, fontSize: 13 }}>
+            Not known: {result.stages.find((s) => s.stage === "company")?.note ?? "looked up only in results made since Fides 0.3"}.
+          </p>
+        ) : (
+          <dl className="audit">
+            <Row label="Name">{result.company.name ?? "–"} <span className="faint">(IČO {result.company.ico})</span></Row>
+            <Row label="Legal form">{result.company.legal_form ?? "–"}</Row>
+            <Row label="Address">{result.company.address ?? "–"}</Row>
+            <Row label="Industry">
+              {result.company.nace ? <>{result.company.nace_name ?? "–"} <span className="faint">(CZ-NACE {result.company.nace}, section {result.company.nace_section ?? "–"} {result.company.nace_section_name ?? ""})</span></> : "–"}
+            </Row>
+            <Row label="Employees">{result.company.employees ?? "–"}</Row>
+            <Row label="Source">{SOURCE[result.company.source]}{result.company.retrieved && `, ${result.company.retrieved}`}</Row>
+          </dl>
         )}
         <h3 style={{ margin: "16px 0 8px", fontSize: 14 }}>Steps</h3>
         <table className="values">

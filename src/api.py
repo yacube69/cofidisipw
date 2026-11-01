@@ -9,6 +9,7 @@ Endpoints (all under /api):
     GET  /health                       liveness probe
     GET  /samples                      saved sample results the app can open without OCR
     GET  /dictionary                   line items: key, statement, code, Czech label, English name
+    GET  /company/{ico}                the company in ARES (name, legal form, address, CZ-NACE), CIPW-44
     POST /analyse                      PDF upload (optionally the statement pages) -> run the pipeline -> result view
     GET  /results/{id}                 result view (a sample id opens that sample)
     GET  /results/{id}/pages/{page}    page image (JPEG rendered from the PDF, or the one saved with a sample)
@@ -34,6 +35,7 @@ from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
 
+from src.integrations.ares import lookup
 from src.line_items import load_dictionary
 from src.pipeline import run_pipeline
 from src.result import PipelineOptions, Result
@@ -114,6 +116,15 @@ def dictionary() -> list[dict]:
         {"key": d.key, "statement": d.statement, "side": d.side, "code": d.code, "label": d.label, "en": d.en}
         for d in load_dictionary().lines
     ]
+
+
+@app.get("/api/company/{ico}")
+def company(ico: str) -> dict:
+    """The company with this IČO in ARES, or the dataset snapshot without network: for an IČO the user corrects."""
+    found, note = lookup(ico)
+    if found is None:
+        raise HTTPException(404, note)
+    return found.model_dump(mode="json")
 
 
 @app.post("/api/analyse")
