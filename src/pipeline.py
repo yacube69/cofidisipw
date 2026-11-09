@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import csv
 import json
 import re
 import sys
@@ -307,6 +308,36 @@ def stage_benchmarks(result: Result, ctx: Context) -> StageStatus:
             ),
         }
 
+    
+    # Add MPO industry benchmarks
+    industry = result.company.nace_section if result.company else None
+
+    # MPO uses one group for most service sectors
+    if industry and industry in "HIJKLMNOPQRS":
+        industry = "H-S"
+
+    benchmark_file = ROOT / "data" / "benchmarks.csv"
+    industry_benchmarks = {}
+
+    if industry and benchmark_file.exists():
+        with benchmark_file.open(
+            encoding="utf-8-sig", newline=""
+        ) as file:
+            for row in csv.DictReader(file):
+                if (
+                    row["cz_nace_group"] == industry
+                    and row["period"] == "2025-Q4"
+                ):
+                    industry_benchmarks[row["ratio_key"]] = {
+                        "value": float(row["benchmark_value"]),
+                        "unit": row["unit"],
+                        "sector": row["sector_en"],
+                        "period": row["period"],
+                        "source": row["source_url"],
+                        "note": "Reference only, not a traffic light limit",
+                    }
+
+    
     result.benchmarks = {
         "mock": False,
         "nace": (
