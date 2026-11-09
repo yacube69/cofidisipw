@@ -340,6 +340,7 @@ def stage_benchmarks(result: Result, ctx: Context) -> StageStatus:
     
     result.benchmarks = {
         "mock": False,
+        "industry_benchmarks": industry_benchmarks,
         "nace": (
             result.company.nace
             if result.company is not None
