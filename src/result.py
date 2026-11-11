@@ -5,11 +5,11 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, computed_field
 
 from src.extraction.reread import RereadReport
 from src.extraction.types import PageWords
-from src.integrations.ares import Company
+from src.integrations.ares import Company, name_differs
 from src.ratios.bankruptcy import BankruptcyReport
 from src.ratios.models import RatioReport
 from src.schema import FinancialStatements
@@ -103,6 +103,25 @@ class Result(BaseModel):
     errors: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list, description="Problems that did not stop a stage.")
     audit: Audit | None = Field(None, description="Filled by every pipeline run; None only in hand-made results.")
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def name_source(self) -> Literal["ares", "statement"] | None:
+        """Where the company name to show comes from (CIPW-56): ARES when it names the statement's company (its
+        spelling is the registered one, a scan's OCR text may be misread), the statement when ARES names another
+        company (a misread IČO, with a warning of the company stage) or does not know it."""
+        printed, registered = self.statements.metadata.company_name, self.company.name if self.company else None
+        if registered and not name_differs(printed, registered):
+            return "ares"
+        return "statement" if printed else None
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def display_name(self) -> str | None:
+        """The company name the app and the PDF report show; None when neither the statement nor ARES has one."""
+        if self.name_source == "ares":
+            return self.company.name if self.company else None
+        return self.statements.metadata.company_name
 
     @property
     def stubbed_stages(self) -> list[str]:

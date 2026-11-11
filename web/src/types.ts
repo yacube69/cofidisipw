@@ -217,6 +217,9 @@ export interface ResultView {
   page_sizes: Record<string, [number, number]>;
   statements: FinancialStatements;
   company?: Company | null; // results saved before CIPW-44 have none
+  /** The name to show (CIPW-56): ARES' when it names the statement's company, else the printed one */
+  display_name?: string | null;
+  name_source?: "ares" | "statement" | null;
   validation: ValidationReport | null;
   ratios: { ratios: Ratio[] } | null;
   bankruptcy: Bankruptcy | null;

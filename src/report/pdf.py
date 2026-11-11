@@ -42,6 +42,7 @@ LABELS = {
         "made": "Vytvořeno",
         "ico": "IČO",
         "nace": "Obor (CZ-NACE)",
+        "other_company": "ARES uvádí pro toto IČO jinou firmu ({name}), ověřte IČO",
         "statement": "Účetní závěrka k",
         "full": "plný rozsah",
         "abbreviated": "zkrácený rozsah",
@@ -114,6 +115,7 @@ LABELS = {
         "made": "Created",
         "ico": "IČO",
         "nace": "Industry (CZ-NACE)",
+        "other_company": "ARES names another company for this IČO ({name}): check the IČO",
         "statement": "Financial statements as of",
         "full": "full",
         "abbreviated": "abbreviated",
@@ -229,8 +231,9 @@ def _amount(result: Result, key: str, period: str) -> float | None:
 
 def _header(result: Result, t: dict, s: Settings) -> str:
     meta = result.statements.metadata
-    company = result.company
-    name = (company.name if company and company.name else None) or meta.company_name or f"{t['ico']} {meta.ico or '–'}"
+    # ARES' data only for the statement's own company: for a misread IČO ARES names another one (CIPW-56)
+    company = result.company if result.name_source == "ares" else None
+    name = result.display_name or f"{t['ico']} {meta.ico or '–'}"
     logo = ROOT / s.report.logo if s.report.logo else None
     brand = (
         f'<img src="{esc(s.report.logo)}" width="{LOGO_WIDTH}"/>'
@@ -242,6 +245,8 @@ def _header(result: Result, t: dict, s: Settings) -> str:
         facts.append(esc(company.legal_form))
     if company and company.address:
         facts.append(esc(company.address))
+    if result.company and result.company.name and company is None:
+        facts.append(t["other_company"].format(name=esc(result.company.name)))
     statement = []
     if meta.period_end:
         statement.append(f"{t['statement']} {meta.period_end.day}. {meta.period_end.month}. {meta.period_end.year}")

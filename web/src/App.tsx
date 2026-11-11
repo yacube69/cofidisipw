@@ -113,6 +113,9 @@ export default function App() {
   const summaries = useMemo(() => (result ? stepSummaries(result, rows) : []), [result, rows]);
   const meta = result?.statements.metadata;
   const company = result?.company ?? null;
+  const printed = result?.statements.metadata.company_name ?? null;
+  const name = result?.display_name ?? (printed || company?.name || null);
+  const nameFromAres = result?.name_source ? result.name_source === "ares" : !printed && !!company?.name;
   // a count next to a step only for what needs a person: values to review, failed checks
   const counts: Partial<Record<StepId, number>> = {
     extraction: rows.filter((r) => r.confidence === "review").length,
@@ -151,9 +154,11 @@ export default function App() {
             <header className="result-head">
               <div>
                 <div className="eyebrow">{result.file}</div>
-                <h1>{meta?.company_name || company?.name || (ico ? `Company IČO ${ico}` : "Company name not printed")}</h1>
+                <h1>{name || (ico ? `Company IČO ${ico}` : "Company name not printed")}</h1>
                 <div className="meta">
-                  {!meta?.company_name && <span>{company?.name ? "Name from ARES" : "Name not printed on the statement"}</span>}
+                  {nameFromAres && !printed && <span>Name from ARES</span>}
+                  {nameFromAres && printed && printed !== name && <span>Name from ARES; the statement reads “{printed}”</span>}
+                  {!nameFromAres && !printed && <span>Name not printed on the statement</span>}
                   <span>IČO {ico || "–"}</span>
                   {company?.nace && <span title={`CZ-NACE ${company.nace}, section ${company.nace_section ?? "–"}`}>{company.nace_name ?? `CZ-NACE ${company.nace}`}</span>}
                   <span>Balance sheet date {formatDate(meta?.period_end ?? null)}</span>

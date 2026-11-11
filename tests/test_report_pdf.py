@@ -80,3 +80,19 @@ def test_without_an_ai_report_the_numbers_stand_alone(settings):
     assert "Text hodnocení AI není k dispozici" in first and "UKÁZKOVÝ TEXT" not in first
     assert "Klíčové údaje" in first
     assert report_filename(result) == "fides_26161516_2025.pdf"
+
+
+def test_a_misread_ico_shows_the_printed_name_and_not_the_other_company(settings):
+    """CIPW-56: when ARES names another company, its name, address and industry are not the statement's."""
+    result = Result.model_validate_json(SAMPLE.read_text(encoding="utf-8"))
+    result.statements.metadata.company_name = "PLOMA, a.s."
+    first = _pages(render_report(result, settings))[0]
+    assert "PLOMA, a.s." in first and "ARES uvádí pro toto IČO jinou firmu (Mondi Štětí a.s.)" in first
+    assert "Litoměřická" not in first and "Obor (CZ-NACE)" not in first
+
+
+def test_the_ares_name_replaces_a_misread_print(settings):
+    result = Result.model_validate_json(SAMPLE.read_text(encoding="utf-8"))
+    assert result.statements.metadata.company_name == "Morxfi Štětí a.s"  # the scan's OCR
+    first = _pages(render_report(result, settings))[0]
+    assert "Mondi Štětí a.s." in first and "Morxfi" not in first

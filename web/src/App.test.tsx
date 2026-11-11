@@ -119,6 +119,28 @@ describe("App", () => {
     expect([form.get("balance_sheet_pages"), form.get("income_statement_pages")]).toEqual(["75-76", "77"]);
   });
 
+  it("shows ARES' name when OCR misread the printed one, and says what the statement reads", async () => {
+    render(<App />);
+    fireEvent.click(within(await screen.findByRole("navigation", { name: "Samples" })).getByRole("button", { name: "Mondi" }));
+    // the scan's OCR reads "Morxfi Štětí a.s"; ARES names the same company (CIPW-56)
+    expect(await screen.findByRole("heading", { level: 1, name: "Mondi Štětí a.s." })).toBeTruthy();
+    const head = document.querySelector("header.result-head .meta") as HTMLElement;
+    expect(within(head).getByText("Name from ARES; the statement reads “Morxfi Štětí a.s”")).toBeTruthy();
+  });
+
+  it("keeps the printed name when ARES names another company for the IČO", async () => {
+    const view = { ...sampleView(), display_name: "PLOMA, a.s.", name_source: "statement" };
+    view.statements.metadata.company_name = "PLOMA, a.s.";
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => {
+      const body = url === "/api/samples" ? [{ id: "mondi-2025", label: "Mondi" }] : url === "/api/dictionary" ? dictionary : view;
+      return new Response(JSON.stringify(body), { status: 200, headers: { "Content-Type": "application/json" } });
+    }));
+    render(<App />);
+    fireEvent.click(within(await screen.findByRole("navigation", { name: "Samples" })).getByRole("button", { name: "Mondi" }));
+    expect(await screen.findByRole("heading", { level: 1, name: "PLOMA, a.s." })).toBeTruthy();
+    expect(screen.queryByText(/Name from ARES/)).toBeNull();
+  });
+
   it("names the company from ARES when the statement does not print its name", async () => {
     const view = sampleView();
     view.statements.metadata.company_name = null;

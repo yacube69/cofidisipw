@@ -107,3 +107,27 @@ def test_every_company_of_the_dataset_is_in_the_snapshot():
 )
 def test_a_name_that_differs_from_ares(printed, registered, differs):
     assert ares.name_differs(printed, registered) is differs
+
+
+@pytest.mark.parametrize(
+    ("printed", "registered", "shown", "source"),
+    [
+        ("Morxfi Štětí a.s", "Mondi Štětí a.s.", "Mondi Štětí a.s.", "ares"),  # OCR noise: ARES' spelling
+        (None, "Mondi Štětí a.s.", "Mondi Štětí a.s.", "ares"),  # nothing printed
+        ("PLOMA, a.s.", "Mondi Štětí a.s.", "PLOMA, a.s.", "statement"),  # a misread IČO: ARES names another company
+        ("PLOMA, a.s.", None, "PLOMA, a.s.", "statement"),  # ARES does not know the IČO
+        (None, None, None, None),
+    ],
+)
+def test_the_name_to_show(printed, registered, shown, source):
+    """CIPW-56: the app and the PDF report show one name, ARES' when it is the statement's company."""
+    from src.result import Result
+    from src.schema import FinancialStatements, Metadata
+
+    company = ares.Company(ico="26161516", name=registered, source="snapshot") if registered else None
+    result = Result(file="a.pdf", statements=FinancialStatements(metadata=Metadata(company_name=printed)),
+                    company=company)  # fmt: skip
+    assert (result.display_name, result.name_source) == (shown, source)
+    saved = json.loads(result.model_dump_json())
+    assert (saved["display_name"], saved["name_source"]) == (shown, source)  # in the API view and the export too
+    assert Result.model_validate_json(result.model_dump_json()).display_name == shown

@@ -13,7 +13,7 @@ python scripts/render_report.py <result.json> --refresh   # a result saved by an
 | Part | Comes from |
 | --- | --- |
 | Cofidis' logo (or its name), report title, date | `settings.report` |
-| Company: name, IČO, legal form, address, CZ-NACE | ARES (`Result.company`, `docs/ares.md`); the printed name when ARES is unknown |
+| Company: name, IČO, legal form, address, CZ-NACE | the name to show (`Result.display_name`: ARES' name for the statement's company, else the printed one) and ARES (`Result.company`) only for the statement's company (`docs/ares.md`) |
 | Statement: balance sheet date, scope, individual or consolidated, digital or scan | the parser (`Result.statements.metadata`) |
 | Verdict box: overall risk, its reasoning, the bankruptcy scores with their zones | rating and reasoning from the assessment, scores from `Result.bankruptcy` |
 | Summary, strengths, risks, red flags | the assessment: the AI report (CIPW-16), or the rule-based one without an AI model (below) |

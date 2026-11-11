@@ -22,6 +22,18 @@ With none of them the company stays unknown: the step's note says why, and the r
 
 Names are compared without diacritics, punctuation and legal form (`a.s.`, `s.r.o.`, `spol. s r.o.` …). They differ when their rapidfuzz `token_set_ratio` is below 60. A misread IČO belongs to an unrelated company and scores far lower. OCR noise in a printed name stays above 70 ("Morxfi Štětí a.s" against "Mondi Štětí a.s.": 78). Of the 6 statements in our corpus whose name the parser reads, none is flagged.
 
+## The name Fides shows (CIPW-56)
+
+The app header and the PDF report show one name, `Result.display_name`. `Result.name_source` says where it comes from.
+
+| Case | Name shown | `name_source` |
+| --- | --- | --- |
+| ARES names the statement's company (the names do not differ by the rule above), or nothing is printed | ARES' name: its spelling is the registered one, and a scan's OCR text may be misread | `ares` |
+| ARES names another company for the IČO (a misread IČO, with the warning above) | the printed name. The PDF shows no ARES address or industry; it says that ARES names another company | `statement` |
+| ARES does not know the company | the printed name | `statement` |
+
+When the name comes from ARES and the print reads differently, the app says so under the name, e.g. "Name from ARES; the statement reads “Morxfi Štětí a.s”". Both fields are computed from the statement and `Result.company`, so results saved before have them as well.
+
 The check digit found three typos in our dataset:
 
 | File | IČO in the file name | Real IČO |
