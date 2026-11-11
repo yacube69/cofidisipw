@@ -19,9 +19,7 @@ jobs:
   test:
     name: Lint and tests (Python ${{ matrix.python-version }})
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
-    # Pinned: since ubuntu-latest moved to Ubuntu 26 (Oct 2026) installing Tesseract with apt fails there (exit 100,
-    # first seen on main e7545a8, 2026-11-11). Move to the new image once its tesseract-ocr-ces package installs.
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     strategy:
       fail-fast: false
@@ -34,12 +32,20 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: Install Tesseract with Czech data
+      # Only the program: the Czech and English models ship with Fides (models/tessdata, TESSDATA_PREFIX in the
+      # settings). apt problems (a third-party repository of the runner image, a mirror out of sync) are printed as
+      # an annotation, which is public, unlike the log; a failed `apt-get update` does not stop the install.
+      - name: Install Tesseract
         run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-ces tesseract-ocr-eng
+          if ! sudo apt-get update > apt.log 2>&1; then
+            echo "::warning title=apt-get update::$(grep -E '^(E|W):' apt.log | tail -5 | tr '\n' ' ')"
+          fi
+          if ! sudo apt-get install -y --no-install-recommends tesseract-ocr >> apt.log 2>&1; then
+            echo "::error title=apt-get install::$(grep -E '^(E|W):' apt.log | tail -8 | tr '\n' ' ')"
+            exit 1
+          fi
           tesseract --version | head -1
-          tesseract --list-langs | grep -x ces
+          TESSDATA_PREFIX=models/tessdata tesseract --list-langs | grep -x ces
 
       - uses: actions/setup-python@v6
         with:
