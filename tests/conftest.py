@@ -11,6 +11,9 @@ os.environ.setdefault("FIDES_ARES__CACHE", tempfile.mkdtemp(prefix="fides-test-a
 os.environ["FIDES_LLM__API_KEY"] = ""
 # Stored results, users and sessions of the test run go to a temporary database, not outputs/fides.db (CIPW-60).
 os.environ.setdefault("FIDES_STORAGE__PATH", os.path.join(tempfile.mkdtemp(prefix="fides-test-db-"), "fides.db"))
+# Tests run without sign-in whatever this computer's .env says; the sign-in tests switch it on (test_auth.py).
+os.environ["FIDES_AUTH__MODE"] = "none"
+os.environ["FIDES_AUTH__ADMIN_PASSWORD"] = ""
 
 from src.settings import get_settings  # noqa: E402
 
