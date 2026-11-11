@@ -61,6 +61,23 @@ llm:
   price_out_per_mtok: 0
   max_cost_usd: 0.50               # upper limit for one AI report
 
+# Sign-in (CIPW-62, docs/users.md). none: no sign-in (one computer). local: accounts kept by Fides; the admin
+# account is created at the first start (password from FIDES_AUTH__ADMIN_PASSWORD in .env, or generated into
+# outputs/admin-password.txt); more users with `python scripts/users.py add NAME --role analyst`.
+auth:
+  mode: none
+  idle_minutes: 120     # a session ends after this long without a request
+  max_hours: 12         # and after this long in any case
+  max_failures: 5       # wrong passwords for one name before its sign-in is blocked
+  block_minutes: 15
+  secure_cookie: auto   # Secure cookie when the request came over HTTPS (behind a proxy: X-Forwarded-Proto)
+
+# Results, their PDFs and corrections, users and sessions in one SQLite file (CIPW-60, docs/app.md).
+storage:
+  path: outputs/fides.db   # docker compose keeps outputs/ on the host
+  keep_days: null          # results older than this are deleted; null keeps them
+  visibility: team         # team: everyone sees every result; own: only their own (admins see all)
+
 # Company name, address, industry (CZ-NACE) and size by IČO from the public register ARES (CIPW-44).
 # Only the IČO is sent; answers are saved in outputs/cache/ares.
 ares:

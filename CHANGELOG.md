@@ -4,6 +4,20 @@ What changed for the people who use Fides, one section per version. The version 
 
 ## Unreleased
 
+### The app
+
+- **Sign-in with local accounts.** With `auth.mode: local` everyone signs in with a name and password.
+  - The roles: *viewer* reads, *analyst* also uploads and corrects values, *admin* also deletes results.
+  - Every analysis and every correction names its user.
+  - One admin account is created at the first start. Its password comes from `.env`, or is generated into `outputs/admin-password.txt`.
+  - More users are added with `python scripts/users.py`.
+  - After 5 wrong passwords the name is blocked for 15 minutes.
+  - Without sign-in (the default) nothing changes (`docs/users.md`).
+- **Results are kept.** Analysed files, their PDFs and corrections are stored in `outputs/fides.db` and survive a restart.
+  - The sidebar lists them with company, date and owner.
+  - Their owner or an admin can delete them.
+  - `storage.keep_days` deletes old ones (`docs/app.md`).
+
 ### Report
 
 - **Mistral is the language model of the AI report**, as Cofidis wants: its API with `MISTRAL_API_KEY`, or a Mistral model on a server of Cofidis' own (`llm.url`). The default model is `mistral-medium-3.5`. `python scripts/hello_llm.py` checks the connection (`docs/llm.md`). Without a model the assessment stays rule-based.

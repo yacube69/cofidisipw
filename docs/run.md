@@ -19,10 +19,10 @@ Not sure which one? Take **A**: nothing but Docker has to be installed, and the 
 3. **Start Fides** in a terminal (PowerShell, Terminal, any shell):
 
    ```bash
-   docker run --rm -p 8000:8000 ghcr.io/yacube69/cofidisipw:main
+   docker run --rm -p 8000:8000 -v fides-data:/workspace/outputs ghcr.io/yacube69/cofidisipw:main
    ```
 
-   The first start downloads the image (about 430 MB). The app is ready when the log shows `Application startup complete`.
+   The first start downloads the image (about 430 MB). The app is ready when the log shows `Application startup complete`. The volume `fides-data` keeps the analysed files and their corrections when the container stops; without `-v ...` they are gone with it.
 4. **Open http://localhost:8000** in the browser.
 5. **Stop it** with `Ctrl+C` in the terminal.
 
@@ -32,7 +32,7 @@ Not sure which one? Take **A**: nothing but Docker has to be installed, and the 
 docker pull ghcr.io/yacube69/cofidisipw:main
 ```
 
-**With the repository cloned**, `docker compose up` does the same with the settings of `docker-compose.yml`: it keeps the run logs in `outputs/` and restarts the app with Docker. Stop it with `docker compose down`.
+**With the repository cloned**, `docker compose up` does the same with the settings of `docker-compose.yml`: it keeps the database (`outputs/fides.db`) and the run logs in `outputs/` and restarts the app with Docker. Stop it with `docker compose down`.
 
 The image is built for Intel/AMD processors. On a Mac with an Apple chip Docker Desktop runs it through emulation: it works, but OCR of a scan is slower.
 
@@ -122,7 +122,7 @@ A colleague on the same Wi-Fi or office network can open the app running on your
 3. Your colleague opens **http://192.168.1.23:8000**, with your address instead of the example.
 4. If Windows asks whether to allow access, allow it for **private networks** only.
 
-**Careful:** the app has no sign-in. Everyone who can open it can upload PDFs and open the last 20 results, including yours. Share it only on a network you trust, never on public Wi-Fi with real statements, and stop it when you are done.
+**Careful:** without sign-in (`auth.mode: none`, the default) everyone who can open it can upload PDFs and open every stored result, including yours. Share it only on a network you trust, never on public Wi-Fi with real statements, and stop it when you are done, or switch on sign-in (section D).
 
 ## D. On a Cofidis server
 
@@ -131,10 +131,25 @@ What a shared server in Cofidis' network needs beyond section A; the questions f
 | Topic | Today | Planned |
 | --- | --- | --- |
 | Language model of the AI report | Mistral: its API with `MISTRAL_API_KEY`, or a Mistral model on Cofidis' server (`llm.url`) | `docs/llm.md`, CIPW-58 |
-| Sign-in and roles | none | local accounts, Active Directory or SSO, Cofidis chooses: `docs/users.md`, CIPW-59 |
-| Results and corrections | in memory, the last 20, lost on a restart | SQLite on a Docker volume: CIPW-60 |
+| Sign-in and roles | local accounts with roles (`auth.mode: local`, CIPW-62) | Active Directory or SSO, if Cofidis chooses one: `docs/users.md`, CIPW-59 |
+| Results and corrections | SQLite in `outputs/fides.db`, kept across restarts (CIPW-60); `storage.keep_days` deletes old ones | |
 | HTTPS | none in Fides | a reverse proxy with Cofidis' certificate in front of port 8000 |
 | Internet | ARES and Mistral's API, if allowed | without it: the ARES snapshot of our dataset and a model on Cofidis' server |
+
+**Switch on sign-in** on the server:
+
+1. In `.env`: `FIDES_AUTH__MODE=local` and `FIDES_AUTH__ADMIN_PASSWORD=` a long password. The admin account `admin` gets it at every start. Left empty, Fides writes a generated password to `outputs/admin-password.txt` at the first start: sign in with it, change it, delete the file.
+2. `docker compose up -d`, then sign in as `admin`.
+3. Add the team:
+
+   ```bash
+   docker compose exec fides python scripts/users.py add jnovak --role analyst
+   ```
+
+   The roles: *viewer* reads, *analyst* also uploads and corrects, *admin* also deletes results. The other commands: `password`, `role`, `disable`, `enable`, `list` (`docs/users.md`).
+4. Put HTTPS in front of port 8000 (a reverse proxy with Cofidis' certificate), so no password travels over plain HTTP.
+
+**Backup:** the file `outputs/fides.db` holds everything: results, PDFs, corrections, users. Copy it while Fides is stopped, or run `sqlite3 outputs/fides.db ".backup fides-copy.db"` while it runs.
 
 ## Using the app
 

@@ -1,6 +1,11 @@
-import type { Company, LineDef, Period, ResultView, Sample, StatementPages } from "../types";
+import type { AuthState, Company, LineDef, Period, ResultView, Sample, StatementPages, StoredResult } from "../types";
+
+/** Fired when the server answers 401: the session ended, the app shows the sign-in (CIPW-62). */
+export const SIGNED_OUT = "fides-signed-out";
+const NO_SIGN_IN: AuthState = { mode: "none", user: { name: null, role: "admin" } };
 
 async function json<T>(response: Response): Promise<T> {
+  if (response.status === 401) window.dispatchEvent(new Event(SIGNED_OUT));
   if (!response.ok) {
     let detail = `${response.status} ${response.statusText}`;
     try {
@@ -14,7 +19,19 @@ async function json<T>(response: Response): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+const post = (url: string, body?: unknown) =>
+  fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
+
+/** A server before CIPW-62 has no /api/auth/me: it has no sign-in. */
+const authState = (a: AuthState) => (a && typeof a.mode === "string" ? a : NO_SIGN_IN);
+
 export const api = {
+  me: () => fetch("/api/auth/me").then((r) => json<AuthState>(r)).then(authState),
+  login: (name: string, password: string) => post("/api/auth/login", { name, password }).then((r) => json<AuthState>(r)),
+  logout: () => post("/api/auth/logout").then((r) => json<AuthState>(r)).then(authState),
+  /** The stored results, newest first (CIPW-60). */
+  results: () => fetch("/api/results").then((r) => json<StoredResult[]>(r)).then((list) => (Array.isArray(list) ? list : [])),
+  remove: (id: string) => fetch(`/api/results/${encodeURIComponent(id)}`, { method: "DELETE" }).then((r) => json<{ deleted: string }>(r)),
   samples: () => fetch("/api/samples").then((r) => json<Sample[]>(r)),
   dictionary: () => fetch("/api/dictionary").then((r) => json<LineDef[]>(r)),
   company: (ico: string) => fetch(`/api/company/${encodeURIComponent(ico)}`).then((r) => json<Company>(r)),

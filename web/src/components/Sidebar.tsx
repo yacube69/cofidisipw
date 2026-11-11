@@ -1,9 +1,13 @@
-import { FileText, FlaskConical, Plus } from "lucide-react";
-import type { Sample } from "../types";
+import { FileText, FlaskConical, LogOut, Plus } from "lucide-react";
+import type { AuthUser, Sample } from "../types";
 
+/** A stored result (CIPW-60) or one analysed just now. */
 export interface RecentResult {
   id: string;
   file: string;
+  company?: string | null;
+  owner?: string | null;
+  created_at?: string;
 }
 
 interface Props {
@@ -13,10 +17,18 @@ interface Props {
   analysing: boolean;
   onNew: () => void;
   onOpen: (id: string) => void;
+  /** The signed-in user with local accounts (CIPW-62); null without sign-in. */
+  user?: AuthUser | null;
+  canAnalyse?: boolean;
+  onSignOut?: () => void;
 }
 
-/** Navigation only: start a new analysis, or go back to a result of this session or a sample. */
-export function Sidebar({ samples, recent, currentId, analysing, onNew, onOpen }: Props) {
+function when(iso?: string): string {
+  return iso ? new Date(iso).toLocaleDateString("cs-CZ") : "";
+}
+
+/** Navigation only: start a new analysis, or open a stored result or a sample. */
+export function Sidebar({ samples, recent, currentId, analysing, onNew, onOpen, user = null, canAnalyse = true, onSignOut }: Props) {
   return (
     <aside className="sidebar" aria-label="Navigation">
       <a href="/" aria-label="Fides home">
@@ -24,18 +36,24 @@ export function Sidebar({ samples, recent, currentId, analysing, onNew, onOpen }
         <img className="logo logo-dark" src="/fides-logo-white.svg" alt="" />
       </a>
 
-      <button type="button" className="btn primary block" onClick={onNew} aria-current={currentId === null ? "true" : undefined}>
-        <Plus aria-hidden="true" />
-        {analysing ? "Analysis running…" : "New analysis"}
-      </button>
+      {canAnalyse && (
+        <button type="button" className="btn primary block" onClick={onNew} aria-current={currentId === null ? "true" : undefined}>
+          <Plus aria-hidden="true" />
+          {analysing ? "Analysis running…" : "New analysis"}
+        </button>
+      )}
 
       {recent.length > 0 && (
         <nav className="side-section" aria-label="Analysed files">
           <div className="eyebrow">Analysed files</div>
           {recent.map((r) => (
-            <button key={r.id} type="button" className="nav-item" aria-current={currentId === r.id ? "true" : undefined} onClick={() => onOpen(r.id)}>
+            <button key={r.id} type="button" className="nav-item" aria-current={currentId === r.id ? "true" : undefined} onClick={() => onOpen(r.id)}
+              title={[r.file, when(r.created_at), r.owner].filter(Boolean).join(" · ")}>
               <FileText aria-hidden="true" />
-              <span>{r.file}</span>
+              <span>
+                {r.company || r.file}
+                {(r.created_at || r.owner) && <span className="what">{[when(r.created_at), r.owner].filter(Boolean).join(" · ")}</span>}
+              </span>
             </button>
           ))}
         </nav>
@@ -51,6 +69,19 @@ export function Sidebar({ samples, recent, currentId, analysing, onNew, onOpen }
             </button>
           ))}
         </nav>
+      )}
+
+      {user?.name && (
+        <div className="side-user">
+          <div className="who">
+            <span>{user.name}</span>
+            <span className="faint">{user.role}</span>
+          </div>
+          <button type="button" className="btn ghost small" onClick={onSignOut}>
+            <LogOut aria-hidden="true" />
+            Sign out
+          </button>
+        </div>
       )}
 
       <footer className="side-foot">

@@ -10,5 +10,5 @@ services:
         required: false
     volumes:
       - ./data:/workspace/data:ro
-      - ./outputs:/workspace/outputs # run logs (outputs/logs) and exported results
+      - ./outputs:/workspace/outputs # the database fides.db (results, users), run logs, admin-password.txt
     restart: unless-stopped

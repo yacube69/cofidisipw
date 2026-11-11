@@ -52,6 +52,7 @@ export function About({ result }: { result: ResultView }) {
             </p>
             <dl className="audit">
               <Row label="Run">{a.run_id} · {when(a.started_at)}{seconds !== null && ` · ${formatNumber(seconds, 1)} s`}</Row>
+              {a.user && <Row label="Analysed by">{a.user}</Row>}
               <Row label="Fides version">
                 {a.tool_version}
                 {a.git_describe && <> · <span className="mono">{a.git_describe}</span></>}
@@ -75,7 +76,7 @@ export function About({ result }: { result: ResultView }) {
                         {c.old === c.new
                           ? `confirmed ${formatAmount(c.new, unit)}`
                           : `${formatAmount(c.old, unit)} → ${formatAmount(c.new, unit)}`} {unitLabel(unit)}
-                        {c.by && `, ${c.by}`}, {when(c.at)}
+                        {c.by && `, by ${c.by}`}, {when(c.at)}
                       </li>
                     ))}
                   </ul>

@@ -76,6 +76,16 @@ def test_a_key_in_the_committed_yaml_is_refused(clean_env, tmp_path):
     clean_env.setitem(Settings.model_config, "yaml_file", bad)
     with pytest.raises(ValueError, match="must not contain llm.api_key"):
         Settings()
+    bad.write_text("auth:\n  admin_password: oops-in-git\n", encoding="utf-8")  # CIPW-62: the admin password too
+    with pytest.raises(ValueError, match="must not contain auth.admin_password"):
+        Settings()
+
+
+def test_the_admin_password_never_leaves_the_settings(clean_env):
+    clean_env.setenv("FIDES_AUTH__ADMIN_PASSWORD", "a long admin password")
+    s = reload_settings()
+    assert s.auth.admin_password.get_secret_value() == "a long admin password"
+    assert "a long admin password" not in json.dumps(s.public()) and "admin_password" not in s.public()["auth"]
 
 
 def test_every_result_has_the_audit_block_and_a_run_log(clean_env, tmp_path):

@@ -70,9 +70,14 @@ A wrong correction is put right by correcting the value again; the audit keeps b
 | `GET /api/results/{id}/pages/{page}` | page image (JPEG, 144 dpi) |
 | `GET /api/results/{id}/export` | full `Result` JSON as a download |
 | `GET /api/results/{id}/report.pdf` | the PDF report (`docs/report.md`) |
+| `GET /api/results` | the stored results, newest first: id, file, company, IČO, owner, time (CIPW-60) |
+| `DELETE /api/results/{id}` | deletes a stored result with its PDF and corrections: its owner or an admin |
+| `GET /api/auth/me`, `POST /api/auth/login`, `POST /api/auth/logout` | sign-in mode and user; sign in with `{name, password}` (a session cookie), sign out (CIPW-62, `docs/users.md`) |
 | `POST /api/results/{id}/corrections` | JSON `{key, period, value, reason?}`, the amount in CZK: confirms (the same amount) or corrects one value by hand and computes the rest again → result view; 404 for a line the statement does not have |
 
-Results of uploaded files live in memory (the last 20) and are gone after a restart. That is enough for one analyst; a shared server deployment would add sign-in and storage on the Cofidis side.
+**Storage (CIPW-60).** Every analysed file is stored with its result, its PDF, its owner and every later correction in `outputs/fides.db` (SQLite, `src/storage.py`), so it survives a restart. The sidebar lists the stored results, newest first. The last `api.max_results` are also kept in memory, so page images and corrections do not read the database again. A result is stored compressed; `storage.keep_days` deletes old ones. Samples are never stored.
+
+**Sign-in (CIPW-62).** With `auth.mode: local` every endpoint but `health` and `auth` needs a signed-in user, and the role decides what is allowed: *viewer* reads, *analyst* also uploads and corrects, *admin* also deletes. Without sign-in (`none`, the default) the app works as before. `docs/users.md` describes the accounts and the options for Active Directory and SSO.
 
 ## Samples
 

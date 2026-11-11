@@ -2,6 +2,13 @@
 
 Log of project decisions. Newest first. Format: date, decision, reason.
 
+## 2026-11-12 — Local accounts and storage in SQLite, the backend stays in Python (CIPW-62, CIPW-60)
+
+- **Decision:** sign-in with local accounts (`auth.mode: local`) and one SQLite file (`outputs/fides.db`) for the results, their PDFs and corrections, the users and the sessions. One admin account is created at the first start; its password comes from `.env` or is generated into `outputs/admin-password.txt`, never from the code. Active Directory and SSO stay options for Cofidis (`docs/users.md`, CIPW-59).
+- **Why:** a shared Cofidis server needs to know who analyses and corrects, and must not lose work at a restart. SQLite needs no database server and only Python's standard library; a request costs one read of its session.
+- **Kotlin was considered for the backend and dropped:** the heavy work (OCR, reading the PDF) is Python and stays Python. A Kotlin API in front of it would add a JVM to the image (more memory), a call between two runtimes for every analysis, and a second language to maintain, which is heavier for the server, not lighter.
+- **Affected tasks:** CIPW-59, CIPW-60, CIPW-62.
+
 ## 2026-11-11 — Mistral is the language model of the AI report (CIPW-58)
 
 - **Decision:** in production the AI report (CIPW-16) uses Mistral, through Mistral's chat completions API or a Mistral model on a server of Cofidis' own with the same interface. The default model is `mistral-medium-3.5`, the one Cofidis uses internally. The key comes from `MISTRAL_API_KEY`. This replaces Anthropic for the AI report (entry of 2026-10-07); Anthropic stays only in the vision baseline experiment (CIPW-8).

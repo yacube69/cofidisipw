@@ -187,6 +187,7 @@ export interface Audit {
   started_at: string;
   finished_at: string | null;
   log_file: string | null;
+  user?: string | null; // who analysed the file (CIPW-62)
   corrections: Correction[];
 }
 
@@ -207,8 +208,32 @@ export interface Company {
   retrieved: string | null;
 }
 
+/** Sign-in (CIPW-62): the mode of the server and the signed-in user; without sign-in an anonymous admin. */
+export type Role = "viewer" | "analyst" | "admin";
+export interface AuthUser {
+  name: string | null;
+  role: Role;
+}
+export interface AuthState {
+  mode: "none" | "local";
+  user: AuthUser | null;
+}
+
+/** A result kept in the server's storage (CIPW-60), as GET /api/results lists it. */
+export interface StoredResult {
+  id: string;
+  file: string;
+  company: string | null;
+  ico: string | null;
+  owner: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ResultView {
   id: string;
+  owner?: string | null; // who analysed it (CIPW-62); null without sign-in
+  sample?: boolean; // a sample: never stored, its corrections last until the restart
   tool_version: string;
   file: string;
   created_at: string;

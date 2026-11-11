@@ -391,7 +391,7 @@ def recompute(result: Result, settings: Settings | None = None) -> Result:
     return result
 
 
-def run_pipeline(pdf_path: str | Path, options: PipelineOptions | None = None) -> Result:
+def run_pipeline(pdf_path: str | Path, options: PipelineOptions | None = None, user: str | None = None) -> Result:
     pdf_path = Path(pdf_path)
     options = options or PipelineOptions()
     settings = get_settings()
@@ -399,6 +399,7 @@ def run_pipeline(pdf_path: str | Path, options: PipelineOptions | None = None) -
     log = RunLog(run_id, pdf_path.name, settings.paths.logs if settings.log_runs else None)
     result = Result(file=pdf_path.name, options=options)
     result.audit = _audit(run_id, settings, datetime.now().astimezone(), log)
+    result.audit.user = user  # who analysed the file (CIPW-62); None without sign-in
     log.event("run_start", file=pdf_path.name, options=options.model_dump(mode="json"),
               audit=result.audit.model_dump(mode="json", exclude={"corrections"}))  # fmt: skip
     unavailable: set[str] = set()  # stages that failed or were skipped because an input was missing

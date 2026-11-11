@@ -142,7 +142,40 @@ class ReportSettings(BaseModel):
 
 class ApiSettings(BaseModel):
     max_upload_mb: int = Field(60, gt=0)
-    max_results: int = Field(20, gt=0, description="Analysed files kept in memory by the API.")
+    max_results: int = Field(20, gt=0, description="Results kept in memory by the API (the rest is in storage).")
+
+
+class AuthSettings(BaseModel):
+    """Sign-in (CIPW-62, docs/users.md). `none`: no sign-in, for one computer, development and the tests. `local`:
+    users kept by Fides (scripts/users.py). `ldap`, `header` and `oidc` are the options Cofidis may choose (CIPW-59)."""
+
+    mode: Literal["none", "local"] = "none"
+    idle_minutes: int = Field(120, gt=0, description="A session ends after this long without a request.")
+    max_hours: int = Field(12, gt=0, description="A session ends after this long in any case.")
+    max_failures: int = Field(5, gt=0, description="Wrong passwords for one name before its sign-in is blocked.")
+    block_minutes: int = Field(15, gt=0, description="How long the sign-in of that name stays blocked.")
+    secure_cookie: Literal["auto", "always", "never"] = Field(
+        "auto", description="Secure flag of the session cookie; auto: when the request came over HTTPS."
+    )
+    admin_name: str = Field("admin", description="The one admin account, created at the first start.")
+    admin_password: SecretStr | None = Field(
+        None, description="From FIDES_AUTH__ADMIN_PASSWORD in .env or the environment only; applied at every start."
+    )
+
+
+class StorageSettings(BaseModel):
+    """Results, their PDFs and corrections, users and sessions in one SQLite file (CIPW-60)."""
+
+    path: Path = Field(Path("outputs/fides.db"), description="Relative to the repository root (/workspace in Docker).")
+    keep_days: int | None = Field(None, gt=0, description="Results older than this are deleted; None: kept.")
+    visibility: Literal["team", "own"] = Field(
+        "team", description="team: every signed-in user sees every stored result; own: only their own (admins all)."
+    )
+
+    @field_validator("path", mode="after")
+    @classmethod
+    def _absolute(cls, value: Path) -> Path:
+        return value if value.is_absolute() else ROOT / value
 
 
 class Settings(BaseSettings):
@@ -166,6 +199,8 @@ class Settings(BaseSettings):
     tesseract: TesseractSettings = Field(default_factory=TesseractSettings)
     llm: LlmSettings = Field(default_factory=LlmSettings)
     api: ApiSettings = Field(default_factory=ApiSettings)
+    auth: AuthSettings = Field(default_factory=AuthSettings)
+    storage: StorageSettings = Field(default_factory=StorageSettings)
     ares: AresSettings = Field(default_factory=AresSettings)
     report: ReportSettings = Field(default_factory=ReportSettings)
 
@@ -195,7 +230,7 @@ class Settings(BaseSettings):
 
     def public(self) -> dict[str, Any]:
         """Every setting except secrets, with paths relative to the repository root where possible."""
-        data = self.model_dump(mode="json", exclude={"llm": {"api_key"}})
+        data = self.model_dump(mode="json", exclude={"llm": {"api_key"}, "auth": {"admin_password"}})
         for key, value in data["paths"].items():
             path = Path(value)
             data["paths"][key] = path.relative_to(ROOT).as_posix() if path.is_relative_to(ROOT) else path.as_posix()
@@ -260,6 +295,10 @@ class _YamlWithoutSecrets(YamlConfigSettingsSource):
         data = super().__call__()
         if (data.get("llm") or {}).get("api_key"):
             raise ValueError(f"{CONFIG_FILE.name} must not contain llm.api_key; set MISTRAL_API_KEY in .env instead")
+        if (data.get("auth") or {}).get("admin_password"):
+            raise ValueError(
+                f"{CONFIG_FILE.name} must not contain auth.admin_password; set FIDES_AUTH__ADMIN_PASSWORD in .env"
+            )
         return data
 
 

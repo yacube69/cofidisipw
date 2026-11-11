@@ -1,19 +1,20 @@
-import { Download, FileText, Info } from "lucide-react";
+import { Download, FileText, Info, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { About } from "./components/About";
 import { Extraction } from "./components/Extraction";
 import { NewAnalysis } from "./components/NewAnalysis";
 import { Overview } from "./components/Overview";
 import { Ratios } from "./components/Ratios";
+import { SignIn } from "./components/SignIn";
 import { Report } from "./components/Report";
 import { Sidebar, type RecentResult } from "./components/Sidebar";
 import { MockBadge } from "./components/ui";
 import { Validation } from "./components/Validation";
-import { api } from "./lib/api";
+import { api, SIGNED_OUT } from "./lib/api";
 import { formatDate } from "./lib/format";
 import { stepSummaries, type StepId } from "./lib/summary";
 import { accountingChecks, valueRows, type ValueRow } from "./lib/values";
-import type { LineDef, ResultView, Sample, StatementPages } from "./types";
+import type { AuthState, LineDef, ResultView, Sample, StatementPages } from "./types";
 
 const STEPS: { id: StepId; label: string }[] = [
   { id: "overview", label: "Overview" },
@@ -32,6 +33,7 @@ function stepFromHash(): StepId {
 }
 
 export default function App() {
+  const [auth, setAuth] = useState<AuthState | null>(null);
   const [samples, setSamples] = useState<Sample[]>([]);
   const [dictionary, setDictionary] = useState<LineDef[]>([]);
   const [result, setResult] = useState<ResultView | null>(null);
@@ -53,14 +55,52 @@ export default function App() {
     setError("");
   }, []);
 
+  // CIPW-62: who is signed in; with local accounts nothing loads before sign-in
+  const signedIn = auth !== null && (auth.mode === "none" || auth.user !== null);
+  const role = auth?.user?.role ?? "admin";
+  const canAnalyse = role !== "viewer";
+  const unreachable = (e: Error) => setError(`The Fides service is not reachable (${e.message}). Is the container running?`);
+
   useEffect(() => {
+    api.me().then(setAuth).catch(unreachable);
+    const signedOut = () => {
+      setAuth((a) => (a && a.mode !== "none" ? { ...a, user: null } : a));
+      setResult(null);
+      setNewAnalysis(true);
+    };
+    window.addEventListener(SIGNED_OUT, signedOut);
+    return () => window.removeEventListener(SIGNED_OUT, signedOut);
+  }, []);
+
+  useEffect(() => {
+    if (!signedIn) return;
     Promise.all([api.samples(), api.dictionary()])
       .then(([s, d]) => {
         setSamples(s);
         setDictionary(d);
       })
-      .catch((e: Error) => setError(`The Fides service is not reachable (${e.message}). Is the container running?`));
-  }, []);
+      .catch(unreachable);
+    // the stored results (CIPW-60); an older server without them lists nothing
+    api.results().then((list) => setRecent(list)).catch(() => setRecent([]));
+  }, [signedIn, auth?.user?.name]);
+
+  const signOut = () => {
+    api.logout().then(setAuth).catch(() => setAuth((a) => (a ? { ...a, user: null } : a)));
+    setResult(null);
+    setRecent([]);
+    setNewAnalysis(true);
+  };
+
+  const remove = () => {
+    if (!result || !window.confirm(`Delete ${result.file} with its corrections? This cannot be undone.`)) return;
+    api.remove(result.id)
+      .then(() => {
+        setRecent((list) => list.filter((r) => r.id !== result.id));
+        setResult(null);
+        setNewAnalysis(true);
+      })
+      .catch((e: Error) => setError(e.message));
+  };
 
   useEffect(() => {
     const onHash = () => setStep(stepFromHash());
@@ -108,7 +148,10 @@ export default function App() {
       .analyse(file, scope, pages, abort.current.signal)
       .then((r) => {
         show(r);
-        setRecent((list) => [{ id: r.id, file: file.name }, ...list.filter((x) => x.id !== r.id)]);
+        setRecent((list) => [
+          { id: r.id, file: file.name, company: r.display_name, owner: r.owner, created_at: new Date().toISOString() },
+          ...list.filter((x) => x.id !== r.id),
+        ]);
         go("overview");
       })
       .catch((e: Error) => setError(e.name === "AbortError" ? "" : `${file.name} could not be analysed: ${e.message}`))
@@ -131,6 +174,12 @@ export default function App() {
   const readNotes = (result?.warnings ?? []).filter((w) => READ_NOTE.test(w));
   const otherNotes = (result?.warnings ?? []).filter((w) => !READ_NOTE.test(w));
 
+  if (auth === null) {
+    return error ? <main className="signin"><div className="banner error" role="alert">{error}</div></main> : null;
+  }
+  if (!signedIn) return <SignIn onSignedIn={setAuth} />;
+  const canDelete = result?.sample === false && (role === "admin" || (!!result.owner && result.owner === auth.user?.name));
+
   return (
     <div className="shell">
       <Sidebar
@@ -140,6 +189,9 @@ export default function App() {
         analysing={busy !== null}
         onNew={() => setNewAnalysis(true)}
         onOpen={open}
+        user={auth.mode === "local" ? auth.user : null}
+        canAnalyse={canAnalyse}
+        onSignOut={signOut}
       />
       <main className="main">
         {error && <div className="banner error" role="alert" style={{ marginBottom: 16 }}>{error}</div>}
@@ -152,6 +204,11 @@ export default function App() {
               scan about 20 seconds per page. {elapsed > 0 && `${elapsed} s so far.`}
             </p>
             <button type="button" className="btn" onClick={() => abort.current?.abort()}>Cancel</button>
+          </div>
+        ) : (newAnalysis || !result) && !canAnalyse ? (
+          <div className="empty">
+            <h2>Open an analysis</h2>
+            <p>Pick an analysed file or a sample on the left. Your role, viewer, can read results and download them.</p>
           </div>
         ) : newAnalysis || !result ? (
           <NewAnalysis busy={busy !== null} onAnalyse={analyse} />
@@ -195,6 +252,12 @@ export default function App() {
                   <Download aria-hidden="true" />
                   Export JSON
                 </a>
+                {canDelete && (
+                  <button type="button" className="btn ghost" onClick={remove}>
+                    <Trash2 aria-hidden="true" />
+                    Delete
+                  </button>
+                )}
               </div>
             </header>
             {result.errors.length > 0 && (
@@ -228,7 +291,7 @@ export default function App() {
 
             {step === "overview" && <Overview result={result} rows={rows} summaries={summaries} onOpen={go} />}
             {step === "extraction" && (
-              <Extraction key={result.id} result={result} rows={rows} selectedId={selectedId} onSelect={setSelectedId} onCorrect={correct} />
+              <Extraction key={result.id} result={result} rows={rows} selectedId={selectedId} onSelect={setSelectedId} onCorrect={canAnalyse ? correct : undefined} />
             )}
             {step === "validation" && <Validation key={result.id} result={result} rows={rows} onShowValue={(id) => go("extraction", id)} />}
             {step === "ratios" && <Ratios result={result} ico={ico} onIcoChange={setIco} />}

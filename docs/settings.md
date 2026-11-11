@@ -40,7 +40,16 @@ Where a value comes from, highest first:
 | `llm.price_in_per_mtok`, `llm.price_out_per_mtok` | 0, 0 | USD per million tokens for `Result.llm_usage.cost_usd`; 0 = not counted |
 | `llm.max_cost_usd` | 0.50 | upper limit for one AI report (CIPW-16) |
 | `llm.api_key` | – | `MISTRAL_API_KEY` only; a key in `config/fides.yaml` is refused |
-| `api.max_upload_mb`, `api.max_results` | 60, 20 | web app API |
+| `api.max_upload_mb`, `api.max_results` | 60, 20 | web app API; `max_results` results are also kept in memory, the rest is read from storage |
+| `auth.mode` | none | sign-in: `none` (one computer) or `local` (accounts kept by Fides), `docs/users.md` |
+| `auth.idle_minutes`, `auth.max_hours` | 120, 12 | a session ends after this long without a request, and after this long in any case |
+| `auth.max_failures`, `auth.block_minutes` | 5, 15 | wrong passwords for one name before its sign-in is blocked, and for how long |
+| `auth.secure_cookie` | auto | `Secure` flag of the session cookie: auto (when the request came over HTTPS), always, never |
+| `auth.admin_name` | admin | the one admin account, created at the first start |
+| `auth.admin_password` | – | `FIDES_AUTH__ADMIN_PASSWORD` only, applied at every start; without it a generated password is written to `admin-password.txt` next to the database |
+| `storage.path` | `outputs/fides.db` | results, PDFs, corrections, users and sessions (SQLite) |
+| `storage.keep_days` | null | results older than this are deleted at start and after each analysis; null keeps them |
+| `storage.visibility` | team | `team`: every signed-in user sees every stored result; `own`: only their own (admins see all) |
 | `ares.enabled`, `ares.url`, `ares.timeout`, `ares.cache` | true, the public ARES REST API, 5 s, `outputs/cache/ares` | company data by IČO (CIPW-44, `docs/ares.md`); off: saved answers and the dataset snapshot only |
 
 The API key never appears in `Settings.public()`, the settings hash, a result or a log.

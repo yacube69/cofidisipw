@@ -119,6 +119,58 @@ describe("App", () => {
     expect([form.get("balance_sheet_pages"), form.get("income_statement_pages")]).toEqual(["75-76", "77"]);
   });
 
+  it("signs in with a local account, lists the stored results, and a viewer can only read (CIPW-62)", async () => {
+    let user: { name: string; role: string } | null = null;
+    const calls: string[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (url: string, init?: RequestInit) => {
+      calls.push(`${init?.method ?? "GET"} ${url}`);
+      const ok = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { "Content-Type": "application/json" } });
+      if (url === "/api/auth/me") return ok({ mode: "local", user });
+      if (url === "/api/auth/login") {
+        const { name, password } = JSON.parse(init!.body as string);
+        if (password !== "correct horse battery") return ok({ detail: "Wrong name or password" }, 401);
+        user = { name, role: "viewer" };
+        return ok({ mode: "local", user });
+      }
+      if (url === "/api/auth/logout") {
+        user = null;
+        return ok({ mode: "local", user });
+      }
+      if (!user) return ok({ detail: "Sign in first" }, 401);
+      if (url === "/api/results") {
+        return ok([{ id: "abc123", file: "26161516_2025_statement.pdf", company: "Mondi Štětí a.s.", ico: "26161516", owner: "pdvorak", created_at: "2026-11-12T09:30:00+01:00", updated_at: "2026-11-12T09:30:00+01:00" }]);
+      }
+      return ok(url === "/api/samples" ? [{ id: "mondi-2025", label: "Mondi" }] : url === "/api/dictionary" ? dictionary : { ...sampleView(), sample: false, owner: "pdvorak" });
+    }));
+    render(<App />);
+    expect(await screen.findByRole("heading", { name: "Sign in" })).toBeTruthy();
+    expect(calls.some((c) => c.includes("/api/samples"))).toBe(false); // nothing loads before sign-in
+
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "jnovak" } });
+    fireEvent.change(screen.getByLabelText("Password"), { target: { value: "wrong one" } });
+    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+    expect(await screen.findByText("Wrong name or password")).toBeTruthy();
+    fireEvent.change(screen.getByLabelText("Password"), { target: { value: "correct horse battery" } });
+    fireEvent.click(screen.getByRole("button", { name: "Sign in" }));
+
+    // signed in as a viewer: the stored results, no upload, no delete, no correction
+    const stored = await screen.findByRole("navigation", { name: "Analysed files" });
+    expect(within(stored).getByText("Mondi Štětí a.s.")).toBeTruthy();
+    expect(screen.getByText("jnovak")).toBeTruthy();
+    expect(screen.queryByRole("button", { name: /New analysis/ })).toBeNull();
+    expect(screen.getByRole("heading", { name: "Open an analysis" })).toBeTruthy();
+    fireEvent.click(within(stored).getByRole("button", { name: /Mondi Štětí a\.s\./ }));
+    expect(await screen.findByRole("navigation", { name: "Steps" })).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Delete" })).toBeNull();
+    fireEvent.click(within(screen.getByRole("navigation", { name: "Steps" })).getByText("Extraction"));
+    fireEvent.click((await screen.findByRole("table")).querySelectorAll("tbody tr")[0]);
+    expect(screen.queryByRole("button", { name: /Confirm value|Save correction/ })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Sign out" }));
+    expect(await screen.findByRole("heading", { name: "Sign in" })).toBeTruthy();
+    expect(calls).toContain("POST /api/auth/logout");
+  });
+
   it("confirms a value to review and corrects another by hand (CIPW-42)", async () => {
     const view = sampleView();
     const posted: { key: string; period: "current"; value: number }[] = [];

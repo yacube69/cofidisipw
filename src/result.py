@@ -70,6 +70,7 @@ class Audit(BaseModel):
     started_at: datetime
     finished_at: datetime | None = None
     log_file: str | None = Field(None, description="JSON-lines log of this run, relative to the repository root.")
+    user: str | None = Field(None, description="Who analysed the file (CIPW-62); None without sign-in.")
     corrections: list[Correction] = Field(default_factory=list)
 
 

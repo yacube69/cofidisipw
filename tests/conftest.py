@@ -9,6 +9,8 @@ os.environ.setdefault("FIDES_ARES__ENABLED", "false")
 os.environ.setdefault("FIDES_ARES__CACHE", tempfile.mkdtemp(prefix="fides-test-ares-"))  # not this computer's answers
 # Tests never call the paid LLM API, whatever key this computer's .env has; LLM calls are mocked (test_llm.py).
 os.environ["FIDES_LLM__API_KEY"] = ""
+# Stored results, users and sessions of the test run go to a temporary database, not outputs/fides.db (CIPW-60).
+os.environ.setdefault("FIDES_STORAGE__PATH", os.path.join(tempfile.mkdtemp(prefix="fides-test-db-"), "fides.db"))
 
 from src.settings import get_settings  # noqa: E402
 
