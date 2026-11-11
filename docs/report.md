@@ -33,15 +33,30 @@ python scripts/render_report.py <result.json> --refresh   # a result saved by an
 
 ## Cofidis' brand
 
-Cofidis introduced a new brand identity in March 2026; its brand files are not in this repository. Until Cofidis provides them, the template uses the red and yellow of the CIPW-18 requirement and the name "Cofidis" in place of the logo. To brand it, set in `config/fides.yaml`:
+The colours are Cofidis' own, from its public brand toolkit (https://www.cofidis.hu/toolkit):
+
+| Colour | HEX | RGB | CMYK | Used for |
+| --- | --- | --- | --- | --- |
+| Cofidis red | `#D0103A` | 208 16 58 | 0 100 80 0 | header band, headings, the verdict bar and the rating |
+| Cofidis yellow | `#FECB00` | 254 203 0 | 0 20 100 0 | the thin band under the header, the verdict box (as a light tint) |
+
+The logo goes in the top left corner, 34 mm wide, on white, following the toolkit's rules:
+- at least 32 mm wide;
+- in a corner, never part of a text;
+- on white or a brand colour;
+- clear space of half a capital "C".
+
+The toolkit offers it as `cofidis-toolkit-logo.zip` (horizontal, on white, red, yellow, white and black). Until the file is in the repository, the name "Cofidis" stands in. To set it, in `config/fides.yaml`:
 
 ```yaml
 report:
   language: cs          # cs | en (labels; the AI text has its own language)
-  primary: "#D52B1E"    # Cofidis' main colour: header band, headings, verdict bar
-  accent: "#FFC72C"     # second colour: the thin band under the header and the verdict box (as a light tint)
-  logo: config/brand/cofidis-logo.png   # PNG or JPEG, about 30 pt high in the header
+  primary: "#D0103A"    # Cofidis red
+  accent: "#FECB00"     # Cofidis yellow
+  logo: config/brand/cofidis-logo.png   # PNG or JPEG, the horizontal logo on white
 ```
+
+The toolkit's typeface is Gotham, a commercial font; the report uses the built-in Nimbus Sans instead, so no font licence is needed for the Docker image.
 
 Fides stays in the footer, apart from the Cofidis logo (rule in `docs/brand/README.md`: the two logos are never locked together).
 

@@ -28,6 +28,8 @@ A4 = pymupdf.paper_rect("a4")
 MARGIN = 42
 BODY = pymupdf.Rect(MARGIN, 58, A4.width - MARGIN, A4.height - 70)  # leaves room for the header band and footer
 FIDES_LOGO = "docs/brand/logo/fides-logo-1200.png"
+# Cofidis' toolkit: the logo at least 32 mm wide, in a corner, on white or a brand colour, clear space half a "C"
+LOGO_WIDTH = 96  # pt, 34 mm
 INK, MUTED, LINE = "#1E1A18", "#6B6560", "#D9D4CF"
 LIGHT_COLOUR = {"green": "#2E7D32", "amber": "#E0A100", "red": "#C62828"}
 # the verdict box is drawn under its text after the layout: a background inside the Story leaks onto the next page
@@ -226,7 +228,7 @@ def _header(result: Result, t: dict, s: Settings) -> str:
     name = (company.name if company and company.name else None) or meta.company_name or f"{t['ico']} {meta.ico or '–'}"
     logo = ROOT / s.report.logo if s.report.logo else None
     brand = (
-        f'<img src="{esc(s.report.logo)}" height="30"/>'
+        f'<img src="{esc(s.report.logo)}" width="{LOGO_WIDTH}"/>'
         if logo and logo.exists()
         else f'<span style="color:{s.report.primary};font-size:22pt;font-weight:bold">Cofidis</span>'
     )

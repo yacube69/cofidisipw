@@ -123,8 +123,8 @@ class ReportSettings(BaseModel):
     """The PDF report (CIPW-43, src/report/pdf.py): Cofidis' brand, Fides credited in the footer."""
 
     language: Literal["cs", "en"] = Field("cs", description="Language of the labels (the AI text has its own).")
-    primary: str = Field("#D52B1E", description="Cofidis' main colour: header band, headings.")
-    accent: str = Field("#FFC72C", description="Cofidis' second colour: the verdict box.")
+    primary: str = Field("#D0103A", description="Cofidis red (cofidis.hu/toolkit): header band, headings.")
+    accent: str = Field("#FECB00", description="Cofidis yellow (cofidis.hu/toolkit): the verdict box.")
     logo: str = Field("", description="Cofidis' logo (PNG or JPEG), relative to the repository; '' = the name.")
 
 
