@@ -127,3 +127,56 @@ Mondi is in distress in both models although it is a profitable manufacturer: 16
 ## For the presentation: why IN05
 
 IN05 was built by Inka and Ivan Neumaier on the financial statements of Czech industrial companies and published in 2005, so its weights reflect Czech accounting (Vyhláška 500/2002), Czech capital structures and Czech interest levels rather than those of US listed firms in the 1960s. It joins the creditor's view (bankruptcy risk) with the owner's view (whether the firm creates value), and it is widely taught and used in Czech financial analysis, so a Cofidis analyst can compare a Fides result with what they already know. Altman Z′ is computed next to it as the internationally known reference.
+
+
+---
+
+# Ratio Evaluation (CIPW-14)
+
+The financial ratios are evaluated with green, amber and red traffic lights.
+
+Green means a good result, amber means a result to review, and red means a possible financial risk.
+
+## Default thresholds
+
+These values are temporary and need confirmation from Cofidis.
+
+| Ratio | Green | Amber | Red |
+|---|---|---|---|
+| Current ratio | 1.5–2.5 | 1.0–1.5 or 2.5–3.0 | Outside these limits |
+| Quick ratio | 1.0–1.5 | 0.7–1.0 or 1.5–2.0 | Outside these limits |
+| Cash ratio | 0.2–0.5 | 0.1–0.2 or 0.5–1.0 | Outside these limits |
+| ROA | >= 5% | 0–5% | Below 0% |
+| ROE | >= 10% | 0–10% | Below 0% |
+| ROS | >= 5% | 0–5% | Below 0% |
+| EBITDA margin | >= 10% | 0–10% | Below 0% |
+| Debt ratio | <= 60% | 60–80% | Above 80% |
+| Debt to equity | <= 1.5 | 1.5–3.0 | Above 3.0 |
+| Interest coverage | >= 3.0 | 1.5–3.0 | Below 1.5 |
+| Receivables days | Not defined yet | Not defined yet | Not defined yet |
+| Payables days | Not defined yet | Not defined yet | Not defined yet |
+
+The profitability and debt limits are project assumptions, not official Czech industry limits.
+
+## Industry benchmarks
+
+Industry data from the Czech Ministry of Industry and Trade (MPO) is saved in `data/benchmarks.csv`.
+
+The file contains ROA, ROE and debt ratio values for different CZ-NACE sectors. It includes data from 2025 Q4 and 2026 Q2.
+
+These quarterly values are for reference only. They should not be directly compared with annual profitability ratios.
+
+The company's CZ-NACE code comes from ARES.
+
+## Important rules
+
+- Cofidis thresholds have priority over our default values.
+- Missing or unreliable ratios do not receive a traffic light.
+- Receivables days and payables days need further agreement.
+- All limits should be checked before the final release.
+
+## Sources
+
+- Czech Ministry of Industry and Trade (MPO): Financial analysis of the business sector, 2025 Q4 and 2026 Q2. Source links are included in `data/benchmarks.csv`.
+- Default liquidity ranges: preliminary ranges used in CIPW-14; exact textbook references still need to be confirmed.
+- Other thresholds: own project assumptions, pending Cofidis approval.

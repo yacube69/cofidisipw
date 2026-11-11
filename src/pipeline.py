@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import csv
 import json
 import re
 import sys
@@ -241,10 +242,116 @@ def stage_bankruptcy(result: Result, ctx: Context) -> StageStatus:
     return "ok"
 
 
+
 def stage_benchmarks(result: Result, ctx: Context) -> StageStatus:
-    """CIPW-14 (stub): mock traffic lights."""
-    result.benchmarks = mock("benchmarks")
-    return "stub"
+    """CIPW-14: Evaluate ratios with traffic lights."""
+
+    # Temporary limits until Cofidis confirms its own values
+    limits = {
+        "current_ratio": ("range", 1.5, 2.5, 1.0, 3.0),
+        "quick_ratio": ("range", 1.0, 1.5, 0.7, 2.0),
+        "cash_ratio": ("range", 0.2, 0.5, 0.1, 1.0),
+        "roa": ("higher", 5.0, 0.0),
+        "roe": ("higher", 10.0, 0.0),
+        "ros": ("higher", 5.0, 0.0),
+        "ebitda_margin": ("higher", 10.0, 0.0),
+        "debt_ratio": ("lower", 60.0, 80.0),
+        "debt_to_equity": ("lower", 1.5, 3.0),
+        "interest_coverage": ("higher", 3.0, 1.5),
+    }
+
+    def get_light(key, value, flag):
+        if value is None or flag != "ok":
+            return None
+
+        if key not in limits:
+            return None
+
+        rule = limits[key]
+        direction = rule[0]
+
+        if direction == "higher":
+            if value >= rule[1]:
+                return "green"
+            if value >= rule[2]:
+                return "amber"
+            return "red"
+
+        if direction == "lower":
+            if value <= rule[1]:
+                return "green"
+            if value <= rule[2]:
+                return "amber"
+            return "red"
+
+        if rule[1] <= value <= rule[2]:
+            return "green"
+        if rule[3] <= value <= rule[4]:
+            return "amber"
+        return "red"
+
+    evaluated = {}
+
+    for ratio in result.ratios.ratios:
+        evaluated[ratio.key] = {
+            "value": ratio.current.value,
+            "light": get_light(
+                ratio.key,
+                ratio.current.value,
+                ratio.current.flag,
+            ),
+            "prior_value": ratio.prior.value,
+            "prior_light": get_light(
+                ratio.key,
+                ratio.prior.value,
+                ratio.prior.flag,
+            ),
+        }
+
+    
+    # Add MPO industry benchmarks
+    industry = result.company.nace_section if result.company else None
+
+    # MPO uses one group for most service sectors
+    if industry and industry in "HIJKLMNOPQRS":
+        industry = "H-S"
+
+    benchmark_file = ROOT / "data" / "benchmarks.csv"
+    industry_benchmarks = {}
+
+    if industry and benchmark_file.exists():
+        with benchmark_file.open(
+            encoding="utf-8-sig", newline=""
+        ) as file:
+            for row in csv.DictReader(file):
+                if (
+                    row["cz_nace_group"] == industry
+                    and row["period"] == "2025-Q4"
+                ):
+                    industry_benchmarks[row["ratio_key"]] = {
+                        "value": float(row["benchmark_value"]),
+                        "unit": row["unit"],
+                        "sector": row["sector_en"],
+                        "period": row["period"],
+                        "source": row["source_url"],
+                        "note": "Reference only, not a traffic light limit",
+                    }
+
+    
+    result.benchmarks = {
+        "mock": False,
+        "industry_benchmarks": industry_benchmarks,
+        "nace": (
+            result.company.nace
+            if result.company is not None
+            else None
+        ),
+        "source": "Temporary project limits, not confirmed by Cofidis",
+        "ratios": evaluated,
+    }
+
+    return "ok"
+
 
 
 def stage_report(result: Result, ctx: Context) -> StageStatus:
