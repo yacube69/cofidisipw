@@ -2,7 +2,7 @@
 
 What changed for the people who use Fides, one section per version. The version is set in `pyproject.toml` (the web app's `web/package.json` must match, `tests/test_api.py` checks it). A tag `vX.Y.Z` publishes a GitHub release with the section of that version and the Docker image `ghcr.io/yacube69/cofidisipw:X.Y.Z` (`docs/run.md`).
 
-## Unreleased
+## 0.3.0 — 2026-11-11
 
 ### The app
 
@@ -35,6 +35,13 @@ What changed for the people who use Fides, one section per version. The version 
   - Values to review are marked "ověřit".
   - Without bankruptcy scores the overall risk is not rated.
 - **The samples are up to date:** company from ARES, real traffic lights and the rule-based assessment.
+
+### Not yet in this version
+
+- **The AI report (CIPW-16)** and its number check (CIPW-17): until they are built, the assessment is the rule-based one.
+- **Excel export and reopening a saved analysis (CIPW-43).** *Export JSON* keeps a result with its corrections.
+- **IFRS and bank statements** are not read; a note above the result says so.
+- **Results and corrections live in memory** until the app restarts.
 
 ## 0.2.0 — 2026-11-01
 
