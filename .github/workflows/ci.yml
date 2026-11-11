@@ -19,7 +19,9 @@ jobs:
   test:
     name: Lint and tests (Python ${{ matrix.python-version }})
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.repository
-    runs-on: ubuntu-latest
+    # Pinned: since ubuntu-latest moved to Ubuntu 26 (Oct 2026) installing Tesseract with apt fails there (exit 100,
+    # first seen on main e7545a8, 2026-11-11). Move to the new image once its tesseract-ocr-ces package installs.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     strategy:
       fail-fast: false
