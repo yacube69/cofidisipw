@@ -10,6 +10,10 @@ What changed for the people who use Fides, one section per version. The version 
 - **Wrong IČO warnings.** A warning appears when the IČO has a wrong check digit, is not in ARES, or belongs to a company of another name.
 - **Works offline.** Without network the companies of our dataset come from a saved snapshot (`docs/ares.md`).
 
+### Analysis
+
+- **Bankruptcy models are a list.** A model is defined in one place (`MODELS` in `src/ratios/bankruptcy.py`) and the app shows a card for each. Models that give the probability of bankruptcy within a period, such as a 12-month default model, are supported, and so are models where a higher score means more risk. Results saved before still open (`docs/ratios.md`).
+
 ## 0.2.0 — 2026-11-01
 
 ### The app

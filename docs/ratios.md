@@ -124,6 +124,32 @@ Computed by hand from the printed statements (tis. Kč) and checked against the 
 
 Mondi is in distress in both models although it is a profitable manufacturer: 16.5 bn CZK of its 20 bn CZK short-term liabilities are owed within the Mondi group, which turns working capital and V5 negative. The analyst has to read the scores with the notes; the models do not know about group financing.
 
+## Adding or swapping a model (CIPW-52)
+
+Every model is one `Model` in `MODELS` in `src/ratios/bankruptcy.py`. `compute_bankruptcy` computes every model of that tuple for both years. `Result.bankruptcy.models` lists them in the same order, and the app shows a card for each. Nothing else names a model.
+
+1. **Define the model.** Its parts:
+   - key, name, source, the zones in words, the two limits `distress` and `safe`;
+   - its terms: `Term(key, formula in words, weight, compute)`. `compute` takes the `Inputs` of the ratio engine: `i.get("line_key")`, `i.ebit()`, `i.revenue()`, and `positive(...)` for a denominator.
+
+   A missing input, a zero denominator and an input to review are then handled like in IN05: the flag and the reason say which.
+2. **Add it to `MODELS`**, in the order the app should show it. To drop or replace a model, take it out of `MODELS`.
+3. **Test it** in `tests/test_bankruptcy.py`, with a hand calculation from a ground truth statement, as for IN05 and Z′.
+4. **Describe it here:** source, formula, the statement line behind every variable, zones.
+
+The same `Model` also covers other kinds of models:
+
+| Model kind | Set | Example |
+| --- | --- | --- |
+| weighted sum, higher = healthier | defaults | IN05, IN01, IN99, Altman, Springate |
+| a constant term | `constant` | Zmijewski (−4.336 + …) |
+| higher score = more risk | `higher_is_safer=False`; the zones are read the other way round | Zmijewski: above 0 distress |
+| probability of bankruptcy within a period (models that predict default in the next 12 months) | `link="logit"` or `"probit"`, `horizon="12 months"`. `Score.probability` holds the probability, the card shows it; the limits stay on the score (0 = 50 % for both links) | Zmijewski (probit), Ohlson (logit), Cofidis' own model once its variables and coefficients are known |
+
+Point systems such as the Kralicek quick test are not a weighted sum; they would need their own scoring function.
+
+Results saved before this change hold one field per model (`{"in05": …, "altman_z_prime": …}`); `BankruptcyReport` still reads them, so exports and samples keep opening.
+
 ## For the presentation: why IN05
 
 IN05 was built by Inka and Ivan Neumaier on the financial statements of Czech industrial companies and published in 2005, so its weights reflect Czech accounting (Vyhláška 500/2002), Czech capital structures and Czech interest levels rather than those of US listed firms in the 1960s. It joins the creditor's view (bankruptcy risk) with the owner's view (whether the firm creates value), and it is widely taught and used in Czech financial analysis, so a Cofidis analyst can compare a Fides result with what they already know. Altman Z′ is computed next to it as the internationally known reference.

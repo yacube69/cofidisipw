@@ -45,7 +45,7 @@ They run in this order. A stage is a function `stage(result, ctx) -> StageStatus
 | `validate` | CIPW-10 | real | `validation` | `parse` |
 | `reread` | CIPW-11 | stub | nothing yet | `validate` |
 | `ratios` | CIPW-12 | stub | `ratios` | `validate` |
-| `bankruptcy` | CIPW-13 | stub | `bankruptcy` | `ratios` |
+| `bankruptcy` | CIPW-13 | real | `bankruptcy` | `ratios` |
 | `benchmarks` | CIPW-14 | stub | `benchmarks` | `ratios` |
 | `report` | CIPW-16 | stub | `report`, `llm_usage` | `ratios`, `bankruptcy`, `benchmarks` |
 | `check_numbers` | CIPW-17 | stub | `number_check` | `report` |
@@ -77,7 +77,7 @@ A stage that fails does not stop the run: stages that do not depend on it still 
 | `company` | `Company` \| None | `company`: name, legal form, address, CZ-NACE and size from ARES, with its source (ARES, a saved answer, the dataset snapshot); None when unknown, the step's note says why |
 | `validation` | `ValidationReport` | `validate`: one `CheckResult` per accounting check (`passed`, `severity`, expected / actual) |
 | `ratios` | `RatioReport` | `ratios`: per ratio formula, inputs, value and flag for both periods |
-| `bankruptcy` | dict | `bankruptcy`: score and zone per model (format set by CIPW-13) |
+| `bankruptcy` | `BankruptcyReport` | `bankruptcy`: `models`, one entry per model of `MODELS` with score, zone, flag, variables and inputs for both years, and the probability for logit/probit models (`docs/ratios.md`, CIPW-13, CIPW-52) |
 | `benchmarks` | dict | `benchmarks`: traffic light per ratio (format set by CIPW-14) |
 | `report` | dict | `report`: summary, strengths, risks, red flags, rating, data quality note (format set by CIPW-16) |
 | `number_check` | dict | `check_numbers`: numbers found in the report and the ones not found in the data |
