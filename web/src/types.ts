@@ -97,9 +97,10 @@ export type Rating = "low" | "medium" | "high";
 
 export type Flag = "ok" | "unreliable" | "not_meaningful" | "missing";
 
-// src/ratios/bankruptcy.py (CIPW-13)
+// src/ratios/bankruptcy.py (CIPW-13, CIPW-52)
 export interface BankruptcyScore {
   score: number | null;
+  probability: number | null; // of bankruptcy within the model's horizon (logit/probit models only)
   zone: Zone | null;
   flag: Flag;
   reason: string | null;
@@ -108,17 +109,18 @@ export interface BankruptcyScore {
 }
 
 export interface BankruptcyModel {
-  key: "in05" | "altman_z_prime";
+  key: string; // the model's key in MODELS (src/ratios/bankruptcy.py), e.g. "in05"
   name: string;
   source: string;
   zones: string;
+  horizon: string | null; // period of the probability, e.g. "12 months" (logit/probit models)
   current: BankruptcyScore;
   prior: BankruptcyScore;
 }
 
+/** Every bankruptcy model in the order of MODELS (CIPW-52). */
 export interface Bankruptcy {
-  in05: BankruptcyModel;
-  altman_z_prime: BankruptcyModel;
+  models: BankruptcyModel[];
 }
 
 // benchmarks, report and number_check are free-form dicts in Python until CIPW-14/16/17 fix them

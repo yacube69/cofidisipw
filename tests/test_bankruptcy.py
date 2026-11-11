@@ -2,7 +2,8 @@
 
 import pytest
 
-from src.ratios.bankruptcy import ALTMAN_Z_PRIME, IN05, compute_bankruptcy
+from src.ratios.bankruptcy import ALTMAN_Z_PRIME, IN05, MODELS, BankruptcyReport, Model, Term, compute_bankruptcy
+from src.result import Result
 from src.validation.checks import validate
 from tests.test_checks import load
 
@@ -29,21 +30,21 @@ def test_scores_match_the_hand_calculation(stem, period):
     fs = load(stem)
     report = compute_bankruptcy(fs, validate(fs))
     in05, in05_zone, z, z_zone = HAND[(stem, period)]
-    assert getattr(report.in05, period).score == pytest.approx(in05, abs=1e-4)
-    assert getattr(report.in05, period).zone == in05_zone
-    assert getattr(report.altman_z_prime, period).score == pytest.approx(z, abs=1e-4)
-    assert getattr(report.altman_z_prime, period).zone == z_zone
-    assert getattr(report.in05, period).flag == "ok"
+    assert getattr(report.get("in05"), period).score == pytest.approx(in05, abs=1e-4)
+    assert getattr(report.get("in05"), period).zone == in05_zone
+    assert getattr(report.get("altman_z_prime"), period).score == pytest.approx(z, abs=1e-4)
+    assert getattr(report.get("altman_z_prime"), period).zone == z_zone
+    assert getattr(report.get("in05"), period).flag == "ok"
 
 
 def test_every_variable_is_shown():
     report = compute_bankruptcy(load())
-    assert [v.key for v in report.in05.current.variables] == ["V1", "V2", "V3", "V4", "V5"]
-    assert [v.value for v in report.altman_z_prime.current.variables] == pytest.approx(
+    assert [v.key for v in report.get("in05").current.variables] == ["V1", "V2", "V3", "V4", "V5"]
+    assert [v.value for v in report.get("altman_z_prime").current.variables] == pytest.approx(
         [-0.5264, 0.1985, 0.0443, 0.3710, 0.5265], abs=1e-4
     )
-    assert report.in05.current.inputs["ebit"] == pytest.approx(1_304_702_000)
-    assert "Neumaierová" in report.in05.source and "Altman" in report.altman_z_prime.source
+    assert report.get("in05").current.inputs["ebit"] == pytest.approx(1_304_702_000)
+    assert "Neumaierová" in report.get("in05").source and "Altman" in report.get("altman_z_prime").source
 
 
 def test_zone_limits():
@@ -55,7 +56,7 @@ def test_a_missing_input_gives_no_score():
     fs = load()
     del fs.balance_sheet["current_assets"]
     report = compute_bankruptcy(fs)
-    for model in (report.in05, report.altman_z_prime):
+    for model in (report.get("in05"), report.get("altman_z_prime")):
         assert model.current.score is None and model.current.zone is None
         assert model.current.flag == "missing" and model.current.reason == "current_assets not found"
 
@@ -63,30 +64,65 @@ def test_a_missing_input_gives_no_score():
 def test_zero_total_assets_is_not_meaningful():
     fs = load()
     fs.balance_sheet["total_assets"].current.value = 0
-    score = compute_bankruptcy(fs).in05.current
+    score = compute_bankruptcy(fs).get("in05").current
     assert score.score is None and score.flag == "not_meaningful" and "total_assets is 0" in score.reason
 
 
 def test_without_interest_v2_is_capped_only_for_a_profit():
     fs = load()
     fs.income_statement["interest_expense"].current.value = 0
-    v2 = compute_bankruptcy(fs).in05.current.variables[1]
+    v2 = compute_bankruptcy(fs).get("in05").current.variables[1]
     assert v2.value == 9.0  # profit before tax 507 009 > 0
     fs.income_statement["profit_before_tax"].current.value = -100_000_000
-    score = compute_bankruptcy(fs).in05.current
+    score = compute_bankruptcy(fs).get("in05").current
     assert score.variables[1].value == 0.0 and "no interest expense" in score.reason
 
 
 def test_negative_equity_lowers_altman_and_still_scores():
     fs = load()
     fs.balance_sheet["equity"].current.value = -500_000_000
-    z = compute_bankruptcy(fs).altman_z_prime.current
+    z = compute_bankruptcy(fs).get("altman_z_prime").current
     assert z.score is not None and z.variables[3].value < 0 and z.zone == "distress"
 
 
 def test_a_value_to_review_makes_the_score_unreliable():
     fs = load()
     fs.balance_sheet["total_assets"].current.needs_review = True
-    report = compute_bankruptcy(fs, validate(fs))
-    assert report.in05.current.flag == "unreliable" and "total_assets needs review" in report.in05.current.reason
-    assert report.in05.current.score == pytest.approx(0.5501, abs=1e-4)
+    in05 = compute_bankruptcy(fs, validate(fs)).get("in05")
+    assert in05.current.flag == "unreliable" and "total_assets needs review" in in05.current.reason
+    assert in05.current.score == pytest.approx(0.5501, abs=1e-4)
+
+
+# ---------------------------------------------------------------- CIPW-52: the models are a list
+
+
+def test_every_model_of_the_registry_is_computed_in_its_order():
+    report = compute_bankruptcy(load())
+    assert [m.key for m in report.models] == [m.key for m in MODELS] == ["in05", "altman_z_prime"]
+    assert report.get("in05").horizon is None and report.get("nope") is None
+
+
+def test_a_model_passed_in_is_computed_like_the_built_in_ones():
+    """A probit model where a higher score means more risk (like Zmijewski), with a constant term: the probability
+    of bankruptcy within its horizon and zones read the other way round."""
+    leverage = Term("X1", "external_sources / total_assets", 2.0,
+                    lambda i: i.get("external_sources") / i.get("total_assets"))  # fmt: skip
+    probit = Model(key="probit_test", name="Test probit", source="test", zones="above 0 distress", distress=0.0,
+                   safe=-1.0, terms=(leverage,), constant=-1.0, higher_is_safer=False, link="probit",
+                   horizon="12 months")  # fmt: skip
+    model = compute_bankruptcy(load(), models=[probit]).models[0]
+    # Mondi 2025: external sources 21 486 058 / total assets 29 457 798 = 0.7294 -> score -1 + 2 * 0.7294
+    assert model.current.score == pytest.approx(0.4588, abs=1e-4) and model.current.zone == "distress"
+    assert model.current.probability == pytest.approx(0.6768, abs=1e-4) and model.horizon == "12 months"
+    assert model.current.flag == "ok" and [v.key for v in model.current.variables] == ["X1"]
+
+
+def test_results_saved_with_one_field_per_model_still_load():
+    old = compute_bankruptcy(load()).model_dump(mode="json")
+    old = {m["key"]: m for m in old["models"]}  # the shape before CIPW-52
+    report = BankruptcyReport.model_validate(old)
+    assert [m.key for m in report.models] == ["in05", "altman_z_prime"]
+    assert report.get("in05").current.score == pytest.approx(0.5501, abs=1e-4)
+    # inside a whole saved result too, as the app reads an export
+    saved = Result.model_validate({"file": "x.pdf", "bankruptcy": old})
+    assert [m.key for m in saved.bankruptcy.models] == ["in05", "altman_z_prime"]

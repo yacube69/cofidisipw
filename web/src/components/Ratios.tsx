@@ -57,6 +57,9 @@ function ModelCard({ model }: { model: BankruptcyModel }) {
         {current.flag === "unreliable" && <Badge tone="warn" icon>Check inputs</Badge>}
       </div>
       <div className="zone">{current.score === null ? "–" : formatNumber(current.score, 2)}</div>
+      {current.probability !== null && (
+        <div>Probability of bankruptcy{model.horizon && ` within ${model.horizon}`}: {formatNumber(current.probability * 100, 1)} %</div>
+      )}
       <div className="change">
         <span className="faint">
           {prior.score === null ? "no prior year" : `${formatNumber(prior.score, 2)} prior year${prior.zone ? ` (${ZONE[prior.zone].word.toLowerCase()})` : ""}`}
@@ -110,10 +113,9 @@ export function Ratios({ result, ico, onIcoChange }: Props) {
   return (
     <div className="stack">
       {mock && <MockBanner what={mock} />}
-      {b && (
+      {b && b.models.length > 0 && (
         <div className="grid-2">
-          <ModelCard model={b.in05} />
-          <ModelCard model={b.altman_z_prime} />
+          {b.models.map((m) => <ModelCard key={m.key} model={m} />)}
         </div>
       )}
       {GROUPS.map(([group, title]) => {

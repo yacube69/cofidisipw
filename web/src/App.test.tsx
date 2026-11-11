@@ -158,6 +158,25 @@ describe("App", () => {
     expect(await screen.findByText("IČO 27920992 is not in ARES")).toBeTruthy();
   });
 
+  it("shows a card for every bankruptcy model, with its probability when the model gives one", async () => {
+    const view = sampleView();
+    const probit = {
+      ...view.bankruptcy.models[0], key: "probit_test", name: "12-month default model", horizon: "12 months",
+      current: { ...view.bankruptcy.models[0].current, score: 0.4588, probability: 0.6768, zone: "distress" },
+    };
+    view.bankruptcy.models.push(probit);
+    vi.stubGlobal("fetch", vi.fn(async (url: string) => {
+      const body = url === "/api/samples" ? [{ id: "mondi-2025", label: "Mondi" }] : url === "/api/dictionary" ? dictionary : view;
+      return new Response(JSON.stringify(body), { status: 200, headers: { "Content-Type": "application/json" } });
+    }));
+    render(<App />);
+    fireEvent.click(within(await screen.findByRole("navigation", { name: "Samples" })).getByRole("button", { name: "Mondi" }));
+    fireEvent.click(within(await screen.findByRole("navigation", { name: "Steps" })).getByText("Ratios"));
+    expect(await screen.findByText("12-month default model")).toBeTruthy();
+    expect(screen.getByText("Probability of bankruptcy within 12 months: 67,7 %")).toBeTruthy();
+    expect(screen.getAllByText("Distress zone").length).toBe(3);
+  });
+
   it("says so when the service is not reachable", async () => {
     vi.stubGlobal("fetch", vi.fn(async () => new Response("down", { status: 502, statusText: "Bad Gateway" })));
     render(<App />);
