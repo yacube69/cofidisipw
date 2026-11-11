@@ -12,7 +12,7 @@ import { Validation } from "./components/Validation";
 import { api } from "./lib/api";
 import { formatDate } from "./lib/format";
 import { stepSummaries, type StepId } from "./lib/summary";
-import { accountingChecks, valueRows } from "./lib/values";
+import { accountingChecks, valueRows, type ValueRow } from "./lib/values";
 import type { LineDef, ResultView, Sample, StatementPages } from "./types";
 
 const STEPS: { id: StepId; label: string }[] = [
@@ -73,6 +73,12 @@ export default function App() {
     const timer = window.setInterval(() => setElapsed(Math.round((Date.now() - busy.started) / 1000)), 1000);
     return () => window.clearInterval(timer);
   }, [busy]);
+
+  // CIPW-42: a value confirmed or corrected by hand; the API computes everything after the reading again
+  const correct = useCallback(async (row: ValueRow, czk: number) => {
+    if (!result) return;
+    setResult(await api.correct(result.id, { key: row.key, period: row.period, value: czk }));
+  }, [result]);
 
   const go = (next: StepId, rowId?: string) => {
     if (rowId) setSelectedId(rowId);
@@ -221,7 +227,9 @@ export default function App() {
             </nav>
 
             {step === "overview" && <Overview result={result} rows={rows} summaries={summaries} onOpen={go} />}
-            {step === "extraction" && <Extraction key={result.id} result={result} rows={rows} selectedId={selectedId} onSelect={setSelectedId} />}
+            {step === "extraction" && (
+              <Extraction key={result.id} result={result} rows={rows} selectedId={selectedId} onSelect={setSelectedId} onCorrect={correct} />
+            )}
             {step === "validation" && <Validation key={result.id} result={result} rows={rows} onShowValue={(id) => go("extraction", id)} />}
             {step === "ratios" && <Ratios result={result} ico={ico} onIcoChange={setIco} />}
             {step === "report" && <Report result={result} />}

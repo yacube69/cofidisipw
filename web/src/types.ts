@@ -2,7 +2,7 @@
 // `page_sizes` and `stubbed_stages` (see src/api.py). Keep in sync with src/schema.py and src/result.py.
 
 export type Period = "gross" | "adjustment" | "current" | "prior";
-export type Source = "text_layer" | "ocr";
+export type Source = "text_layer" | "ocr" | "manual" | "ground_truth"; // manual: checked by hand (CIPW-42)
 export type StageStatus = "ok" | "stub" | "skipped" | "error";
 
 export interface BBox {

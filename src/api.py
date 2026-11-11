@@ -15,6 +15,7 @@ Endpoints (all under /api):
     GET  /results/{id}/pages/{page}    page image (JPEG rendered from the PDF, or the one saved with a sample)
     GET  /results/{id}/export          full Result JSON as a download
     GET  /results/{id}/report.pdf      the PDF report in Cofidis' layout (CIPW-43); rule-based text without an AI model
+    POST /results/{id}/corrections     confirm or correct one value by hand (CIPW-42) -> everything after reading again
 
 The result view is the `Result` without `page_words` (large, only needed by the parser) plus the size of every
 statement page in PDF points, so the app can scale bounding boxes onto the page image.
@@ -35,13 +36,16 @@ import pymupdf
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.responses import FileResponse, Response
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
 
+from src.corrections import NoSuchValue, correct
 from src.integrations.ares import lookup
 from src.line_items import load_dictionary
 from src.pipeline import run_pipeline
 from src.report.fallback import rule_based_report
 from src.report.pdf import render_report, report_filename
 from src.result import PipelineOptions, Result
+from src.schema import Period
 from src.settings import ROOT, get_settings
 from src.version import package_version
 
@@ -217,6 +221,28 @@ def report_pdf(result_id: str) -> Response:
         media_type="application/pdf",
         headers={"Content-Disposition": f'attachment; filename="{report_filename(result)}"'},
     )
+
+
+class CorrectionIn(BaseModel):
+    key: str = Field(description="Line item key, e.g. 'current_assets'.")
+    period: Period
+    value: float | None = Field(description="The right amount in CZK; the amount it has confirms it.")
+    reason: str | None = Field(None, max_length=500)
+
+
+@app.post("/api/results/{result_id}/corrections")
+def add_correction(result_id: str, body: CorrectionIn) -> dict:
+    """Confirm or correct one value by hand. The correction is kept in the result's audit block, and the checks,
+    ratios, bankruptcy models, traffic lights and the assessment are computed again; the new result view returns."""
+    stored = _get(result_id)
+    try:
+        result = correct(stored.result, body.key, body.period, body.value, body.reason, settings=SETTINGS)
+    except NoSuchValue as exc:
+        raise HTTPException(404, exc.args[0]) from exc
+    except ValueError as exc:
+        raise HTTPException(422, str(exc)) from exc
+    _remember(result_id, Stored(result, stored.pdf))
+    return _view(result_id, result)
 
 
 class WebApp(StaticFiles):

@@ -1,12 +1,12 @@
 import type { CheckResult, LineDef, Period, ResultView, Value } from "../types";
 
-export type Confidence = "high" | "check" | "review";
+export type Confidence = "high" | "check" | "review" | "manual";
 
 // Same thresholds as the parser's review flag: below 75 the OCR reading is poor, 90+ is clean
 export const HIGH_CONF = 90;
 export const LOW_CONF = 75;
 
-export const CONFIDENCE_LABEL: Record<Confidence, string> = { high: "Confident", check: "Check", review: "Review" };
+export const CONFIDENCE_LABEL: Record<Confidence, string> = { high: "Confident", check: "Check", review: "Review", manual: "Verified" };
 export const PERIOD_LABEL: Record<Period, string> = {
   gross: "Gross",
   adjustment: "Adjustment",
@@ -14,8 +14,10 @@ export const PERIOD_LABEL: Record<Period, string> = {
   prior: "Prior year",
 };
 
-/** Confident: text layer or clean OCR. Review: flagged by the parser or poor OCR. Check: everything between. */
+/** Confident: text layer or clean OCR. Review: flagged by the parser or poor OCR. Check: everything between.
+ * Verified: a person confirmed or corrected it in the app (CIPW-42), whatever the checks say. */
 export function confidence(value: Value, inFailedCheck = false): Confidence {
+  if (value.source === "manual") return "manual";
   if (inFailedCheck) return "review";
   // a sum that adds up confirms its numbers, however unsure OCR was of the digits
   if (value.confirmed_by) return "high";

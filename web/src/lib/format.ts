@@ -13,6 +13,12 @@ export function formatAmount(czk: number | null, unit: number | null): string {
   return formatNumber(czk / (unit || 1));
 }
 
+/** What a person types for an amount ("1 234", "−56", "12,5") as a number in the printed unit; undefined if none. */
+export function parseAmount(text: string): number | undefined {
+  const plain = text.replace(/[\s  ]/g, "").replace(/[−–]/g, "-").replace(",", ".");
+  return /^-?\d+(\.\d+)?$/.test(plain) ? Number(plain) : undefined;
+}
+
 export function unitLabel(unit: number | null): string {
   if (unit === 1_000_000) return "mil. Kč";
   if (unit === 1) return "Kč";

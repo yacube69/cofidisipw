@@ -1,6 +1,7 @@
 import { Info, X } from "lucide-react";
 import { useRef, type ReactNode } from "react";
-import { formatNumber } from "../lib/format";
+import { formatAmount, formatNumber, unitLabel } from "../lib/format";
+import { PERIOD_LABEL } from "../lib/values";
 import type { ResultView } from "../types";
 import { Status } from "./ui";
 
@@ -25,6 +26,7 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
 export function About({ result }: { result: ResultView }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const a = result.audit;
+  const unit = result.statements.metadata.unit_multiplier;
   const seconds = a?.finished_at ? (Date.parse(a.finished_at) - Date.parse(a.started_at)) / 1000 : null;
 
   return (
@@ -68,7 +70,13 @@ export function About({ result }: { result: ResultView }) {
                 {a.corrections.length === 0 ? "None" : (
                   <ul className="plain">
                     {a.corrections.map((c, i) => (
-                      <li key={i}>{c.key} ({c.period}): {c.old ?? "–"} → {c.new ?? "–"}{c.by && `, ${c.by}`}, {when(c.at)}</li>
+                      <li key={i}>
+                        {c.key} ({PERIOD_LABEL[c.period].toLowerCase()}):{" "}
+                        {c.old === c.new
+                          ? `confirmed ${formatAmount(c.new, unit)}`
+                          : `${formatAmount(c.old, unit)} → ${formatAmount(c.new, unit)}`} {unitLabel(unit)}
+                        {c.by && `, ${c.by}`}, {when(c.at)}
+                      </li>
                     ))}
                   </ul>
                 )}

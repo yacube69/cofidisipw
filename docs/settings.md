@@ -70,6 +70,6 @@ Read it with `src.runlog.read_log(path)` or `pandas.read_json(path, lines=True)`
 | `offline`, `ocr_config`, `tesseract_version`, `python_version` | |
 | `started_at`, `finished_at` | |
 | `log_file` | the run log, relative to the repository root |
-| `corrections` | values changed by hand in the app (key, period, old, new, by, at, reason); filled by CIPW-42 |
+| `corrections` | values confirmed or corrected by hand in the app (key, period, old, new, by, at, reason: `confirmed` or `corrected`), CIPW-42 (`docs/app.md`) |
 
 The web app shows it under **About this result** in the header, together with the status and time of every step.

@@ -32,12 +32,30 @@ Layout chosen from three variants on 2026-10-21 (Mobbin references in `docs/bran
 | Step | What the user sees |
 | --- | --- |
 | Overview | company, balance sheet date, scope, source; one card per step with its status; "Needs attention" (failed identities, values to review, weak ratios); the verdict |
-| Extraction | the statement page with a box around every value (grey confident, amber check, red review) and the values of the page next to it. A click on a row highlights its box and the other way round; arrow keys move through the table; zoom 100–200 % |
+| Extraction | the statement page with a box around every value (grey confident, amber check, red review, navy verified by hand) and the values of the page next to it. A click on a row highlights its box and the other way round; arrow keys move through the table; zoom 100–200 %. The detail of a value has the check by hand (below) |
 | Validation | the accounting identities with status, period and difference; a value of a failed check opens on its page |
 | Ratios | ratio tiles (current, prior, change, benchmark light), IN05 and Altman Z′ with their zone |
-| AI report | rating, summary, strengths, risks, red flags, the number check of the report |
+| AI report | rating, summary, strengths, risks, red flags, the number check of the report; a banner when the assessment is rule-based |
 
-A value is **Review** when the parser flagged it, OCR confidence is below 75 or it breaks an accounting identity; **Check** when OCR confidence is 75–90; otherwise **Confident**. Steps that are still stubs show a "Mock data" badge and banner.
+A value is **Review** when the parser flagged it, OCR confidence is below 75 or it breaks an accounting identity; **Check** when OCR confidence is 75–90; **Verified** when a person checked it in the app; otherwise **Confident**. Steps that are still stubs show a "Mock data" badge and banner.
+
+### Checking values by hand (CIPW-42)
+
+In the Extraction step the detail of a value shows its amount in the printed unit (tis. Kč for most statements), next to its box on the page.
+
+| Action | When |
+| --- | --- |
+| **Confirm value** | a value to review or check is read right |
+| **Save correction** | the right amount typed in, or picked from *Other readings* in one click |
+| **Undo** | puts the read amount back into the field before saving |
+
+After saving:
+- the value becomes **Verified** (`source: "manual"`), the next value to look at on the page opens, and the result is computed again from the reading on: checks, ratios, bankruptcy models, traffic lights, the assessment;
+- the checks never turn the sign of a verified value and never flag it, and a failed check no longer makes a ratio unreliable through it: the check then points at the other values in it;
+- OCR and the re-read do not run again, so they never overwrite what a person set;
+- every change is kept in `audit.corrections` (line, period, read amount, new amount, time). *About this result* lists them, the JSON export has them, and the PDF report counts the confirmed and corrected values and lists each correction.
+
+A wrong correction is put right by correcting the value again; the audit keeps both.
 
 ## API
 
@@ -51,6 +69,8 @@ A value is **Review** when the parser flagged it, OCR confidence is below 75 or 
 | `GET /api/results/{id}` | result view: `Result` without `page_words`, plus `id`, `page_sizes` (PDF points) and `stubbed_stages` |
 | `GET /api/results/{id}/pages/{page}` | page image (JPEG, 144 dpi) |
 | `GET /api/results/{id}/export` | full `Result` JSON as a download |
+| `GET /api/results/{id}/report.pdf` | the PDF report (`docs/report.md`) |
+| `POST /api/results/{id}/corrections` | JSON `{key, period, value, reason?}`, the amount in CZK: confirms (the same amount) or corrects one value by hand and computes the rest again → result view; 404 for a line the statement does not have |
 
 Results of uploaded files live in memory (the last 20) and are gone after a restart. That is enough for one analyst; a shared server deployment would add sign-in and storage on the Cofidis side.
 

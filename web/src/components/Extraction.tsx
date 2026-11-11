@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { api } from "../lib/api";
-import { formatAmount, formatNumber, unitLabel } from "../lib/format";
+import { formatAmount, formatNumber, parseAmount, unitLabel } from "../lib/format";
 import { CONFIDENCE_LABEL, PERIOD_LABEL, type Confidence, type ValueRow } from "../lib/values";
 import type { ResultView } from "../types";
 import { Status } from "./ui";
@@ -10,12 +10,14 @@ interface Props {
   rows: ValueRow[];
   selectedId: string | null;
   onSelect: (rowId: string | null) => void;
+  /** Confirm or correct a value by hand (CIPW-42): the amount in CZK; resolves when the new result is shown. */
+  onCorrect?: (row: ValueRow, czk: number) => Promise<void>;
 }
 
 type Filter = "all" | "review" | "check";
 type Zoom = 1 | 1.5 | 2;
 
-const TONE: Record<Confidence, "ok" | "warn" | "bad"> = { high: "ok", check: "warn", review: "bad" };
+const TONE: Record<Confidence, "ok" | "warn" | "bad"> = { high: "ok", check: "warn", review: "bad", manual: "ok" };
 const STATEMENT_LABEL = { balance_sheet: "Balance sheet", income_statement: "Income statement" } as const;
 
 function statementPages(result: ResultView): { page: number; label: string }[] {
@@ -31,12 +33,14 @@ function statementPages(result: ResultView): { page: number; label: string }[] {
   return out;
 }
 
-export function Extraction({ result, rows, selectedId, onSelect }: Props) {
+export function Extraction({ result, rows, selectedId, onSelect, onCorrect }: Props) {
   const pages = useMemo(() => statementPages(result), [result]);
   const selected = rows.find((r) => r.id === selectedId) ?? null;
   const [page, setPage] = useState<number>(selected?.value.page ?? pages[0]?.page ?? 1);
   const [filter, setFilter] = useState<Filter>("all");
   const [zoom, setZoom] = useState<Zoom>(1);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const boxRefs = useRef(new Map<string, SVGRectElement>());
   const rowRefs = useRef(new Map<string, HTMLTableRowElement>());
   const unit = result.statements.metadata.unit_multiplier;
@@ -54,9 +58,27 @@ export function Extraction({ result, rows, selectedId, onSelect }: Props) {
 
   const onPage = rows.filter((r) => r.value.page === page);
   const counts = { all: onPage.length, review: 0, check: 0 };
-  for (const r of onPage) if (r.confidence !== "high") counts[r.confidence] += 1;
+  for (const r of onPage) if (r.confidence === "review" || r.confidence === "check") counts[r.confidence] += 1;
   const visible = filter === "all" ? onPage : onPage.filter((r) => r.confidence === filter);
   const size = result.page_sizes[String(page)];
+
+  // a value confirmed or corrected: the new result is shown and the next value to look at on this page is picked
+  const save = async (row: ValueRow, czk: number) => {
+    if (!onCorrect) return;
+    setSaving(true);
+    setSaveError("");
+    try {
+      await onCorrect(row, czk);
+      const i = visible.findIndex((r) => r.id === row.id);
+      const next = [...visible.slice(i + 1), ...visible.slice(0, Math.max(i, 0))]
+        .find((r) => r.confidence === "review" || r.confidence === "check");
+      onSelect(next?.id ?? row.id);
+    } catch (e) {
+      setSaveError((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const move = (e: KeyboardEvent) => {
     if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
@@ -126,6 +148,7 @@ export function Extraction({ result, rows, selectedId, onSelect }: Props) {
           <span><i className="dot high" /> Confident</span>
           <span><i className="dot check" /> Check (OCR 75–90)</span>
           <span><i className="dot review" /> Review (flagged, low OCR or failed check)</span>
+          <span><i className="dot manual" /> Verified by hand</span>
         </div>
       </section>
 
@@ -176,7 +199,9 @@ export function Extraction({ result, rows, selectedId, onSelect }: Props) {
             </tbody>
           </table>
         </div>
-        {selected ? <Detail row={selected} unit={unit} /> : (
+        {selected ? (
+          <Detail row={selected} unit={unit} saving={saving} error={saveError} onSave={onCorrect ? (czk) => save(selected, czk) : undefined} />
+        ) : (
           <p className="faint" style={{ fontSize: 13 }}>Pick a value in the table or a box on the page to see where it came from.</p>
         )}
       </section>
@@ -184,7 +209,15 @@ export function Extraction({ result, rows, selectedId, onSelect }: Props) {
   );
 }
 
-function Detail({ row, unit }: { row: ValueRow; unit: number | null }) {
+interface DetailProps {
+  row: ValueRow;
+  unit: number | null;
+  saving?: boolean;
+  error?: string;
+  onSave?: (czk: number) => void;
+}
+
+function Detail({ row, unit, saving = false, error = "", onSave }: DetailProps) {
   const v = row.value;
   return (
     <div className="card detail" aria-live="polite">
@@ -199,14 +232,59 @@ function Detail({ row, unit }: { row: ValueRow; unit: number | null }) {
         <dt>Printed text</dt><dd className="mono">{v.raw ?? "–"}</dd>
         <dt>Period</dt><dd>{PERIOD_LABEL[row.period]}</dd>
         <dt>In CZK</dt><dd className="num">{v.value === null ? "–" : formatNumber(v.value)}</dd>
-        <dt>Source</dt><dd>page {v.page}, {v.source === "ocr" ? `OCR, confidence ${v.ocr_conf?.toFixed(0) ?? "–"}` : "text layer"}</dd>
+        <dt>Source</dt><dd>page {v.page}, {v.source === "manual" ? "checked by hand in the app" : v.source === "ocr" ? `OCR, confidence ${v.ocr_conf?.toFixed(0) ?? "–"}` : "text layer"}</dd>
         <dt>Line match</dt><dd>{v.match_score?.toFixed(0) ?? "–"} / 100</dd>
         {row.failedChecks.length > 0 && (<><dt>Failed checks</dt><dd>{row.failedChecks.join("; ")}</dd></>)}
-        {v.confirmed_by && row.failedChecks.length === 0 && (<><dt>Confirmed by</dt><dd>{v.confirmed_by}</dd></>)}
+        {v.confirmed_by && (row.failedChecks.length === 0 || v.source === "manual") && (<><dt>Confirmed by</dt><dd>{v.confirmed_by}</dd></>)}
         {v.note && (<><dt>Note</dt><dd>{v.note}</dd></>)}
         {v.candidates.length > 0 && (<><dt>Other readings</dt><dd className="num">{v.candidates.map((c) => formatNumber(c)).join("; ")}</dd></>)}
         {v.needs_review && (<><dt>Flagged</dt><dd>The parser is not sure about this value</dd></>)}
       </dl>
+      {onSave && <ReviewForm key={`${row.id}:${v.value}`} row={row} unit={unit} saving={saving} error={error} onSave={onSave} />}
     </div>
+  );
+}
+
+/** Confirm the value as read or type the right one (CIPW-42): checks, ratios and the assessment are computed again. */
+function ReviewForm({ row, unit, saving, error, onSave }: Required<Omit<DetailProps, "onSave">> & { onSave: (czk: number) => void }) {
+  const v = row.value;
+  const initial = v.value === null ? "" : formatAmount(v.value, unit);
+  const [text, setText] = useState(initial);
+  const amount = parseAmount(text);
+  const czk = amount === undefined ? undefined : Math.round(amount * (unit || 1));
+  const same = czk === v.value;
+  const toLook = row.confidence === "review" || row.confidence === "check";
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    if (czk !== undefined && (!same || toLook)) onSave(czk);
+  };
+  return (
+    <form className="review-form" onSubmit={submit} aria-label={`Check ${row.name}`}>
+      <label className="field">
+        <span>{toLook ? "Is this the amount on the page?" : "Correct this value"} ({unitLabel(unit)})</span>
+        <input value={text} onChange={(e) => setText(e.target.value)} inputMode="decimal" aria-invalid={czk === undefined} />
+        {czk === undefined && <span className="error">Enter a number, e.g. 1 234 or −56</span>}
+      </label>
+      {v.candidates.length > 0 && (
+        <div className="readings">
+          Other readings:
+          {v.candidates.map((c) => (
+            <button key={c} type="button" className="btn small" onClick={() => setText(formatAmount(c, unit))}>{formatAmount(c, unit)}</button>
+          ))}
+        </div>
+      )}
+      <div className="actions">
+        {same ? (
+          toLook && <button type="submit" className="btn primary" disabled={saving}>Confirm value</button>
+        ) : (
+          <>
+            <button type="submit" className="btn primary" disabled={saving || czk === undefined}>Save correction</button>
+            <button type="button" className="btn ghost" onClick={() => setText(initial)} disabled={saving}>Undo</button>
+          </>
+        )}
+      </div>
+      {saving && <p className="faint" style={{ margin: 0, fontSize: 13 }}>Computing the checks and ratios again…</p>}
+      {error && <p className="error" role="alert">{error}</p>}
+    </form>
   );
 }

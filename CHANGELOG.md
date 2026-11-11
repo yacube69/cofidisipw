@@ -6,6 +6,10 @@ What changed for the people who use Fides, one section per version. The version 
 
 ### The app
 
+- **Check values by hand.** In the Extraction step, a value to review is confirmed with one click, or the right amount is typed in or picked from the other readings.
+  - The checks, ratios, bankruptcy models, traffic lights and the assessment are computed again at once.
+  - A verified value is no longer flagged, and OCR never overwrites it.
+  - Every change is kept with the result: in *About this result*, the JSON export and the PDF report.
 - **The company from ARES.** Fides looks the IČO up in the public register ARES: name, legal form, address, industry (CZ-NACE) and size. The industry sits in the header, everything else in *About this result*.
 - **One company name in the app and the PDF.** When ARES names the same company as the statement, its name is shown, so a name misread by OCR on a scan is not. When ARES names another company (a misread IČO), the printed name stays and the PDF shows none of the other company's data (`docs/ares.md`).
 - **Wrong IČO warnings.** A warning appears when the IČO has a wrong check digit, is not in ARES, or belongs to a company of another name.

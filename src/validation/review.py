@@ -10,6 +10,9 @@ at. `validate_and_review` runs the checks and then
 3. clears the review flag of a value that only passing checks involve and one of them adds up exactly
    (`Value.confirmed_by` names it). Sums may differ by ±1 for rounding, but then a last digit read one off would
    pass too, so a rounded pass confirms nothing.
+
+A value a person confirmed or corrected in the app (`source == "manual"`, CIPW-42) is left as it is: its sign is
+never turned and it is never flagged; a failed check then points at the other values in it.
 """
 
 from __future__ import annotations
@@ -75,7 +78,7 @@ def restore_signs(fs: FinancialStatements, report: ValidationReport) -> tuple[Va
             for key in check.fields
             if key in SIGNED
             for period, value in _values(fs, key, periods_of(check))
-            if value.value
+            if value.value and value.source != "manual"
         }
         for key, value in candidates.values():
             value.value = -value.value  # type: ignore[operator]
@@ -109,12 +112,12 @@ def review_by_checks(fs: FinancialStatements, report: ValidationReport) -> None:
     for (key, period), name in confirmed.items():
         if (key, period) not in failed:
             value = fs.value(key, period)
-            if value is not None:
+            if value is not None and value.source != "manual":
                 value.needs_review = False
                 value.confirmed_by = name
     for key, period in failed:
         value = fs.value(key, period)
-        if value is not None:
+        if value is not None and value.source != "manual":
             value.needs_review = True
             value.confirmed_by = None
 

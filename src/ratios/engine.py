@@ -195,15 +195,20 @@ def definitions(fs: FinancialStatements) -> list[Definition]:
 def _doubtful(
     fs: FinancialStatements, validation: ValidationReport | None, period: str, sources: set[str]
 ) -> list[str]:
-    """Why a computed value may be wrong: inputs to review and failed accounting checks that involve them."""
+    """Why a computed value may be wrong: inputs to review and failed accounting checks that involve them. An input
+    a person confirmed or corrected (CIPW-42) is no doubt: a failed check then concerns its other values."""
     reasons = []
+    doubtful = set()
     for key in sorted(sources):
         value = fs.value(key, period)  # type: ignore[arg-type]
+        if value is not None and value.source == "manual":
+            continue
+        doubtful.add(key)
         if value is not None and value.needs_review:
             reasons.append(f"{key} needs review")
     if validation is not None:
         for check in validation.errors:
-            if check.period in (period, None) and sources & set(check.fields):
+            if check.period in (period, None) and doubtful & set(check.fields):
                 reasons.append(f"check failed: {check.name}")
     return list(dict.fromkeys(reasons))
 

@@ -21,6 +21,7 @@ from pathlib import Path
 
 import pymupdf
 
+from src.line_items import load_dictionary
 from src.result import Result
 from src.settings import ROOT, Settings, get_settings
 
@@ -77,6 +78,9 @@ LABELS = {
         "data_quality": "Kvalita dat",
         "checks": "Účetní kontroly: {passed} z {total} prošlo.",
         "review": "Hodnot k ověření: {n}.",
+        "corrections": "Ručně ověřeno v aplikaci – potvrzeno: {confirmed}, opraveno: {corrected}.",
+        "correction": "{name} ({period}): přečteno {old}, opraveno na {new} tis. Kč",
+        "periods": {"current": "běžné období", "prior": "minulé období", "gross": "brutto", "adjustment": "korekce"},
         "pages": "Strany výkazů v PDF: rozvaha {bs}, výsledovka {is_}.",
         "numbers_ok": "Všechna čísla v textu hodnocení odpovídají datům výkazu.",
         "numbers_bad": "Čísla v textu, která neodpovídají datům: {numbers}.",
@@ -150,6 +154,9 @@ LABELS = {
         "data_quality": "Data quality",
         "checks": "Accounting checks: {passed} of {total} passed.",
         "review": "Values to review: {n}.",
+        "corrections": "Checked by hand in the app: confirmed {confirmed}, corrected {corrected}.",
+        "correction": "{name} ({period}): read {old}, corrected to {new} CZK thousand",
+        "periods": {"current": "current year", "prior": "prior year", "gross": "gross", "adjustment": "adjustment"},
         "pages": "Statement pages in the PDF: balance sheet {bs}, income statement {is_}.",
         "numbers_ok": "Every number in the assessment text matches the statement data.",
         "numbers_bad": "Numbers in the text that do not match the data: {numbers}.",
@@ -448,6 +455,7 @@ def _data_quality(result: Result, t: dict, s: Settings) -> str:
         t["review"].format(n=review),
         t["pages"].format(bs=_pages(pages.get("balance_sheet")), is_=_pages(pages.get("income_statement"))),
     ]
+    lines += _corrections(result, t, s.report.language)
     if check:
         unverified = check.get("unverified") or []
         bad = t["numbers_bad"].format(numbers=", ".join(map(str, unverified)))
@@ -460,6 +468,25 @@ def _data_quality(result: Result, t: dict, s: Settings) -> str:
         + "".join(f'<p style="margin:0;color:{MUTED}">{esc(line)}</p>' for line in lines)
         + f'<p style="margin:8px 0 0 0;font-size:8pt;color:{MUTED}">{t[how]}</p>'
     )
+
+
+def _corrections(result: Result, t: dict, lang: str) -> list[str]:
+    """CIPW-42: how many values a person confirmed and corrected, and each correction (the latest per value)."""
+    done = {(c.key, c.period): c for c in (result.audit.corrections if result.audit else [])}
+    if not done:
+        return []
+    first = {}
+    for c in result.audit.corrections:  # type: ignore[union-attr]
+        first.setdefault((c.key, c.period), c.old)  # what was read, before any change by hand
+    changed = [(c, first[k]) for k, c in done.items() if c.new != first[k]]
+    names = {d.key: d.label if lang == "cs" else (d.en or d.label) for d in load_dictionary().lines}
+    lines = [t["corrections"].format(confirmed=len(done) - len(changed), corrected=len(changed))]
+    for c, old in changed:
+        lines.append(t["correction"].format(
+            name=names.get(c.key, c.key), period=t["periods"][c.period],
+            old=number(old / 1000 if old is not None else None, 0, lang),
+            new=number(c.new / 1000 if c.new is not None else None, 0, lang)))  # fmt: skip
+    return lines
 
 
 def _pages(pages: list[int] | None) -> str:

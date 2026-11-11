@@ -134,7 +134,7 @@ A colleague on the same Wi-Fi or office network can open the app running on your
 - **What Fides reads:** Czech statements in the form of Vyhláška 500/2002 Sb., full or abbreviated, digital or scanned. IFRS statements (large companies, many annual reports) and bank statements are not read yet; a note above the result says so.
 - **The steps:**
   - **Overview** shows what needs attention.
-  - **Extraction** puts every value next to its place on the page: grey confident, amber check, red review.
+  - **Extraction** puts every value next to its place on the page: grey confident, amber check, red review. Click a value to review: *Confirm value* when it is read right, or type the right amount and *Save correction*. The checks, ratios and the assessment are computed again at once (`docs/app.md`).
   - **Validation** lists the accounting checks.
   - **Ratios** shows the ratios with their traffic lights and the bankruptcy models IN05 and Altman Z′.
   - **AI report** shows the assessment. Until the AI report (CIPW-16) is built, and whenever no AI model is connected, fixed rules build it from the numbers, and a banner says so (`docs/report.md`). No API key is needed.

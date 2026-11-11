@@ -119,6 +119,47 @@ describe("App", () => {
     expect([form.get("balance_sheet_pages"), form.get("income_statement_pages")]).toEqual(["75-76", "77"]);
   });
 
+  it("confirms a value to review and corrects another by hand (CIPW-42)", async () => {
+    const view = sampleView();
+    const posted: { key: string; period: "current"; value: number }[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (url: string, init?: RequestInit) => {
+      let body: unknown = url === "/api/samples" ? [{ id: "mondi-2025", label: "Mondi" }] : url === "/api/dictionary" ? dictionary : view;
+      if (url === "/api/results/mondi-2025/corrections") {
+        const c = JSON.parse(init!.body as string);
+        posted.push(c);
+        const fixed = structuredClone(view);
+        const item = fixed.statements.balance_sheet[c.key][c.period];
+        Object.assign(item, { value: c.value, source: "manual", needs_review: false, confirmed_by: "a person in the app" });
+        body = fixed;
+      }
+      return new Response(JSON.stringify(body), { status: 200, headers: { "Content-Type": "application/json" } });
+    }));
+    render(<App />);
+    fireEvent.click(within(await screen.findByRole("navigation", { name: "Samples" })).getByRole("button", { name: "Mondi" }));
+    fireEvent.click(within(await screen.findByRole("navigation", { name: "Steps" })).getByText("Extraction"));
+    const table = await screen.findByRole("table");
+    const row = (key: string) => within(table).getAllByRole("row")
+      .find((r) => r.querySelector("td")?.firstChild?.textContent === key && r.textContent?.includes("Current year"))!;
+
+    // current assets are flagged (a failed check): the reading is right, so the analyst confirms it
+    expect(row("current_assets").textContent).toContain("Review");
+    fireEvent.click(row("current_assets"));
+    expect(screen.getByText(/Is this the amount on the page\?/)).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: "Confirm value" }));
+    await waitFor(() => expect(row("current_assets").textContent).toContain("Verified"));
+    expect(posted[0]).toEqual({ key: "current_assets", period: "current", value: 4_443_661_000 });
+
+    // a confident value can be corrected too: the amount typed in tis. Kč is sent in CZK
+    fireEvent.click(row("Total assets")); // named from the dictionary
+    const input = screen.getByRole("textbox");
+    fireEvent.change(input, { target: { value: "29 457 7x9" } });
+    expect(screen.getByText("Enter a number, e.g. 1 234 or −56")).toBeTruthy();
+    fireEvent.change(input, { target: { value: "29 457 799" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save correction" }));
+    await waitFor(() => expect(posted).toHaveLength(2));
+    expect(posted[1]).toEqual({ key: "total_assets", period: "current", value: 29_457_799_000 });
+  });
+
   it("shows ARES' name when OCR misread the printed one, and says what the statement reads", async () => {
     render(<App />);
     fireEvent.click(within(await screen.findByRole("navigation", { name: "Samples" })).getByRole("button", { name: "Mondi" }));

@@ -350,6 +350,47 @@ def _relative(path: Path | None) -> str | None:
     return path.relative_to(ROOT).as_posix() if path.is_relative_to(ROOT) else path.as_posix()
 
 
+def _run_stage(name: str, stage: Stage, result: Result, ctx: Context, unavailable: set[str]) -> StageRun:
+    """Run one stage, or skip it when a stage it needs is unavailable; an exception becomes an `error` status."""
+    start = time.perf_counter()
+    missing = [dep for dep in REQUIRES.get(name, []) if dep in unavailable]
+    if missing:
+        status, note = "skipped", f"needs {', '.join(missing)}"
+    else:
+        try:
+            status, note = stage(result, ctx), ctx.notes.get(name)
+        except StageFailed as exc:
+            status, note = "error", str(exc)
+            result.errors.append(f"{name}: {note}")
+        except Exception as exc:  # one failing stage must not hide what the others produced
+            status, note = "error", f"{type(exc).__name__}: {exc}"
+            result.errors.append(f"{name}: {note}")
+            result.errors.append(traceback.format_exc(limit=3))
+    if status == "error" or missing:
+        unavailable.add(name)
+    return StageRun(stage=name, status=status, seconds=round(time.perf_counter() - start, 3), note=note)
+
+
+# the stages that work on the numbers only: run again after a value is confirmed or corrected by hand (CIPW-42)
+RECOMPUTED = ["validate", "ratios", "bankruptcy", "benchmarks", "report", "check_numbers"]
+
+
+def recompute(result: Result, settings: Settings | None = None) -> Result:
+    """Run the stages after the reading again on the result's numbers, in place: checks, ratios, bankruptcy models,
+    traffic lights and the assessment. Reading, OCR and the re-read are not run, so they never overwrite a value a
+    person set; the PDF is not needed. The notes of the checks are replaced by the new ones."""
+    settings = settings or get_settings()
+    ctx = Context(pdf_path=Path(result.file), options=result.options, doc=None, settings=settings)  # type: ignore[arg-type]
+    before = {s.stage: s for s in result.stages}
+    unavailable = {s.stage for s in result.stages if s.stage not in RECOMPUTED and s.status in ("error", "skipped")}
+    unavailable -= {"company", "reread"}  # optional: the numbers do not need them
+    result.warnings = [w for w in result.warnings if not w.startswith("validate: ")]
+    result.errors = [e for e in result.errors if not any(e.startswith(f"{name}: ") for name in RECOMPUTED)]
+    runs = {name: _run_stage(name, stage, result, ctx, unavailable) for name, stage in STAGES if name in RECOMPUTED}
+    result.stages = [runs.get(s.stage, s) for s in result.stages] + [r for n, r in runs.items() if n not in before]
+    return result
+
+
 def run_pipeline(pdf_path: str | Path, options: PipelineOptions | None = None) -> Result:
     pdf_path = Path(pdf_path)
     options = options or PipelineOptions()
@@ -364,23 +405,7 @@ def run_pipeline(pdf_path: str | Path, options: PipelineOptions | None = None) -
     with pymupdf.open(pdf_path) as doc:
         ctx = Context(pdf_path=pdf_path, options=options, doc=doc, settings=settings)
         for name, stage in STAGES:
-            start = time.perf_counter()
-            missing = [dep for dep in REQUIRES.get(name, []) if dep in unavailable]
-            if missing:
-                status, note = "skipped", f"needs {', '.join(missing)}"
-            else:
-                try:
-                    status, note = stage(result, ctx), ctx.notes.get(name)
-                except StageFailed as exc:
-                    status, note = "error", str(exc)
-                    result.errors.append(f"{name}: {note}")
-                except Exception as exc:  # one failing stage must not hide what the others produced
-                    status, note = "error", f"{type(exc).__name__}: {exc}"
-                    result.errors.append(f"{name}: {note}")
-                    result.errors.append(traceback.format_exc(limit=3))
-            if status == "error" or missing:
-                unavailable.add(name)
-            run = StageRun(stage=name, status=status, seconds=round(time.perf_counter() - start, 3), note=note)
+            run = _run_stage(name, stage, result, ctx, unavailable)
             result.stages.append(run)
             log.event("stage", **run.model_dump())
 

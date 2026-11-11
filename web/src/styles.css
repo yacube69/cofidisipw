@@ -106,7 +106,8 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 .btn.ghost { border-color: transparent; background: transparent; }
 .btn.ghost:hover { background: var(--well); }
 .btn.block { width: 100%; }
-.btn[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+.btn[aria-disabled="true"], .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn.small { min-height: 26px; padding: 0 8px; font-weight: 400; }
 .field { display: grid; gap: 4px; font-size: 13px; }
 .field > span:first-child { font-weight: 500; }
 .field input, .field select {
@@ -152,6 +153,7 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 .dot.high { background: var(--box-high); }
 .dot.check { background: var(--box-check); }
 .dot.review { background: var(--box-review); }
+.dot.manual { background: var(--accent); }
 
 /* ---------- result header and step tabs ---------- */
 .result-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 12px 24px; margin-bottom: 16px; }
@@ -219,6 +221,7 @@ h1, h2, h3 { margin: 0; font-weight: 600; }
 .vbox.high { stroke: var(--box-high); }
 .vbox.check { stroke: var(--box-check); stroke-width: 2; }
 .vbox.review { stroke: var(--box-review); stroke-width: 2; }
+.vbox.manual { stroke: var(--accent); stroke-width: 2; }
 .vbox:hover { fill: rgb(31 58 96 / 0.12); }
 .vbox.dim { opacity: 0.25; }
 .vbox.selected { fill: rgb(31 58 96 / 0.18); stroke: #1f3a60; stroke-width: 2.5; }
@@ -238,6 +241,11 @@ table.values .sub { display: block; font-size: 12px; color: var(--faint); }
 .detail dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 10px 0 0; font-size: 13px; }
 .detail dt { color: var(--muted); }
 .detail dd { margin: 0; }
+.review-form { display: grid; gap: 10px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); }
+.review-form .field input { max-width: 220px; font-variant-numeric: tabular-nums; }
+.review-form .readings { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+.review-form .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.review-form .error { margin: 0; font-size: 13px; color: var(--bad); }
 .big-number { font-size: 24px; font-weight: 600; line-height: 1.2; font-variant-numeric: tabular-nums; }
 
 /* ---------- validation ---------- */

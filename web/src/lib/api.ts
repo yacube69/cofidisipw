@@ -1,4 +1,4 @@
-import type { Company, LineDef, ResultView, Sample, StatementPages } from "../types";
+import type { Company, LineDef, Period, ResultView, Sample, StatementPages } from "../types";
 
 async function json<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -27,6 +27,13 @@ export const api = {
     form.append("income_statement_pages", pages.incomeStatement);
     return fetch("/api/analyse", { method: "POST", body: form, signal }).then((r) => json<ResultView>(r));
   },
+  /** Confirm or correct one value by hand (CIPW-42); the result comes back computed again. */
+  correct: (id: string, body: { key: string; period: Period; value: number | null; reason?: string }) =>
+    fetch(`/api/results/${encodeURIComponent(id)}/corrections`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }).then((r) => json<ResultView>(r)),
   pageUrl: (id: string, page: number) => `/api/results/${encodeURIComponent(id)}/pages/${page}`,
   exportUrl: (id: string) => `/api/results/${encodeURIComponent(id)}/export`,
   reportUrl: (id: string) => `/api/results/${encodeURIComponent(id)}/report.pdf`,
