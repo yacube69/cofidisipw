@@ -28,8 +28,9 @@ A4 = pymupdf.paper_rect("a4")
 MARGIN = 42
 BODY = pymupdf.Rect(MARGIN, 58, A4.width - MARGIN, A4.height - 70)  # leaves room for the header band and footer
 FIDES_LOGO = "docs/brand/logo/fides-logo-1200.png"
-# Cofidis' toolkit: the logo at least 32 mm wide, in a corner, on white or a brand colour, clear space half a "C"
-LOGO_WIDTH = 96  # pt, 34 mm
+# Cofidis' toolkit: the logo at least 32 mm wide, in a corner, on white or a brand colour, clear space half a "C".
+# The toolkit's PNG carries its clear space: the drawn logo is 86 % of its width, so 110 pt gives a 33.5 mm logo.
+LOGO_WIDTH = 110  # pt
 INK, MUTED, LINE = "#1E1A18", "#6B6560", "#D9D4CF"
 LIGHT_COLOUR = {"green": "#2E7D32", "amber": "#E0A100", "red": "#C62828"}
 # the verdict box is drawn under its text after the layout: a background inside the Story leaks onto the next page
@@ -535,7 +536,8 @@ color:{MUTED}"><tr>
                 f'<p style="font-family:sans-serif;font-size:7.5pt;font-weight:bold;color:{LIGHT_COLOUR["red"]};'
                 f'text-align:center">{t["mock"]}</p>',
             )
-    data = buffer.tobytes(garbage=3, deflate=True)
+    buffer.subset_fonts()  # each page's footer embeds the fonts again: subsetting takes the PDF from ~800 to ~200 kB
+    data = buffer.tobytes(garbage=4, deflate=True)
     buffer.close()
     return data
 

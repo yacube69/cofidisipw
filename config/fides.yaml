@@ -69,7 +69,7 @@ report:
   language: cs         # cs | en
   primary: "#D0103A"   # Cofidis red, C0 M100 Y80 K0
   accent: "#FECB00"    # Cofidis yellow, C0 M20 Y100 K0
-  logo: ""             # "" = the name "Cofidis" in the primary colour
+  logo: config/brand/cofidis-logo.png   # from the toolkit (horizontal, on white); "" = the name in red
 
 api:
   max_upload_mb: 60

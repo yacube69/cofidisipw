@@ -125,7 +125,8 @@ class ReportSettings(BaseModel):
     language: Literal["cs", "en"] = Field("cs", description="Language of the labels (the AI text has its own).")
     primary: str = Field("#D0103A", description="Cofidis red (cofidis.hu/toolkit): header band, headings.")
     accent: str = Field("#FECB00", description="Cofidis yellow (cofidis.hu/toolkit): the verdict box.")
-    logo: str = Field("", description="Cofidis' logo (PNG or JPEG), relative to the repository; '' = the name.")
+    logo: str = Field("config/brand/cofidis-logo.png", description="Cofidis' logo (PNG or JPEG), relative to the "
+                      "repository; '' = the name in the primary colour.")
 
 
 class ApiSettings(BaseModel):

@@ -40,13 +40,13 @@ The colours are Cofidis' own, from its public brand toolkit (https://www.cofidis
 | Cofidis red | `#D0103A` | 208 16 58 | 0 100 80 0 | header band, headings, the verdict bar and the rating |
 | Cofidis yellow | `#FECB00` | 254 203 0 | 0 20 100 0 | the thin band under the header, the verdict box (as a light tint) |
 
-The logo goes in the top left corner, 34 mm wide, on white, following the toolkit's rules:
-- at least 32 mm wide;
+The logo is `config/brand/cofidis-logo.png`, the horizontal logo for white backgrounds from the toolkit (`cofidis_logo_cmyk_horizontal_feher_alapra-01.png` in `cofidis-toolkit-logo.zip`, 3702 × 1203 px, transparent). It goes in the top left corner, on white, 33.5 mm wide (the PNG includes the clear space), following the toolkit's rules:
+- at least 32 mm wide (the drawn logo, without its clear space);
 - in a corner, never part of a text;
 - on white or a brand colour;
 - clear space of half a capital "C".
 
-The toolkit offers it as `cofidis-toolkit-logo.zip` (horizontal, on white, red, yellow, white and black). Until the file is in the repository, the name "Cofidis" stands in. To set it, in `config/fides.yaml`:
+The toolkit's other variants (for red, yellow and black backgrounds, black for print) are not needed on a white page. With `logo: ""` the name "Cofidis" in red stands in. The settings in `config/fides.yaml`:
 
 ```yaml
 report:
