@@ -27,7 +27,7 @@ Where a value comes from, highest first:
 
 | Setting | Default | |
 | --- | --- | --- |
-| `offline` | false | no call to the internet: no LLM (the AI report step is skipped) and no ARES lookup; everything else runs; needs no API key |
+| `offline` | false | no call to the internet: no LLM (the assessment is the rule-based one) and no ARES lookup; everything else runs; needs no API key |
 | `log_runs` | true | JSON-lines log of every run in `paths.logs` |
 | `paths.*` | `data/raw`, `data/ground_truth`, `data/fixtures`, `outputs`, `outputs/logs`, `config/line_items.yaml`, `prompts` | relative to the repository root (`/workspace` in the image) |
 | `ocr.*` | dpi 300, psm 6, adaptive 31/15, shading removal, deskew, line removal, grey second pass, `tessdata: models/tessdata` | compared in CIPW-25, see `docs/ocr.md`; the model folder is set through `TESSDATA_PREFIX` |
@@ -42,7 +42,7 @@ Where a value comes from, highest first:
 
 The API key never appears in `Settings.public()`, the settings hash, a result or a log.
 
-**Offline mode:** `FIDES_OFFLINE=true` (or `offline: true` in the YAML). The report and its number check are skipped with the note "offline mode: no LLM call", `Result.audit.offline` is true, and the result is complete apart from the report. ARES is not asked either: the company comes from a saved answer or the dataset snapshot (`docs/ares.md`). `python scripts/hello_llm.py` reports offline mode instead of failing.
+**Offline mode:** `FIDES_OFFLINE=true` (or `offline: true` in the YAML). No LLM is called: the assessment is built by fixed rules (`src/report/fallback.py`, `docs/report.md`), with the note "offline mode: no LLM call, rule-based assessment". The number check is skipped, as the rule-based text has only the data's own numbers. `Result.audit.offline` is true and the result is complete. Without an API key the same happens, with the note "no AI model connected (no API key)". ARES is not asked either: the company comes from a saved answer or the dataset snapshot (`docs/ares.md`). `python scripts/hello_llm.py` reports offline mode instead of failing.
 
 ## Run log
 
@@ -66,7 +66,7 @@ Read it with `src.runlog.read_log(path)` or `pandas.read_json(path, lines=True)`
 | `tool_version`, `git_commit`, `git_describe`, `git_dirty` | the code: version from `pyproject.toml`, commit from git (in the image from the build argument `GIT_COMMIT`, set by CI) |
 | `settings_hash`, `settings` | fingerprint and values of the settings that change a result: OCR, LLM, offline. Paths and the Tesseract location are left out, so the same configuration gives the same hash on every computer |
 | `dictionary_version` | `v<version> <content hash>` of `config/line_items.yaml` |
-| `prompt_version`, `model` | content hash of `prompts/report.md` and the model, only when an LLM wrote the report; `null` for mock data, skipped reports and offline mode |
+| `prompt_version`, `model` | content hash of `prompts/report.md` and the model, only when an LLM wrote the report; `null` for mock data, rule-based and skipped reports, and offline mode |
 | `offline`, `ocr_config`, `tesseract_version`, `python_version` | |
 | `started_at`, `finished_at` | |
 | `log_file` | the run log, relative to the repository root |

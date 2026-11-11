@@ -136,10 +136,10 @@ A colleague on the same Wi-Fi or office network can open the app running on your
   - **Overview** shows what needs attention.
   - **Extraction** puts every value next to its place on the page: grey confident, amber check, red review.
   - **Validation** lists the accounting checks.
-  - **Ratios** shows the ratios and the bankruptcy models IN05 and Altman Z′.
-  - **AI report** is still mock data.
-- A *Mock data* badge marks the steps that are not built yet. They are the benchmarks and the AI report, so no API key is needed for now.
-- **Results stay in memory:** the app keeps the last 20, and they are gone after a restart. *Export JSON* in the header of a result downloads it in full.
+  - **Ratios** shows the ratios with their traffic lights and the bankruptcy models IN05 and Altman Z′.
+  - **AI report** shows the assessment. Until the AI report (CIPW-16) is built, and whenever no AI model is connected, fixed rules build it from the numbers, and a banner says so (`docs/report.md`). No API key is needed.
+- A *Mock data* badge marks a step that is not built yet and shows mock data.
+- **Results stay in memory:** the app keeps the last 20, and they are gone after a restart. In the header of a result, *Export PDF* downloads the report in Cofidis' layout and *Export JSON* downloads the full result.
 
 More about the screens and the API: [app.md](app.md). All settings: [settings.md](settings.md).
 

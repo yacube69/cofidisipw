@@ -15,21 +15,43 @@ python scripts/render_report.py <result.json> --refresh   # a result saved by an
 | Cofidis' logo (or its name), report title, date | `settings.report` |
 | Company: name, IČO, legal form, address, CZ-NACE | ARES (`Result.company`, `docs/ares.md`); the printed name when ARES is unknown |
 | Statement: balance sheet date, scope, individual or consolidated, digital or scan | the parser (`Result.statements.metadata`) |
-| Verdict box: overall risk, its reasoning, the bankruptcy scores with their zones | rating and reasoning from the AI report (CIPW-16), scores from `Result.bankruptcy` |
-| Summary, strengths, risks, red flags | the AI report (CIPW-16) |
+| Verdict box: overall risk, its reasoning, the bankruptcy scores with their zones | rating and reasoning from the assessment, scores from `Result.bankruptcy` |
+| Summary, strengths, risks, red flags | the assessment: the AI report (CIPW-16), or the rule-based one without an AI model (below) |
 | Key figures (CZK thousands), both years and the change | the statements |
 | Financial ratios with their traffic light and the MPO industry value | `Result.ratios`, `Result.benchmarks` (CIPW-12, CIPW-14) |
 | Bankruptcy models (and the probability of default for logit/probit models) | `Result.bankruptcy` (CIPW-13, CIPW-52) |
 | Data quality: the AI's note, checks passed, values to review, statement pages, the number check | `Result.validation`, the statements, `Result.number_check` (CIPW-17) |
 | Footer: the Fides logo, "Vytvořeno v programu Fides, který vznikl ve spolupráci s ČVUT v rámci projektu IPW.", page number, Fides version and run id | `docs/brand/logo/fides-logo-1200.png`, `Result.audit` |
 
-**The numbers never come from the AI.** The tables are filled from the result; only the summary, strengths, risks, red flags, the rating's reasoning and the data quality note are the AI's text, and CIPW-17 checks every number in that text against the data.
+**The numbers never come from the AI.** The tables are filled from the result; only the summary, strengths, risks, red flags, the rating's reasoning and the data quality note are the assessment's text, and CIPW-17 checks every number in an AI text against the data.
 
 **Every state is visible:**
 - a report with mock AI text is marked "UKÁZKOVÝ TEXT" at the top of every page;
-- without an AI report (offline mode, no API key) one sentence says so, and the numbers stand alone;
+- a rule-based assessment says so in the data quality section;
+- without any assessment (`render_report` on a result analysed with `skip_report`) one sentence says so, and the numbers stand alone;
 - a ratio with an input to review gets "ověřit" instead of a traffic light;
 - mock traffic lights of an old sample are not shown.
+
+## Export from the app
+
+*Export PDF* in the header of a result downloads `fides_{IČO}_{year}.pdf` from `GET /api/results/{id}/report.pdf` (CIPW-54). The labels follow `report.language`. A result without an assessment (analysed with `skip_report`) gets the rule-based one, so the PDF always has its text.
+
+## Without an AI model: the rule-based assessment
+
+Until the LLM report of CIPW-16 is built, and whenever no AI model is connected (offline mode, no API key), `src/report/fallback.py` builds the assessment from the numbers by fixed rules (CIPW-55). It has the same fields as the AI report and `source: "rules"`.
+
+| Field | Built from |
+| --- | --- |
+| Summary | revenue and its change, profit for the period, current ratio and debt ratio, the bankruptcy scores with their zones |
+| Strengths | the ratios with a green light |
+| Risks | the red ratios, then the amber ones |
+| Red flags | a model in distress, negative equity, a loss, failed accounting checks |
+| Rating | **high:** a model in distress, negative equity, or 2 or more red ratios; **medium:** a model in the grey zone, 1 red ratio, or 3 or more amber ratios; **low:** otherwise, when a model has a score; **none** when no model has a score |
+
+- A value computed from an input to review is still used, but the text marks it "ověřit".
+- The same numbers always give the same text and rating.
+- The app shows a banner, and the PDF says that fixed rules built the text.
+- The LLM report keeps the same fields with `source: "llm"`, so the app and the PDF show it without changes.
 
 ## Cofidis' brand
 

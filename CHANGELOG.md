@@ -23,8 +23,13 @@ What changed for the people who use Fides, one section per version. The version 
   - Contents: company, the overall risk with the bankruptcy scores, the AI's summary, strengths, risks and red flags, key figures, the ratios with their traffic lights and the industry values, the bankruptcy models, and data quality.
   - The numbers come straight from the statements, never from the AI.
   - The Fides logo and the line "Vytvořeno v programu Fides, který vznikl ve spolupráci s ČVUT v rámci projektu IPW" sit in the footer of every page.
-  - Cofidis' logo and colours are set in `config/fides.yaml` (`docs/report.md`).
-  - For now the report is made with `scripts/render_report.py`; the app's export follows in CIPW-43.
+  - Cofidis' own logo and colours from its brand toolkit, set in `config/fides.yaml` (`docs/report.md`).
+- **Export PDF** in the header of a result downloads the report (`fides_IČO_year.pdf`).
+- **An assessment without an AI model.** Offline, without an API key and until the AI report is built, fixed rules build the summary, strengths, risks, red flags and the overall risk from the numbers.
+  - The app and the PDF say that the text comes from rules.
+  - Values to review are marked "ověřit".
+  - Without bankruptcy scores the overall risk is not rated.
+- **The samples are up to date:** company from ARES, real traffic lights and the rule-based assessment.
 
 ## 0.2.0 — 2026-11-01
 
