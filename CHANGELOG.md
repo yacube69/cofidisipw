@@ -12,6 +12,9 @@ What changed for the people who use Fides, one section per version. The version 
 
 ### Analysis
 
+- **Traffic lights for the ratios (CIPW-14).** Every ratio is rated green, amber or red against temporary project limits, and the company's industry is compared with MPO sector values.
+  - Liquidity above the usual range is amber, never red: it is no risk for a lender.
+  - The industry follows CZ-NACE 2008, as the MPO statistics do.
 - **Bankruptcy models are a list.** A model is defined in one place (`MODELS` in `src/ratios/bankruptcy.py`) and the app shows a card for each. Models that give the probability of bankruptcy within a period, such as a 12-month default model, are supported, and so are models where a higher score means more risk. Results saved before still open (`docs/ratios.md`).
 
 ## 0.2.0 — 2026-11-01

@@ -169,9 +169,9 @@ These values are temporary and need confirmation from Cofidis.
 
 | Ratio | Green | Amber | Red |
 |---|---|---|---|
-| Current ratio | 1.5–2.5 | 1.0–1.5 or 2.5–3.0 | Outside these limits |
-| Quick ratio | 1.0–1.5 | 0.7–1.0 or 1.5–2.0 | Outside these limits |
-| Cash ratio | 0.2–0.5 | 0.1–0.2 or 0.5–1.0 | Outside these limits |
+| Current ratio | 1.5–2.5 | 1.0–1.5 or above 2.5 | Below 1.0 |
+| Quick ratio | 1.0–1.5 | 0.7–1.0 or above 1.5 | Below 0.7 |
+| Cash ratio | 0.2–0.5 | 0.1–0.2 or above 0.5 | Below 0.1 |
 | ROA | >= 5% | 0–5% | Below 0% |
 | ROE | >= 10% | 0–10% | Below 0% |
 | ROS | >= 5% | 0–5% | Below 0% |
@@ -184,6 +184,10 @@ These values are temporary and need confirmation from Cofidis.
 
 The profitability and debt limits are project assumptions, not official Czech industry limits.
 
+**Liquidity above the range is amber, never red.** Red means a possible financial risk. A firm with more liquidity than the usual range may keep idle funds, which is worth a look, but it is no risk for a lender. Before this rule, values above the amber limit (current ratio above 3.0) were red too. On the 117 collected PDFs that marked the current ratio of 16 statements "Weak" for being very liquid (e.g. Metrostav 2025, 3.87), and of only 10 for being illiquid.
+
+The limits and the rule are in `src/ratios/benchmarks.py` (`LIMITS`, `light`), tested in `tests/test_benchmarks.py`.
+
 ## Industry benchmarks
 
 Industry data from the Czech Ministry of Industry and Trade (MPO) is saved in `data/benchmarks.csv`.
@@ -192,7 +196,7 @@ The file contains ROA, ROE and debt ratio values for different CZ-NACE sectors. 
 
 These quarterly values are for reference only. They should not be directly compared with annual profitability ratios.
 
-The company's CZ-NACE code comes from ARES.
+The company's industry comes from ARES (`docs/ares.md`). MPO groups firms by **CZ-NACE 2008** sections, so the group is the section of the company's CZ-NACE 2008 code (`nace_2008`): the CZ-NACE 2025 classification moved most section letters from J on (2025 K = IT and telecom, 2008 K = finance). The service sections H–S are one MPO group, `H-S`. `result.benchmarks.industry_group` shows the group used.
 
 ## Important rules
 
