@@ -124,6 +124,18 @@ A colleague on the same Wi-Fi or office network can open the app running on your
 
 **Careful:** the app has no sign-in. Everyone who can open it can upload PDFs and open the last 20 results, including yours. Share it only on a network you trust, never on public Wi-Fi with real statements, and stop it when you are done.
 
+## D. On a Cofidis server
+
+What a shared server in Cofidis' network needs beyond section A; the questions for Cofidis are in CIPW-61.
+
+| Topic | Today | Planned |
+| --- | --- | --- |
+| Language model of the AI report | Mistral: its API with `MISTRAL_API_KEY`, or a Mistral model on Cofidis' server (`llm.url`) | `docs/llm.md`, CIPW-58 |
+| Sign-in and roles | none | local accounts, Active Directory or SSO, Cofidis chooses: `docs/users.md`, CIPW-59 |
+| Results and corrections | in memory, the last 20, lost on a restart | SQLite on a Docker volume: CIPW-60 |
+| HTTPS | none in Fides | a reverse proxy with Cofidis' certificate in front of port 8000 |
+| Internet | ARES and Mistral's API, if allowed | without it: the ARES snapshot of our dataset and a model on Cofidis' server |
+
 ## Using the app
 
 - **Open a sample** in the sidebar on the left: it opens at once, without OCR. *New analysis* at the top of the sidebar brings back the upload form, and every file analysed in this session stays listed there.

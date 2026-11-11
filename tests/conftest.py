@@ -7,6 +7,8 @@ os.environ.setdefault("FIDES_PATHS__LOGS", os.path.join(tempfile.gettempdir(), "
 # No network in tests: company data comes from the dataset snapshot; tests of the lookup mock ARES (test_ares.py).
 os.environ.setdefault("FIDES_ARES__ENABLED", "false")
 os.environ.setdefault("FIDES_ARES__CACHE", tempfile.mkdtemp(prefix="fides-test-ares-"))  # not this computer's answers
+# Tests never call the paid LLM API, whatever key this computer's .env has; LLM calls are mocked (test_llm.py).
+os.environ["FIDES_LLM__API_KEY"] = ""
 
 from src.settings import get_settings  # noqa: E402
 

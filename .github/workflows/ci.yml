@@ -27,6 +27,7 @@ jobs:
         python-version: ["3.11", "3.12"]
     env:
       # Tests must never call the paid LLM API (CIPW-23). An empty key makes any accidental call fail fast.
+      MISTRAL_API_KEY: ""
       ANTHROPIC_API_KEY: ""
       PYTHONIOENCODING: utf-8
     steps:

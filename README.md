@@ -53,7 +53,7 @@ pip install -r requirements.txt
 ### 3. API key and settings
 
 ```bash
-cp .env.example .env           # then fill in ANTHROPIC_API_KEY
+cp .env.example .env           # then fill in MISTRAL_API_KEY (optional: without it the assessment is rule-based)
 ```
 
 All other settings (OCR, paths, model, offline mode) are in `config/fides.yaml` and can be overridden in `.env` or the environment, e.g. `FIDES_OFFLINE=true` to run without any LLM call. See [docs/settings.md](docs/settings.md).
@@ -79,7 +79,7 @@ All of them should end with `OK` / pass.
 | `docker.yml` | every push, `v*` tags | builds the image, runs the OCR smoke test, a pipeline run and the web app inside it; on `main` and tags publishes `ghcr.io/yacube69/cofidisipw` (`main`, `sha-…`, version tags) |
 | `release.yml` | `v*` tags | creates a GitHub release with the version's section of `CHANGELOG.md` and notes generated from merged PRs |
 
-Tests never call the paid LLM API: CI runs with an empty `ANTHROPIC_API_KEY`, LLM calls must be mocked.
+Tests never call the paid LLM API: `tests/conftest.py` empties the key and CI runs with empty `MISTRAL_API_KEY` and `ANTHROPIC_API_KEY`; LLM calls must be mocked (`tests/test_llm.py`).
 
 Release: set the version in `pyproject.toml` and `web/package.json`, add its section to `CHANGELOG.md`, then `git tag v1.0.0 && git push origin v1.0.0` → GitHub release + image `ghcr.io/yacube69/cofidisipw:1.0.0`.
 

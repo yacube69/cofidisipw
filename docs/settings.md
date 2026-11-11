@@ -21,7 +21,7 @@ Where a value comes from, highest first:
 | --- | --- | --- |
 | environment variable, `FIDES_` prefix, `__` for nesting | `FIDES_OFFLINE=true`, `FIDES_OCR__DPI=400` | a single run, Docker, CI |
 | the same names in `.env` | `FIDES_LLM__MAX_COST_USD=0.2` | your computer |
-| the familiar names, environment or `.env` | `ANTHROPIC_API_KEY`, `LLM_MODEL`, `TESSERACT_CMD`, `TESSDATA_PREFIX` | secrets and per-computer paths |
+| the familiar names, environment or `.env` | `MISTRAL_API_KEY`, `MISTRAL_MODEL`, `LLM_PRICE_IN_PER_MTOK`, `LLM_PRICE_OUT_PER_MTOK`, `TESSERACT_CMD`, `TESSDATA_PREFIX` | secrets and per-computer paths |
 | `config/fides.yaml` (committed) | `ocr.dpi: 300` | the team's shared configuration |
 | defaults in `src/settings.py` | | |
 
@@ -34,9 +34,12 @@ Where a value comes from, highest first:
 | `reread.enabled`, `reread.dpi` | true, 400 | re-read of the cells the checks doubt (CIPW-11, `docs/validation.md`); needs the `eng` Tesseract data |
 | `performance.ocr_workers`, `performance.tesseract_threads`, `performance.light_locator` | 0 (one per core), 1, true | pages read side by side and the light page locator (CIPW-50, `docs/ocr.md`) |
 | `tesseract.cmd`, `tesseract.tessdata_prefix` | – | set `TESSERACT_CMD`, `TESSDATA_PREFIX` in `.env` |
-| `llm.provider`, `llm.model` | anthropic, claude-sonnet-5-5 | |
+| `llm.provider`, `llm.model` | mistral, mistral-medium-3.5 | the language model of the AI report (`docs/llm.md`) |
+| `llm.url` | `https://api.mistral.ai/v1` | Mistral's API, or the `/v1` address of a Mistral model on an own server (which may need no key) |
+| `llm.timeout`, `llm.max_retries` | 120 s, 4 | per answer; retries when the service is busy (429, 503) |
+| `llm.price_in_per_mtok`, `llm.price_out_per_mtok` | 0, 0 | USD per million tokens for `Result.llm_usage.cost_usd`; 0 = not counted |
 | `llm.max_cost_usd` | 0.50 | upper limit for one AI report (CIPW-16) |
-| `llm.api_key` | – | `ANTHROPIC_API_KEY` only; a key in `config/fides.yaml` is refused |
+| `llm.api_key` | – | `MISTRAL_API_KEY` only; a key in `config/fides.yaml` is refused |
 | `api.max_upload_mb`, `api.max_results` | 60, 20 | web app API |
 | `ares.enabled`, `ares.url`, `ares.timeout`, `ares.cache` | true, the public ARES REST API, 5 s, `outputs/cache/ares` | company data by IČO (CIPW-44, `docs/ares.md`); off: saved answers and the dataset snapshot only |
 

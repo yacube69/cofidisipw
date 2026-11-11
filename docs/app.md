@@ -19,7 +19,7 @@ Step-by-step guide with installation and troubleshooting: [run.md](run.md).
 
 Settings (offline mode, model, OCR, upload limit) come from `config/fides.yaml` and the environment ([settings.md](settings.md)); **About this result** in the header shows the audit block of the result.
 
-Nothing has to be installed on the user's computer apart from Docker. Fonts are bundled, so the app also works without internet access. The only outgoing call is the LLM for the AI report, and only when an `ANTHROPIC_API_KEY` is set.
+Nothing has to be installed on the user's computer apart from Docker. Fonts are bundled, so the app also works without internet access. The outgoing calls are ARES (only the IČO, `docs/ares.md`) and the language model of the AI report, Mistral, only when a model is connected (`docs/llm.md`). There is no sign-in yet; the options for a shared server are in `docs/users.md`.
 
 ## Screens
 

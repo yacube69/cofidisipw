@@ -3,7 +3,7 @@
 Precedence, highest first:
     1. environment variables with the FIDES_ prefix, nested with "__":  FIDES_OFFLINE=true, FIDES_OCR__DPI=400
     2. the same names in .env
-    3. the familiar names, from the environment or .env: ANTHROPIC_API_KEY, LLM_MODEL, TESSERACT_CMD, TESSDATA_PREFIX
+    3. the familiar names, from the environment or .env: MISTRAL_API_KEY, MISTRAL_MODEL, TESSERACT_CMD, TESSDATA_PREFIX
     4. config/fides.yaml (committed, no secrets)
     5. the defaults below
 
@@ -103,11 +103,22 @@ class TesseractSettings(BaseModel):
     tessdata_prefix: str | None = Field(None, description="Folder with *.traineddata (Czech without admin rights).")
 
 
+MISTRAL_API = "https://api.mistral.ai/v1"
+
+
 class LlmSettings(BaseModel):
-    provider: Literal["anthropic"] = "anthropic"
-    model: str = "claude-sonnet-5-5"
+    """The language model of the AI report (CIPW-16). In production Cofidis connects Mistral (CIPW-58, docs/llm.md):
+    Mistral's API, or a Mistral model on a server of its own that offers the same chat completions interface."""
+
+    provider: Literal["mistral"] = "mistral"
+    url: str = Field(MISTRAL_API, description="Chat completions API: Mistral's, or the /v1 address of an own server.")
+    model: str = Field("mistral-medium-3.5", description="Default: the model Cofidis uses internally.")
+    timeout: float = Field(120.0, gt=0, description="Seconds to wait for one answer.")
+    max_retries: int = Field(4, ge=0, description="Retries when the service is busy (HTTP 429 or 503).")
+    price_in_per_mtok: float = Field(0.0, ge=0, description="USD per million input tokens; 0 = cost not counted.")
+    price_out_per_mtok: float = Field(0.0, ge=0, description="USD per million output tokens.")
     max_cost_usd: float = Field(0.50, gt=0, description="Upper limit for one AI report; the report stops above it.")
-    api_key: SecretStr | None = Field(None, description="From ANTHROPIC_API_KEY in the environment or .env only.")
+    api_key: SecretStr | None = Field(None, description="From MISTRAL_API_KEY in the environment or .env only.")
 
 
 class AresSettings(BaseModel):
@@ -177,8 +188,10 @@ class Settings(BaseSettings):
 
     @property
     def llm_enabled(self) -> bool:
-        """An LLM may be called: not offline and an API key is set."""
-        return not self.offline and self.llm.api_key is not None and bool(self.llm.api_key.get_secret_value())
+        """An LLM may be called: not offline, and an API key is set or the model runs on an own server (`llm.url`
+        other than Mistral's API), which may need no key."""
+        has_key = self.llm.api_key is not None and bool(self.llm.api_key.get_secret_value())
+        return not self.offline and (has_key or self.llm.url.rstrip("/") != MISTRAL_API)
 
     def public(self) -> dict[str, Any]:
         """Every setting except secrets, with paths relative to the repository root where possible."""
@@ -214,12 +227,14 @@ class Settings(BaseSettings):
 
 
 class _FamiliarNames(PydanticBaseSettingsSource):
-    """ANTHROPIC_API_KEY, LLM_MODEL, TESSERACT_CMD and TESSDATA_PREFIX: the names in .env.example, the README and
-    every tool's documentation. The environment wins over .env."""
+    """MISTRAL_API_KEY, MISTRAL_MODEL, the token prices, TESSERACT_CMD and TESSDATA_PREFIX: the names in .env.example,
+    the README and every tool's documentation. The environment wins over .env."""
 
     NAMES = {
-        "ANTHROPIC_API_KEY": ("llm", "api_key"),
-        "LLM_MODEL": ("llm", "model"),
+        "MISTRAL_API_KEY": ("llm", "api_key"),
+        "MISTRAL_MODEL": ("llm", "model"),
+        "LLM_PRICE_IN_PER_MTOK": ("llm", "price_in_per_mtok"),
+        "LLM_PRICE_OUT_PER_MTOK": ("llm", "price_out_per_mtok"),
         "TESSERACT_CMD": ("tesseract", "cmd"),
         "TESSDATA_PREFIX": ("tesseract", "tessdata_prefix"),
     }
@@ -244,7 +259,7 @@ class _YamlWithoutSecrets(YamlConfigSettingsSource):
     def __call__(self) -> dict[str, Any]:
         data = super().__call__()
         if (data.get("llm") or {}).get("api_key"):
-            raise ValueError(f"{CONFIG_FILE.name} must not contain llm.api_key; set ANTHROPIC_API_KEY in .env instead")
+            raise ValueError(f"{CONFIG_FILE.name} must not contain llm.api_key; set MISTRAL_API_KEY in .env instead")
         return data
 
 

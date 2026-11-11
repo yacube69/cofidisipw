@@ -1,8 +1,9 @@
-"""Smoke test: one LLM API call.
+"""Smoke test: one call to the language model of the AI report (CIPW-58, docs/llm.md).
 
 Usage:
     python scripts/hello_llm.py
-Requires ANTHROPIC_API_KEY in .env (see .env.example); the model comes from the settings (config/fides.yaml).
+Needs MISTRAL_API_KEY in .env (see .env.example) for Mistral's API, or `llm.url` of a server of one's own in
+config/fides.yaml; the model comes from the settings (`llm.model`, or MISTRAL_MODEL in .env).
 """
 
 from __future__ import annotations
@@ -12,6 +13,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from src.llm import LlmError, ask_json  # noqa: E402
 from src.settings import get_settings  # noqa: E402
 
 
@@ -21,30 +23,22 @@ def main() -> int:
         print("Offline mode (FIDES_OFFLINE / config/fides.yaml): no LLM call made. OK")
         return 0
     if not settings.llm_enabled:
-        print("ERROR: ANTHROPIC_API_KEY is not set. Copy .env.example to .env and fill it in.")
+        print("ERROR: MISTRAL_API_KEY is not set. Copy .env.example to .env and fill it in.")
         return 1
-
-    import anthropic
-
-    model = settings.llm.model
-    client = anthropic.Anthropic(api_key=settings.llm.api_key.get_secret_value())  # type: ignore[union-attr]
+    print(f"Asking {settings.llm.model} at {settings.llm.url} ...")
     try:
-        response = client.messages.create(
-            model=model,
+        reply = ask_json(
+            "Odpovídej pouze jedním objektem JSON.",
+            'Jaké je hlavní město České republiky? Odpověz ve tvaru {"mesto": "..."}.',
+            settings,
             max_tokens=50,
-            messages=[{"role": "user", "content": "Odpověz jedním slovem: jaké je hlavní město České republiky?"}],
         )
-    except anthropic.AuthenticationError:
-        print("ERROR: API key was rejected.")
+    except LlmError as exc:
+        print(f"ERROR: {exc}")
         return 1
-    except anthropic.APIError as exc:
-        print(f"ERROR: API call failed: {exc}")
-        return 1
-
-    text = "".join(block.text for block in response.content if block.type == "text")
-    print(f"Model: {response.model}")
-    print(f"Answer: {text.strip()}")
-    print(f"Tokens: in={response.usage.input_tokens}, out={response.usage.output_tokens}")
+    print(f"Model: {reply.model}")
+    print(f"Answer: {reply.data}")
+    print(f"Tokens: in={reply.usage.input_tokens}, out={reply.usage.output_tokens}, cost {reply.usage.cost_usd} USD")
     print("OK")
     return 0
 

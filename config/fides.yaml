@@ -2,9 +2,9 @@
 #
 # Override any value without editing this file:
 #   environment variable or .env:  FIDES_OFFLINE=true, FIDES_OCR__DPI=400, FIDES_LLM__MODEL=...
-# Secrets never go here: the API key comes from ANTHROPIC_API_KEY in .env or the environment.
+# Secrets never go here: the API key comes from MISTRAL_API_KEY in .env or the environment.
 
-# No call to the internet: no LLM (the AI report step is skipped) and no ARES lookup (company data from saved
+# No call to the internet: no LLM (the assessment is the rule-based one) and no ARES lookup (company data from saved
 # answers and data/companies.csv only). Everything else runs (extraction, checks, ratios).
 offline: false
 
@@ -50,10 +50,16 @@ performance:
 # Paths to Tesseract when it is not on PATH: set TESSERACT_CMD / TESSDATA_PREFIX in .env (they differ per computer)
 tesseract: {}
 
+# The language model of the AI report (CIPW-16): Mistral in production (CIPW-58, docs/llm.md). The key comes from
+# MISTRAL_API_KEY in .env or the environment; a Mistral model on an own server gives its address as url.
 llm:
-  provider: anthropic
-  model: claude-sonnet-5-5
-  max_cost_usd: 0.50   # upper limit for one AI report
+  provider: mistral
+  url: https://api.mistral.ai/v1   # or e.g. http://llm.internal:8000/v1 (vLLM), which may need no key
+  model: mistral-medium-3.5        # the model Cofidis uses internally
+  timeout: 120                     # seconds for one answer
+  price_in_per_mtok: 0             # USD per million tokens, for the cost in the result; 0 = not counted
+  price_out_per_mtok: 0
+  max_cost_usd: 0.50               # upper limit for one AI report
 
 # Company name, address, industry (CZ-NACE) and size by IČO from the public register ARES (CIPW-44).
 # Only the IČO is sent; answers are saved in outputs/cache/ares.

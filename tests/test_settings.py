@@ -12,7 +12,8 @@ from src.settings import CONFIG_FILE, ROOT, Settings, reload_settings
 from tests.synthetic import make_digital_pdf
 
 # names that would leak a key or a machine's paths into results and logs
-FAMILIAR = ["ANTHROPIC_API_KEY", "LLM_MODEL", "TESSERACT_CMD", "TESSDATA_PREFIX"]
+FAMILIAR = ["MISTRAL_API_KEY", "MISTRAL_MODEL", "LLM_PRICE_IN_PER_MTOK", "LLM_PRICE_OUT_PER_MTOK", "TESSERACT_CMD",
+            "TESSDATA_PREFIX"]  # fmt: skip
 
 
 @pytest.fixture
@@ -32,7 +33,7 @@ def clean_env(monkeypatch, tmp_path):
 def test_defaults_come_from_the_yaml(clean_env):
     s = reload_settings()
     assert CONFIG_FILE.exists()
-    assert s.ocr.dpi == 300 and s.ocr.binarize == "adaptive" and s.llm.provider == "anthropic"
+    assert s.ocr.dpi == 300 and s.ocr.binarize == "adaptive" and s.llm.provider == "mistral"
     assert s.paths.raw == ROOT / "data" / "raw" and s.paths.dictionary.exists()
     assert not s.offline and not s.llm_enabled  # no key
 
@@ -40,22 +41,22 @@ def test_defaults_come_from_the_yaml(clean_env):
 def test_environment_overrides_the_yaml(clean_env):
     clean_env.setenv("FIDES_OCR__DPI", "400")
     clean_env.setenv("FIDES_OFFLINE", "true")
-    clean_env.setenv("LLM_MODEL", "claude-opus-5-5")
+    clean_env.setenv("MISTRAL_MODEL", "mistral-large-latest")
     s = reload_settings()
     assert s.ocr.dpi == 400 and s.ocr.config().dpi == 400
-    assert s.offline and s.llm.model == "claude-opus-5-5"
+    assert s.offline and s.llm.model == "mistral-large-latest"
 
 
 def test_the_api_key_never_leaves_the_settings(clean_env):
-    clean_env.setenv("ANTHROPIC_API_KEY", "sk-ant-secret")
+    clean_env.setenv("MISTRAL_API_KEY", "mistral-secret")
     s = reload_settings()
-    assert s.llm_enabled and s.llm.api_key.get_secret_value() == "sk-ant-secret"
-    assert "sk-ant-secret" not in json.dumps(s.public()) and "api_key" not in json.dumps(s.result_settings())
-    assert "sk-ant-secret" not in repr(s)
+    assert s.llm_enabled and s.llm.api_key.get_secret_value() == "mistral-secret"
+    assert "mistral-secret" not in json.dumps(s.public()) and "api_key" not in json.dumps(s.result_settings())
+    assert "mistral-secret" not in repr(s)
 
 
 def test_offline_disables_the_llm_even_with_a_key(clean_env):
-    clean_env.setenv("ANTHROPIC_API_KEY", "sk-ant-secret")
+    clean_env.setenv("MISTRAL_API_KEY", "mistral-secret")
     clean_env.setenv("FIDES_OFFLINE", "1")
     assert not reload_settings().llm_enabled
 

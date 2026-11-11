@@ -2,6 +2,14 @@
 
 Log of project decisions. Newest first. Format: date, decision, reason.
 
+## 2026-11-11 — Mistral is the language model of the AI report (CIPW-58)
+
+- **Decision:** in production the AI report (CIPW-16) uses Mistral, through Mistral's chat completions API or a Mistral model on a server of Cofidis' own with the same interface. The default model is `mistral-medium-3.5`, the one Cofidis uses internally. The key comes from `MISTRAL_API_KEY`. This replaces Anthropic for the AI report (entry of 2026-10-07); Anthropic stays only in the vision baseline experiment (CIPW-8).
+- **Why:** Cofidis wants it. A model on its own server also keeps the statements inside its network, which fits a server of its own (CIPW-61).
+- **How:** `src/llm.py` (`ask_json`) on the HTTP client of the vision baseline, no SDK; settings `llm.url`, `llm.model`, `llm.timeout`, token prices (`docs/llm.md`). Without a model the rule-based assessment stays (CIPW-55).
+- **Open, for Cofidis (CIPW-61):** which model, Mistral's API or its own server, who provides the key.
+- **Affected tasks:** CIPW-16, CIPW-17, CIPW-58, CIPW-61.
+
 ## 2026-10-21 — Web app in React + TypeScript over a Python API, no desktop installer (CIPW-41)
 
 - **Decision:** the user interface is a web app (React + TypeScript, `web/`) served by a small FastAPI app (`src/api.py`) over the existing pipeline. Python stays for reading, OCR, parsing, checks, ratios and the report. Both run in the one Docker image on port 8000 (`docker compose up`, then the browser). There is no Streamlit app and no `.exe` installer.
@@ -27,5 +35,5 @@ Log of project decisions. Newest first. Format: date, decision, reason.
 
 - **OCR:** Tesseract 5 with Czech data (`ces`), called via `pytesseract`. A Dockerfile / dev container is the reference environment so everyone can run the same Tesseract version.
 - **PDF:** PyMuPDF for rendering pages and reading the text layer, pdfplumber for table/word geometry.
-- **LLM:** Anthropic API (`anthropic` SDK), model set via `LLM_MODEL` in `.env`. Used for the AI report (CIPW-16) and the vision baseline (CIPW-8). Spending limit set in the provider console.
+- **LLM:** Anthropic API (`anthropic` SDK), model set via `LLM_MODEL` in `.env`. Used for the AI report (CIPW-16) and the vision baseline (CIPW-8). Spending limit set in the provider console. *Superseded for the AI report on 2026-11-11: Mistral (CIPW-58).*
 - **Python:** 3.11+.

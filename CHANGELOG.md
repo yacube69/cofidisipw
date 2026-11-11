@@ -2,6 +2,17 @@
 
 What changed for the people who use Fides, one section per version. The version is set in `pyproject.toml` (the web app's `web/package.json` must match, `tests/test_api.py` checks it). A tag `vX.Y.Z` publishes a GitHub release with the section of that version and the Docker image `ghcr.io/yacube69/cofidisipw:X.Y.Z` (`docs/run.md`).
 
+## Unreleased
+
+### Report
+
+- **Mistral is the language model of the AI report**, as Cofidis wants: its API with `MISTRAL_API_KEY`, or a Mistral model on a server of Cofidis' own (`llm.url`). The default model is `mistral-medium-3.5`. `python scripts/hello_llm.py` checks the connection (`docs/llm.md`). Without a model the assessment stays rule-based.
+
+### Documentation
+
+- **Sign-in options for a Cofidis server:** local accounts, Active Directory (LDAP or Windows sign-on) and SSO, with what each needs and costs (`docs/users.md`).
+- **On a Cofidis server:** what a shared server needs (`docs/run.md`, section D).
+
 ## 0.3.0 — 2026-11-11
 
 ### The app

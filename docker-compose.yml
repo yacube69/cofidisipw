@@ -6,7 +6,7 @@ services:
     ports:
       - "127.0.0.1:8000:8000" # only this computer; remove 127.0.0.1 to share it on a network
     env_file:
-      - path: .env # ANTHROPIC_API_KEY for the AI report (optional)
+      - path: .env # MISTRAL_API_KEY for the AI report (optional, docs/llm.md)
         required: false
     volumes:
       - ./data:/workspace/data:ro
