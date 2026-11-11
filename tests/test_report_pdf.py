@@ -10,7 +10,7 @@ from src.result import Result
 from src.settings import get_settings
 
 ROOT = Path(__file__).resolve().parents[1]
-SAMPLE = ROOT / "data/fixtures/result_26161516_2025.json"  # Mondi Štětí 2025, with the mock AI text
+SAMPLE = ROOT / "data/fixtures/result_26161516_2025.json"  # Mondi Štětí 2025, with the rule-based assessment
 
 
 @pytest.fixture
@@ -42,11 +42,21 @@ def test_the_report_of_the_sample(settings):
     assert "VYSOKÉ" in first and "IN05 0,55 (tíseň)" in first  # the rating and the bankruptcy zones
     assert "Aktiva celkem" in first and "29 457 798" in first  # key figures in tis. Kč
     assert "Běžná likvidita" in first and "ověřit" in first  # an input to review: no light
-    for i, text in enumerate(pages, 1):  # on every page: the Fides credit, the page number, the mock mark
+    for i, text in enumerate(pages, 1):  # on every page: the Fides credit and the page number; no mock mark
         assert "Vytvořeno v programu Fides, který vznikl ve spolupráci s ČVUT v rámci projektu IPW." in text
         assert f"Strana {i} z {len(pages)}" in text
-        assert "UKÁZKOVÝ TEXT" in text
+        assert "UKÁZKOVÝ TEXT" not in text
     assert "Účetní kontroly:" in pages[-1] and "rozvaha 20–21, výsledovka 22" in pages[-1]
+    # the rule-based assessment (CIPW-55) says where its text came from
+    assert "Text hodnocení sestavila pevná pravidla" in pages[-1] and "napsala AI" not in pages[-1]
+
+
+def test_mock_text_is_marked_on_every_page(settings):
+    result = Result.model_validate_json(SAMPLE.read_text(encoding="utf-8"))
+    result.report = {**result.report, "mock": True, "source": None}
+    pages = _pages(render_report(result, settings))
+    assert all("UKÁZKOVÝ TEXT" in text for text in pages)
+    assert "Text hodnocení napsala AI" in pages[-1]
 
 
 def test_english_labels_and_a_logo(settings):
@@ -54,8 +64,10 @@ def test_english_labels_and_a_logo(settings):
     settings.report.logo = "docs/brand/logo/fides-mark-192.png"  # stands in for Cofidis' logo file
     result = Result.model_validate_json(SAMPLE.read_text(encoding="utf-8"))
     pdf = render_report(result, settings)
-    first = _pages(pdf)[0]
-    assert "Financial assessment" in first and "Created with Fides" in first and "Current ratio" in first
+    pages = _pages(pdf)
+    first = pages[0]
+    assert "Financial assessment" in first and "Created with Fides" in first
+    assert any("Current ratio" in text for text in pages)
     assert "Cofidis" not in first  # the logo replaces the name
     with pymupdf.open("pdf", pdf) as doc:
         assert len(doc[0].get_images()) == 2  # the logo in the header and the Fides logo in the footer

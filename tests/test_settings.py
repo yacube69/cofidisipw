@@ -98,9 +98,10 @@ def test_offline_mode_runs_without_an_api_key(clean_env, tmp_path):
     reload_settings()
     result = run_pipeline(make_digital_pdf(tmp_path / "12345679_2025_statement.pdf"))
     status = {s.stage: (s.status, s.note) for s in result.stages}
-    assert status["report"] == ("skipped", "offline mode: no LLM call")
+    assert status["report"] == ("ok", "offline mode: no LLM call, rule-based assessment")
     assert status["check_numbers"][0] == "skipped"
-    assert result.report is None and result.audit.offline and not result.failed
+    assert result.report["source"] == "rules" and result.audit.offline and result.audit.model is None
+    assert not result.failed
     assert result.statements.get("total_assets") == 1_000_000_000  # everything else still runs
 
 

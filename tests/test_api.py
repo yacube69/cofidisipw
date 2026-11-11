@@ -64,6 +64,19 @@ def test_analyse_a_digital_pdf(tmp_path):
     assert client.get(f"/api/results/{view['id']}/pages/1").headers["content-type"] == "image/jpeg"
     export = client.get(f"/api/results/{view['id']}/export")
     assert "attachment" in export.headers["content-disposition"] and "page_words" in export.json()
+    # no API key in the tests: the rule-based assessment (CIPW-55), and the PDF report with it (CIPW-54)
+    assert view["report"]["source"] == "rules" and view["stubbed_stages"] == []
+    report = client.get(f"/api/results/{view['id']}/report.pdf")
+    assert report.status_code == 200 and report.headers["content-type"] == "application/pdf"
+    assert report.headers["content-disposition"] == 'attachment; filename="fides_12345679_2025.pdf"'
+    assert report.content.startswith(b"%PDF")
+
+
+@pytest.mark.parametrize("sample", list(SAMPLES))
+def test_the_pdf_report_of_every_sample(sample):
+    response = client.get(f"/api/results/{sample}/report.pdf")
+    assert response.status_code == 200 and response.content.startswith(b"%PDF")
+    assert response.headers["content-disposition"].startswith('attachment; filename="fides_')
 
 
 def test_analyse_reads_the_pages_the_user_entered(tmp_path):

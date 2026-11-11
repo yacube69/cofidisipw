@@ -39,16 +39,20 @@ def test_cli_fails_when_a_stage_fails(tmp_path):
     assert main([str(tmp_path / "empty.pdf"), "--out", str(tmp_path), "--skip-report"]) == 1
 
 
-def test_real_benchmarks_with_mock_report(tiny_pdf):
+def test_real_benchmarks_with_rule_based_report(tiny_pdf):
     result = run_pipeline(tiny_pdf)
+    status = {s.stage: (s.status, s.note) for s in result.stages}
 
-    assert set(result.stubbed_stages) == {"report", "check_numbers"}
-    assert {s.stage: s.status for s in result.stages}["benchmarks"] == "ok"
+    assert result.stubbed_stages == []
+    assert status["benchmarks"][0] == "ok"
     assert result.benchmarks["mock"] is False
     assert result.benchmarks["ratios"]["current_ratio"]["light"] is None
 
-    assert result.report["summary"]
-    assert result.number_check["passed"] is True
+    # no API key in the tests: the rule-based assessment (CIPW-55), which needs no number check and calls no model
+    assert status["report"] == ("ok", "no AI model connected (no API key): rule-based assessment")
+    assert result.report["source"] == "rules" and result.report["mock"] is False and result.report["summary"]
+    assert status["check_numbers"][0] == "skipped" and result.number_check is None
+    assert result.audit.model is None
 
 
 def test_benchmark_result_is_a_fresh_copy(tiny_pdf):

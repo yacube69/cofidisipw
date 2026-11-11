@@ -133,11 +133,14 @@ export interface Benchmarks {
 
 export interface Report {
   mock?: boolean;
+  /** "rules": built by fixed rules from the numbers, no AI model connected (CIPW-55); "llm": the AI report */
+  source?: "rules" | "llm";
+  language?: "cs" | "en";
   summary: string;
   strengths: string[];
   risks: string[];
   red_flags: string[];
-  rating: { value: Rating; reasoning: string };
+  rating: { value: Rating | null; reasoning: string };
   data_quality_note?: string;
 }
 

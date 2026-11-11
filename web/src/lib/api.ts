@@ -23,11 +23,11 @@ export const api = {
     const form = new FormData();
     form.append("file", file);
     form.append("scope", scope);
-    form.append("skip_report", "true");
     form.append("balance_sheet_pages", pages.balanceSheet);
     form.append("income_statement_pages", pages.incomeStatement);
     return fetch("/api/analyse", { method: "POST", body: form, signal }).then((r) => json<ResultView>(r));
   },
   pageUrl: (id: string, page: number) => `/api/results/${encodeURIComponent(id)}/pages/${page}`,
   exportUrl: (id: string) => `/api/results/${encodeURIComponent(id)}/export`,
+  reportUrl: (id: string) => `/api/results/${encodeURIComponent(id)}/report.pdf`,
 };

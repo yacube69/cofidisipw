@@ -14,6 +14,7 @@ Endpoints (all under /api):
     GET  /results/{id}                 result view (a sample id opens that sample)
     GET  /results/{id}/pages/{page}    page image (JPEG rendered from the PDF, or the one saved with a sample)
     GET  /results/{id}/export          full Result JSON as a download
+    GET  /results/{id}/report.pdf      the PDF report in Cofidis' layout (CIPW-43); rule-based text without an AI model
 
 The result view is the `Result` without `page_words` (large, only needed by the parser) plus the size of every
 statement page in PDF points, so the app can scale bounding boxes onto the page image.
@@ -38,6 +39,8 @@ from fastapi.staticfiles import StaticFiles
 from src.integrations.ares import lookup
 from src.line_items import load_dictionary
 from src.pipeline import run_pipeline
+from src.report.fallback import rule_based_report
+from src.report.pdf import render_report, report_filename
 from src.result import PipelineOptions, Result
 from src.settings import ROOT, get_settings
 from src.version import package_version
@@ -131,7 +134,7 @@ def company(ico: str) -> dict:
 def analyse(
     file: Annotated[UploadFile, File(description="Financial statement as PDF")],
     scope: Annotated[Literal["individual", "consolidated"], Form()] = "individual",
-    skip_report: Annotated[bool, Form()] = True,
+    skip_report: Annotated[bool, Form()] = False,
     balance_sheet_pages: Annotated[str, Form(description="e.g. '75-76'; with the next one replaces the locator")] = "",
     income_statement_pages: Annotated[str, Form(description="e.g. '77'")] = "",
 ) -> dict:
@@ -199,6 +202,20 @@ def export(result_id: str) -> Response:
         result.model_dump_json(indent=2),
         media_type="application/json",
         headers={"Content-Disposition": f'attachment; filename="{name}"'},
+    )
+
+
+@app.get("/api/results/{result_id}/report.pdf")
+def report_pdf(result_id: str) -> Response:
+    """The PDF report. A result without an assessment (saved before CIPW-16's fallback, or analysed with
+    skip_report) gets the rule-based one, so the PDF never lacks its text."""
+    result = _get(result_id).result
+    if result.report is None:
+        result = result.model_copy(update={"report": rule_based_report(result, SETTINGS.report.language)})
+    return Response(
+        render_report(result, SETTINGS),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{report_filename(result)}"'},
     )
 
 

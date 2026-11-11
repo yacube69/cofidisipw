@@ -48,6 +48,7 @@ from src.ratios.bankruptcy import compute_bankruptcy
 from src.ratios.benchmarks import SOURCE as BENCHMARK_SOURCE
 from src.ratios.benchmarks import industry_benchmarks, industry_group, light
 from src.ratios.engine import compute_ratios
+from src.report.fallback import rule_based_report
 from src.result import Audit, PipelineOptions, Result, StageRun, StageStatus
 from src.runlog import RunLog
 from src.settings import ROOT, Settings, get_settings
@@ -268,19 +269,26 @@ def stage_benchmarks(result: Result, ctx: Context) -> StageStatus:
 
 
 def stage_report(result: Result, ctx: Context) -> StageStatus:
-    """CIPW-16 (stub): mock AI assessment, no LLM call. Offline mode skips it (no LLM, no mock)."""
-    if ctx.settings.offline:
-        ctx.notes["report"] = "offline mode: no LLM call"
-        return "skipped"
+    """CIPW-16: the assessment. Without an AI model (offline mode, no API key), and until the LLM report is built,
+    a rule-based assessment from the same numbers (src/report/fallback.py), marked `source: "rules"`."""
     if ctx.options.skip_report:
         return "skipped"
-    result.report = mock("report")
-    return "stub"
+    result.report = rule_based_report(result, ctx.settings.report.language)
+    if ctx.settings.offline:
+        ctx.notes["report"] = "offline mode: no LLM call, rule-based assessment"
+    elif not ctx.settings.llm_enabled:
+        ctx.notes["report"] = "no AI model connected (no API key): rule-based assessment"
+    else:
+        ctx.notes["report"] = "rule-based assessment (the LLM report of CIPW-16 is not built yet)"
+    return "ok"
 
 
 def stage_check_numbers(result: Result, ctx: Context) -> StageStatus:
-    """CIPW-17 (stub): mock number check of the report."""
+    """CIPW-17 (stub): number check of the AI report. A rule-based report takes its numbers from the data itself."""
     if ctx.options.skip_report or result.report is None:
+        return "skipped"
+    if result.report.get("source") == "rules":
+        ctx.notes["check_numbers"] = "rule-based report: its numbers are the data's own"
         return "skipped"
     result.number_check = mock("number_check")
     return "stub"
@@ -376,8 +384,10 @@ def run_pipeline(pdf_path: str | Path, options: PipelineOptions | None = None) -
             result.stages.append(run)
             log.event("stage", **run.model_dump())
 
-    report_by_llm = any(s.stage == "report" and s.status == "ok" for s in result.stages)
-    if report_by_llm:  # stubs and skipped reports called no model
+    report_by_llm = any(s.stage == "report" and s.status == "ok" for s in result.stages) and (
+        (result.report or {}).get("source") != "rules"
+    )
+    if report_by_llm:  # stubs, skipped and rule-based reports called no model
         result.audit.model = settings.llm.model
         prompt = settings.paths.prompts / REPORT_PROMPT
         result.audit.prompt_version = file_version(prompt) if prompt.exists() else None

@@ -2,11 +2,11 @@
 
 The numbers come straight from the result: the statements, the ratios with their traffic lights (CIPW-14) and the
 bankruptcy models (CIPW-13). Only the summary, the strengths, risks and red flags, the reasoning of the rating and the
-data quality note are the AI report's text (CIPW-16), whose numbers CIPW-17 checks against the data. A report with
-mock text says so on every page.
+data quality note are the assessment's text: the AI report (CIPW-16), whose numbers CIPW-17 checks against the data, or,
+without an AI model, the rule-based assessment (src/report/fallback.py). A report with mock text says so on every page.
 
 The page is HTML laid out by PyMuPDF (`pymupdf.Story`), so no new dependency. Colours, logo and language come from
-`settings.report` (config/fides.yaml): the colours stand in for Cofidis' own until it provides its brand files.
+`settings.report` (config/fides.yaml): Cofidis' colours and logo from its brand toolkit (docs/report.md).
 
     render_report(result) -> bytes          # the PDF
     python scripts/render_report.py data/fixtures/result_26161516_2025.json
@@ -80,6 +80,8 @@ LABELS = {
         "numbers_ok": "Všechna čísla v textu hodnocení odpovídají datům výkazu.",
         "numbers_bad": "Čísla v textu, která neodpovídají datům: {numbers}.",
         "how": "Čísla v tabulkách pocházejí přímo z výkazu. Text hodnocení napsala AI pouze z těchto čísel.",
+        "how_rules": "Čísla v tabulkách pocházejí přímo z výkazu. Text hodnocení sestavila pevná pravidla z těchto "
+        "čísel (AI model nebyl připojen).",
         "mock": "UKÁZKOVÝ TEXT – hodnocení zatím nenapsala AI",
         "footer": "Vytvořeno v programu Fides, který vznikl ve spolupráci s ČVUT v rámci projektu IPW.",
         "page": "Strana {i} z {n}",
@@ -151,6 +153,8 @@ LABELS = {
         "numbers_bad": "Numbers in the text that do not match the data: {numbers}.",
         "how": "The numbers in the tables come straight from the statements. The AI wrote the assessment text from "
         "these numbers only.",
+        "how_rules": "The numbers in the tables come straight from the statements. Fixed rules built the assessment "
+        "text from these numbers (no AI model was connected).",
         "mock": "SAMPLE TEXT – not written by the AI yet",
         "footer": "Created with Fides, developed in cooperation with the Czech Technical University (ČVUT) in the "
         "IPW project.",
@@ -444,11 +448,12 @@ def _data_quality(result: Result, t: dict, s: Settings) -> str:
         bad = t["numbers_bad"].format(numbers=", ".join(map(str, unverified)))
         lines.append(bad if unverified else t["numbers_ok"])
     note = report.get("data_quality_note")
+    how = "how_rules" if report.get("source") == "rules" else "how"
     return (
         _section(t["data_quality"], s)
         + (f'<p style="margin:0 0 4px 0">{esc(note)}</p>' if note else "")
         + "".join(f'<p style="margin:0;color:{MUTED}">{esc(line)}</p>' for line in lines)
-        + f'<p style="margin:8px 0 0 0;font-size:8pt;color:{MUTED}">{t["how"]}</p>'
+        + f'<p style="margin:8px 0 0 0;font-size:8pt;color:{MUTED}">{t[how]}</p>'
     )
 
 

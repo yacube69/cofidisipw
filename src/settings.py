@@ -145,8 +145,8 @@ class Settings(BaseSettings):
         yaml_file_encoding="utf-8",
     )
 
-    offline: bool = Field(False, description="No call to the internet: no LLM (the AI report step is skipped) and "
-                          "no ARES lookup (company data from saved answers and the dataset snapshot only).")
+    offline: bool = Field(False, description="No call to the internet: no LLM (the assessment is the rule-based one) "
+                          "and no ARES lookup (company data from saved answers and the dataset snapshot only).")
     log_runs: bool = Field(True, description="Write a JSON-lines log of every pipeline run to paths.logs.")
     paths: Paths = Field(default_factory=Paths)
     ocr: OcrSettings = Field(default_factory=OcrSettings)

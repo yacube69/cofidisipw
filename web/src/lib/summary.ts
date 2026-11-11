@@ -65,8 +65,10 @@ export function stepSummaries(result: ResultView, rows: ValueRow[]): StepSummary
     {
       id: "report",
       title: "AI report",
-      headline: rating ? `${rating[0].toUpperCase()}${rating.slice(1)} risk` : "not generated",
-      detail: result.number_check ? (result.number_check.passed ? "every number checked" : "numbers to verify") : "",
+      headline: rating ? `${rating[0].toUpperCase()}${rating.slice(1)} risk` : result.report ? "no rating" : "not generated",
+      detail: result.number_check
+        ? result.number_check.passed ? "every number checked" : "numbers to verify"
+        : result.report?.source === "rules" ? "rule-based, no AI model" : "",
       tone: result.number_check && !result.number_check.passed ? "bad" : rating ? "ok" : "neutral",
       mock: stub.has("report"),
     },

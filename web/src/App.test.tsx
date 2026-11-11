@@ -84,6 +84,9 @@ describe("App", () => {
 
     fireEvent.click(within(steps).getByText("AI report"));
     expect(await screen.findByText("Strengths")).toBeTruthy();
+    // no AI model: the rule-based assessment says so (CIPW-55); the PDF report downloads from the header (CIPW-54)
+    expect(screen.getByText(/Rule-based assessment: no AI model is connected/)).toBeTruthy();
+    expect(screen.getByRole("link", { name: /Export PDF/ }).getAttribute("href")).toBe("/api/results/mondi-2025/report.pdf");
 
     // "About this result": the audit block of the run (CIPW-45)
     fireEvent.click(screen.getByRole("button", { name: /About this result/ }));

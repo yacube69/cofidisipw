@@ -1,4 +1,5 @@
 import type { ResultView } from "../types";
+import { Bot } from "lucide-react";
 import { MockBanner, Status } from "./ui";
 
 export function Report({ result }: { result: ResultView }) {
@@ -7,7 +8,8 @@ export function Report({ result }: { result: ResultView }) {
     return (
       <div className="empty">
         <h2>No AI report for this file</h2>
-        <p>The report is generated after the numbers are checked (CIPW-16). It was skipped for this run.</p>
+        <p>The assessment is written after the numbers are checked (CIPW-16). It was skipped for this run; the PDF report
+          gets the rule-based one.</p>
       </div>
     );
   }
@@ -15,10 +17,21 @@ export function Report({ result }: { result: ResultView }) {
   return (
     <div className="stack">
       {result.stubbed_stages.includes("report") && <MockBanner what="The AI report and its number check" />}
+      {report.source === "rules" && (
+        <div className="banner mock" role="note">
+          <Bot aria-hidden="true" />
+          <span>
+            Rule-based assessment: no AI model is connected, so fixed rules built this text from the numbers (the
+            traffic lights, the bankruptcy models and the checks). The PDF report says so too.
+          </span>
+        </div>
+      )}
       <section className="card">
         <div className="card-title">
           <h2>Assessment</h2>
-          <span className="badge">{report.rating.value[0].toUpperCase() + report.rating.value.slice(1)} risk</span>
+          {report.rating.value && (
+            <span className="badge">{report.rating.value[0].toUpperCase() + report.rating.value.slice(1)} risk</span>
+          )}
         </div>
         <p className="verdict" style={{ margin: 0 }}>{report.summary}</p>
         <p className="faint" style={{ fontSize: 13, marginBottom: 0 }}>{report.rating.reasoning}</p>

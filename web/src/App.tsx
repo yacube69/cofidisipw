@@ -1,4 +1,4 @@
-import { Download, Info } from "lucide-react";
+import { Download, FileText, Info } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { About } from "./components/About";
 import { Extraction } from "./components/Extraction";
@@ -165,13 +165,21 @@ export default function App() {
                 </div>
                 {(rating || result.stubbed_stages.length > 0) && (
                   <div className="head-tags">
-                    {rating && <span className="badge">{rating[0].toUpperCase() + rating.slice(1)} risk (AI report)</span>}
+                    {rating && (
+                      <span className="badge">
+                        {rating[0].toUpperCase() + rating.slice(1)} risk ({result.report?.source === "rules" ? "rules" : "AI report"})
+                      </span>
+                    )}
                     {result.stubbed_stages.length > 0 && <MockBadge />}
                   </div>
                 )}
               </div>
               <div className="head-actions">
                 <About result={result} />
+                <a className="btn" href={api.reportUrl(result.id)} download>
+                  <FileText aria-hidden="true" />
+                  Export PDF
+                </a>
                 <a className="btn" href={api.exportUrl(result.id)} download>
                   <Download aria-hidden="true" />
                   Export JSON
