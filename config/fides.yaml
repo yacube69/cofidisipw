@@ -63,6 +63,14 @@ ares:
   timeout: 5           # seconds
   cache: ""            # folder of the saved answers; "" = outputs/cache/ares
 
+# The PDF report (CIPW-43) in Cofidis' brand; Fides is credited in the footer. The colours stand in for Cofidis'
+# own until it provides its brand files: put its logo (PNG) e.g. in config/brand/ and set `logo` to the path.
+report:
+  language: cs         # cs | en
+  primary: "#D52B1E"
+  accent: "#FFC72C"
+  logo: ""             # "" = the name "Cofidis" in the primary colour
+
 api:
   max_upload_mb: 60
   max_results: 20      # analysed files kept in memory by the web app's API

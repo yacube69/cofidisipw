@@ -119,6 +119,15 @@ class AresSettings(BaseModel):
     cache: str = Field("", description="Folder of the saved answers; '' = paths.outputs/cache/ares.")
 
 
+class ReportSettings(BaseModel):
+    """The PDF report (CIPW-43, src/report/pdf.py): Cofidis' brand, Fides credited in the footer."""
+
+    language: Literal["cs", "en"] = Field("cs", description="Language of the labels (the AI text has its own).")
+    primary: str = Field("#D52B1E", description="Cofidis' main colour: header band, headings.")
+    accent: str = Field("#FFC72C", description="Cofidis' second colour: the verdict box.")
+    logo: str = Field("", description="Cofidis' logo (PNG or JPEG), relative to the repository; '' = the name.")
+
+
 class ApiSettings(BaseModel):
     max_upload_mb: int = Field(60, gt=0)
     max_results: int = Field(20, gt=0, description="Analysed files kept in memory by the API.")
@@ -146,6 +155,7 @@ class Settings(BaseSettings):
     llm: LlmSettings = Field(default_factory=LlmSettings)
     api: ApiSettings = Field(default_factory=ApiSettings)
     ares: AresSettings = Field(default_factory=AresSettings)
+    report: ReportSettings = Field(default_factory=ReportSettings)
 
     @classmethod
     def settings_customise_sources(

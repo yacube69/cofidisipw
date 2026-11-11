@@ -17,6 +17,15 @@ What changed for the people who use Fides, one section per version. The version 
   - The industry follows CZ-NACE 2008, as the MPO statistics do.
 - **Bankruptcy models are a list.** A model is defined in one place (`MODELS` in `src/ratios/bankruptcy.py`) and the app shows a card for each. Models that give the probability of bankruptcy within a period, such as a 12-month default model, are supported, and so are models where a higher score means more risk. Results saved before still open (`docs/ratios.md`).
 
+### Report
+
+- **PDF report in Cofidis' layout.**
+  - Contents: company, the overall risk with the bankruptcy scores, the AI's summary, strengths, risks and red flags, key figures, the ratios with their traffic lights and the industry values, the bankruptcy models, and data quality.
+  - The numbers come straight from the statements, never from the AI.
+  - The Fides logo and the line "Vytvořeno v programu Fides, který vznikl ve spolupráci s ČVUT v rámci projektu IPW" sit in the footer of every page.
+  - Cofidis' logo and colours are set in `config/fides.yaml` (`docs/report.md`).
+  - For now the report is made with `scripts/render_report.py`; the app's export follows in CIPW-43.
+
 ## 0.2.0 — 2026-11-01
 
 ### The app
