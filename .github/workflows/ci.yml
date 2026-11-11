@@ -37,12 +37,22 @@ jobs:
       # an annotation, which is public, unlike the log; a failed `apt-get update` does not stop the install.
       - name: Install Tesseract
         run: |
+          install() { sudo apt-get install -y --no-install-recommends tesseract-ocr >> apt.log 2>&1; }
           if ! sudo apt-get update > apt.log 2>&1; then
             echo "::warning title=apt-get update::$(grep -E '^(E|W):' apt.log | tail -5 | tr '\n' ' ')"
           fi
-          if ! sudo apt-get install -y --no-install-recommends tesseract-ocr >> apt.log 2>&1; then
-            echo "::error title=apt-get install::$(grep -E '^(E|W):' apt.log | tail -8 | tr '\n' ' ')"
-            exit 1
+          if ! install; then
+            # Nov 2026: the runners could not resolve security.ubuntu.com. Its pocket is on the runner's own Ubuntu
+            # mirror too, so the security source is pointed there and the install tried once more.
+            echo "::warning title=apt-get install::retrying with the security pocket from the runner's mirror"
+            mirror="http://azure.archive.ubuntu.com/ubuntu"
+            [ -f /etc/apt/apt-mirrors.txt ] && mirror="mirror+file:/etc/apt/apt-mirrors.txt"
+            sudo sed -i "s#http://security.ubuntu.com/ubuntu/\?#${mirror}#g" /etc/apt/sources.list.d/*.sources /etc/apt/sources.list 2>/dev/null || true
+            sudo apt-get update >> apt.log 2>&1 || true
+            if ! install; then
+              echo "::error title=apt-get install::$(grep -E '^(E|W):' apt.log | tail -8 | tr '\n' ' ')"
+              exit 1
+            fi
           fi
           tesseract --version | head -1
           TESSDATA_PREFIX=models/tessdata tesseract --list-langs | grep -x ces
@@ -65,7 +75,7 @@ jobs:
         run: pytest -q --junitxml=reports/junit.xml
 
       - name: Failing tests as annotations
-        if: failure()
+        if: failure() && hashFiles('reports/junit.xml') != ''  # no report when an earlier step failed
         run: python scripts/junit_annotations.py reports/junit.xml
 
       - name: Upload test report
