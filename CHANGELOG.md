@@ -2,7 +2,7 @@
 
 What changed for the people who use Fides, one section per version. The version is set in `pyproject.toml` (the web app's `web/package.json` must match, `tests/test_api.py` checks it). A tag `vX.Y.Z` publishes a GitHub release with the section of that version and the Docker image `ghcr.io/yacube69/cofidisipw:X.Y.Z` (`docs/run.md`).
 
-## Unreleased
+## 0.3.1 — 2026-11-12
 
 ### The app
 
@@ -26,6 +26,11 @@ What changed for the people who use Fides, one section per version. The version 
 
 - **Sign-in options for a Cofidis server:** local accounts, Active Directory (LDAP or Windows sign-on) and SSO, with what each needs and costs (`docs/users.md`).
 - **On a Cofidis server:** what a shared server needs (`docs/run.md`, section D).
+
+### Upgrading from 0.3.0
+
+- **The key of the AI report** is `MISTRAL_API_KEY` in `.env` now; `ANTHROPIC_API_KEY` is used only by the vision baseline experiment.
+- **`docker run` keeps the results** only with a volume: `docker run --rm -p 8000:8000 -v fides-data:/workspace/outputs ghcr.io/yacube69/cofidisipw:0.3.1`. `docker compose` keeps them in `outputs/` already.
 
 ## 0.3.0 — 2026-11-11
 
