@@ -64,7 +64,7 @@ NOT_READ = {
     "bank": "these look like bank statements (Vyhláška 501/2002 Sb.), which Fides does not read; values are "
     "missing or on other lines",
 }
-REPORT_PROMPT = "report.md"  # in settings.paths.prompts (CIPW-16)
+REPORT_PROMPT = "assessment_v6.md"  # in settings.paths.prompts (CIPW-16)
 
 
 class StageFailed(Exception):

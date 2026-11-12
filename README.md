@@ -16,7 +16,7 @@ src/schema.py          # data model (CIPW-5)
 src/extraction/        # page locator, text/OCR layer, parser, vision baseline
 src/validation/        # accounting checks, re-read logic
 src/ratios/            # ratio engine, bankruptcy models
-src/report/            # AI assessment and the PDF report in Cofidis' layout (CIPW-43, docs/report.md)
+src/report/            # AI assessment and the PDF report in Cofidis' layout (CIPW-43, docs/report.md; the AI report: docs/assessment.md)
 src/integrations/      # public registers: ARES lookup by IČO (CIPW-44)
 src/api.py             # API for the web app (CIPW-41)
 web/                   # web app: React + TypeScript (CIPW-41)

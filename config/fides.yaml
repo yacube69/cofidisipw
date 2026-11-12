@@ -78,6 +78,27 @@ storage:
   keep_days: null          # results older than this are deleted; null keeps them
   visibility: team         # team: everyone sees every result; own: only their own (admins see all)
 
+# The AI assessment report (CIPW-16, docs/assessment.md) and its PDF (CIPW-43, docs/report.md). Every value waits for an answer of the team or of Cofidis:
+# change it here, no code to edit.
+report:
+  language: cs           # cs | en: the labels of the PDF and the language of the AI report (Cofidis: Czech and English)
+  provider: gemini       # gemini | mistral | anthropic; open question
+  model: ""              # "" = the provider's default model
+  worsening_pct: 20      # a worsening above this is a risk (prompt v4 onwards); open question
+  rating:
+    disabled_rules: []   # rules left out, from R1, R2, R3, R5 (R4 and R6 always apply)
+    partial: true        # no bankruptcy score: rate from the balance sheet alone (R7 high, R8 medium) or no rating
+  recommendation:        # what each risk rating gets; open question for Cofidis (proposal below)
+    low: recommended              # recommended | caution | not_recommended | no_recommendation
+    medium: caution
+    high: not_recommended
+    none: no_recommendation       # no rating (data do not allow one)
+  # The PDF in Cofidis' brand (CIPW-43). Colours from Cofidis' toolkit (https://www.cofidis.hu/toolkit). Put its logo
+  # (PNG, horizontal, on white) e.g. in config/brand/ and set `logo`.
+  primary: "#D0103A"   # Cofidis red, C0 M100 Y80 K0
+  accent: "#FECB00"    # Cofidis yellow, C0 M20 Y100 K0
+  logo: config/brand/cofidis-logo.png   # from the toolkit (horizontal, on white); "" = the name in red
+
 # Company name, address, industry (CZ-NACE) and size by IČO from the public register ARES (CIPW-44).
 # Only the IČO is sent; answers are saved in outputs/cache/ares.
 ares:
@@ -85,14 +106,6 @@ ares:
   url: https://ares.gov.cz/ekonomicke-subjekty-v-be/rest
   timeout: 5           # seconds
   cache: ""            # folder of the saved answers; "" = outputs/cache/ares
-
-# The PDF report (CIPW-43) in Cofidis' brand; Fides is credited in the footer. Colours from Cofidis' toolkit
-# (https://www.cofidis.hu/toolkit). Put its logo (PNG, horizontal, on white) e.g. in config/brand/ and set `logo`.
-report:
-  language: cs         # cs | en
-  primary: "#D0103A"   # Cofidis red, C0 M100 Y80 K0
-  accent: "#FECB00"    # Cofidis yellow, C0 M20 Y100 K0
-  logo: config/brand/cofidis-logo.png   # from the toolkit (horizontal, on white); "" = the name in red
 
 api:
   max_upload_mb: 60
