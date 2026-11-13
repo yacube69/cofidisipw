@@ -227,7 +227,6 @@ class Settings(BaseSettings):
     auth: AuthSettings = Field(default_factory=AuthSettings)
     storage: StorageSettings = Field(default_factory=StorageSettings)
     ares: AresSettings = Field(default_factory=AresSettings)
-    report: ReportSettings = Field(default_factory=ReportSettings)
 
     @classmethod
     def settings_customise_sources(

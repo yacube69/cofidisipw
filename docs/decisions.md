@@ -9,6 +9,12 @@ Log of project decisions. Newest first. Format: date, decision, reason.
 - **Kotlin was considered for the backend and dropped:** the heavy work (OCR, reading the PDF) is Python and stays Python. A Kotlin API in front of it would add a JVM to the image (more memory), a call between two runtimes for every analysis, and a second language to maintain, which is heavier for the server, not lighter.
 - **Affected tasks:** CIPW-59, CIPW-60, CIPW-62.
 
+## 2026-11-12 — Partial rating on, rules table in every report, Czech review (CIPW-16)
+
+- **Decision:** companies without a bankruptcy score (usually no income statement) get a partial rating from the balance sheet alone (R7 high risk when the current ratio is below 1, R8 medium risk, never low risk) and therefore also a recommendation. `report.rating.partial` is `true` in `config/fides.yaml`; a rating with it carries `rules_version: proposal-1+partial`. Every report ends with the table of the rules (R1 to R8) in its own language. The Czech reviewers' corrections are in `prompts/translation_v2.md` (the English report and its prompt are unchanged) and "aktuální rok" in `src/report/texts.py`.
+- **Why:** Marek asked to give what can be calculated; the Czech reviewers found the wording "běžný rok", "za období končící" and "celkem aktiv" unnatural.
+- **Still open:** Cofidis' criteria for the rules (see below); Marek said to keep the current reports and give instructions later, the rules are settings and can change after the merge.
+
 ## 2026-11-11 — Mistral is the language model of the AI report (CIPW-58)
 
 - **Decision:** in production the AI report (CIPW-16) uses Mistral, through Mistral's chat completions API or a Mistral model on a server of Cofidis' own with the same interface. The default model is `mistral-medium-3.5`, the one Cofidis uses internally. The key comes from `MISTRAL_API_KEY`. This replaces Anthropic for the AI report (entry of 2026-10-07); Anthropic stays only in the vision baseline experiment (CIPW-8).
@@ -16,12 +22,6 @@ Log of project decisions. Newest first. Format: date, decision, reason.
 - **How:** `src/llm.py` (`ask_json`) on the HTTP client of the vision baseline, no SDK; settings `llm.url`, `llm.model`, `llm.timeout`, token prices (`docs/llm.md`). Without a model the rule-based assessment stays (CIPW-55).
 - **Open, for Cofidis (CIPW-61):** which model, Mistral's API or its own server, who provides the key.
 - **Affected tasks:** CIPW-16, CIPW-17, CIPW-58, CIPW-61.
-
-## 2026-11-12 — Partial rating on, rules table in every report, Czech review (CIPW-16)
-
-- **Decision:** companies without a bankruptcy score (usually no income statement) get a partial rating from the balance sheet alone (R7 high risk when the current ratio is below 1, R8 medium risk, never low risk) and therefore also a recommendation. `report.rating.partial` is `true` in `config/fides.yaml`; a rating with it carries `rules_version: proposal-1+partial`. Every report ends with the table of the rules (R1 to R8) in its own language. The Czech reviewers' corrections are in `prompts/translation_v2.md` (the English report and its prompt are unchanged) and "aktuální rok" in `src/report/texts.py`.
-- **Why:** Marek asked to give what can be calculated; the Czech reviewers found the wording "běžný rok", "za období končící" and "celkem aktiv" unnatural.
-- **Still open:** Cofidis' criteria for the rules (see below); Marek said to keep the current reports and give instructions later, the rules are settings and can change after the merge.
 
 ## 2026-11-04 — Rating by rules, the LLM only explains it (CIPW-16)
 
@@ -39,7 +39,7 @@ Log of project decisions. Newest first. Format: date, decision, reason.
 
 - **Why:** same numbers give the same rating every time (the LLM text changes slightly from one generation to the next), every step can be explained and checked, and the rating cannot be argued away by a well-written paragraph.
 - **How:** the 15 ground truth reports (prompt v3, Gemini) were checked automatically against the input data: 380 numbers, none wrong. The rules are a proposal (`rules_version: proposal-1`). Everything still waiting for an answer is a setting in `report:` of `config/fides.yaml` (language, provider and model, risk threshold, rules left out, partial rating); see `docs/assessment.md`.
-- **Still open (questions to Marek and Marvin):** Cofidis' own criteria for assessing a company (the draft is too generous for DSC Art and perhaps too harsh for ZEVO, and debt is not part of the rules); a partial rating from the balance sheet for the 7 companies without an income statement (the team leaning towards yes if it is little work); the 20 % worsening threshold; the report language if other branches use the tool; LLM provider, model and project API key (no answer yet; Gemini free tier, 20 requests a day per model, is used for the tests).
+- **Still open (questions to Marek and Marvin):** Cofidis' own criteria for assessing a company (the draft is too generous for DSC Art and perhaps too harsh for ZEVO, and debt is not part of the rules); a partial rating from the balance sheet for the 7 companies without an income statement (the team leaning towards yes if it is little work); the 20 % worsening threshold; the report language if other branches use the tool; LLM provider: Mistral since 11 Nov (CIPW-58); this report code still calls its own clients (Gemini free tier for the tests) and moves to `src/llm.py` when it is wired into the pipeline.
 - **Affected tasks:** CIPW-16, CIPW-17, CIPW-18.
 
 ## 2026-10-21 — Web app in React + TypeScript over a Python API, no desktop installer (CIPW-41)

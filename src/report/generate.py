@@ -250,16 +250,32 @@ def _call_gemini(client: Any, model: str, system: str, user: str, max_tokens: in
 CALLS = {"anthropic": _call_anthropic, "mistral": _call_mistral, "gemini": _call_gemini}
 
 
+def limit_retries(client: Any) -> Any:
+    """Few retries, and none for a "busy" (503) answer: it may count against a free quota."""
+    if hasattr(client, "max_retries"):
+        client.max_retries = min(client.max_retries, MAX_RETRIES)
+    if hasattr(client, "retry_statuses"):
+        client.retry_statuses = tuple(code for code in client.retry_statuses if code != 503)
+    return client
+
+
+def make_limited_client(provider: str) -> Any:
+    """A new client of the provider with the retries above; a client given by the caller is left as it is."""
+    return limit_retries(make_client(provider))
+
+
 # ---------------------------------------------------------------------------------------------- the report
 
 
 def _apply_rules_rating(report: AssessmentReport, decision: RatingDecision, run: ReportRun) -> None:
-    """The rating is the rules': a different value from the model is replaced and said."""
+    """The rating is the rules': a different value from the model is replaced and said, with the rules' reasoning
+    (the model's paragraph would argue for its own rating)."""
     if report.rating.value != decision.value:
         run.warnings.append(
             f"the model gave rating {report.rating.value!r}, the rules give {decision.value!r}: kept the rules'"
         )
         report.rating.value = decision.value
+        report.rating.reasoning = decision.reasoning
 
 
 def add_recommendation(
@@ -325,11 +341,7 @@ def generate_report(
     )
     started = time.perf_counter()
     try:
-        client = client or make_client(provider)
-        if hasattr(client, "max_retries"):
-            client.max_retries = min(client.max_retries, MAX_RETRIES)
-        if hasattr(client, "retry_statuses"):  # a "busy" (503) answer may count against a free quota: no retry
-            client.retry_statuses = tuple(code for code in client.retry_statuses if code != 503)
+        client = client or make_limited_client(provider)
         run.raw = CALLS[provider](
             client,
             model,
@@ -349,7 +361,8 @@ def generate_report(
 
 # ---------------------------------------------------------------------------------------------- translation
 
-_NUMBER = re.compile(r"\d+(?:[ \u00a0]\d{3})*(?:[.,]\d+)?")
+# a minus sign counts when it is not glued to a word or a digit (so "2024-12-31" has no negative numbers)
+_NUMBER = re.compile(r"(?:(?<![\w])[-\u2212])?\d+(?:[ \u00a0\u202f]\d{3})*(?:[.,]\d+)?")
 
 
 def _text_fields(report: AssessmentReport) -> list[str]:
@@ -369,12 +382,13 @@ def numbers_in(texts_: list[str]) -> Counter[str]:
     found: Counter[str] = Counter()
     for text in texts_:
         for match in _NUMBER.findall(text):
-            found[match.replace("\u00a0", "").replace(" ", "").replace(",", ".")] += 1
+            value = match.replace("\u00a0", "").replace("\u202f", "").replace(" ", "").replace(",", ".")
+            found[value.replace("\u2212", "-")] += 1
     return found
 
 
 def translation_user_message(report: AssessmentReport) -> str:
-    return json.dumps(report.model_dump(exclude={"recommendation"}), ensure_ascii=False, indent=1)
+    return json.dumps(report.model_dump(exclude={"recommendation", "source"}), ensure_ascii=False, indent=1)
 
 
 def translate_report(
@@ -407,11 +421,7 @@ def translate_report(
     try:
         if english.report is None:
             raise ValueError("there is no English report to translate")
-        client = client or make_client(provider)
-        if hasattr(client, "max_retries"):
-            client.max_retries = min(client.max_retries, MAX_RETRIES)
-        if hasattr(client, "retry_statuses"):
-            client.retry_statuses = tuple(code for code in client.retry_statuses if code != 503)
+        client = client or make_limited_client(provider)
         run.raw = CALLS[provider](
             client,
             model,
@@ -511,10 +521,11 @@ def report_markdown(run: ReportRun, data: dict[str, Any]) -> str:
 
 def review_pack(reports_dir: Path) -> str:
     """All saved reports (`<file>.md` and `<file>.json` of scripts/generate_reports.py) in one page for the team."""
-    rows, pages, versions = [], [], set()
+    rows, pages, versions, partial = [], [], set(), False
     for path in sorted(reports_dir.glob("*.json")):
         saved = json.loads(path.read_text(encoding="utf-8"))
         data, rating = saved["input"], saved["rating"]
+        partial = partial or bool(rating.get("partial"))
         name = data["company"]["name"] or "unknown"
         status = "report" if saved.get("report") else "ERROR"
         version = saved.get("prompt_version") or "?"
@@ -534,7 +545,7 @@ def review_pack(reports_dir: Path) -> str:
         "",
         "Each reviewer takes 2 to 3 companies and fills in the checklist at the end of each report.",
         "",
-        rules_table(),
+        rules_table(partial),
         "| file | company | risk rating (rules) | recommendation | input data quality | report | prompt | reviewer |",
         "| --- | --- | --- | --- | --- | --- | --- | --- |",
         *rows,

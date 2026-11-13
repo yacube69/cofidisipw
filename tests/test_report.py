@@ -289,7 +289,7 @@ def test_user_message_carries_the_input_and_the_rule_rating():
 
 def test_the_tool_schema_has_the_fields_of_the_report_model():
     schema = generate.output_schema()
-    written_by_the_model = set(AssessmentReport.model_fields) - {"recommendation"}  # the code adds it
+    written_by_the_model = set(AssessmentReport.model_fields) - {"recommendation", "source"}  # the code adds them
     assert set(schema["properties"]) == written_by_the_model
     assert set(schema["required"]) == written_by_the_model
 
@@ -390,19 +390,26 @@ def test_rating_reasons_name_what_decided():
 
 
 def test_report_clients_retry_only_twice(monkeypatch):
-    monkeypatch.setenv("GEMINI_API_KEY", "test-key")
     client = FakeGemini()
     client.max_retries = 6
-    run = _run(client, "gemini")
+    monkeypatch.setattr(generate, "make_client", lambda provider: client)
+    run = generate.generate_report(_input(), file="26161516_2025", provider="gemini")
     assert run.ok and client.max_retries == generate.MAX_RETRIES
 
 
 def test_a_busy_answer_is_not_retried_because_it_may_count_against_the_quota(monkeypatch):
-    monkeypatch.setenv("GEMINI_API_KEY", "test-key")
+    client = FakeGemini()
+    client.max_retries, client.retry_statuses = 6, (429, 503)
+    monkeypatch.setattr(generate, "make_client", lambda provider: client)
+    run = generate.generate_report(_input(), file="26161516_2025", provider="gemini")
+    assert run.ok and client.retry_statuses == (429,)
+
+
+def test_a_client_given_by_the_caller_is_left_as_it_is():
     client = FakeGemini()
     client.max_retries, client.retry_statuses = 6, (429, 503)
     run = _run(client, "gemini")
-    assert run.ok and client.retry_statuses == (429,)
+    assert run.ok and client.max_retries == 6 and client.retry_statuses == (429, 503)
 
 
 def test_review_pack_collects_the_saved_reports(tmp_path):
@@ -802,3 +809,69 @@ def test_the_translation_prompt_keeps_the_czech_terms_of_the_review():
     assert generate.TRANSLATION_PROMPT_PATH.name == "translation_v3.md"
     for term in ("neuvedeno", "zóna ohrožení", "modely bankrotu", "částečné hodnocení"):
         assert term in text
+
+
+# ---------------------------------------------------------------------------------------------- review of 13 Nov
+
+
+def _with_failed_checks(data: dict) -> dict:
+    data = json.loads(json.dumps(data))
+    data["validation"] = {
+        **data["validation"],
+        "passed": False,
+        "failed": [
+            {"name": "balance_sum", "period": "current", "message": "assets differ from liabilities"},
+            {"name": "balance_sum", "period": "prior", "message": "assets differ from liabilities"},
+            {"name": "profit_link", "period": "current", "message": "profit differs"},
+        ],
+        "failed_count": 3,
+    }
+    return data
+
+
+def test_failed_accounting_checks_do_not_break_the_page_or_the_word_file(tmp_path):
+    from src.report import export_docx
+    from src.report.tables import figures_markdown
+
+    data = _with_failed_checks(_input())
+    for language in ("en", "cs"):
+        page = "\n".join(figures_markdown(data, language))
+        assert "balance_sum, profit_link" in page  # each name once
+    run = _run(FakeAnthropic(), "anthropic", answer_data=data)
+    assert "balance_sum" in generate.report_markdown(run, data)
+    assert export_docx.build_docx([(run, data)], tmp_path / "r.docx").exists()
+
+
+def test_the_rules_reasoning_replaces_the_models_when_the_rating_is_replaced():
+    answer = {**ANSWER, "rating": {"value": "low", "reasoning": "The model argues for a low risk."}}
+    run = _run(FakeAnthropic(answer), "anthropic", answer_data=_input())
+    assert run.rating.value == "high" and run.report.rating.value == "high"
+    assert run.report.rating.reasoning == run.rating.reasoning
+    assert any("the rules give 'high'" in w for w in run.warnings)
+
+
+def test_the_number_check_sees_the_minus_sign_and_the_narrow_space():
+    from collections import Counter
+
+    assert generate.numbers_in(["a loss of -5.2 million"]) != generate.numbers_in(["ztráta 5,2 mil."])
+    assert generate.numbers_in(["-5.2 %"]) == generate.numbers_in(["\u22125,2 %"])
+    assert generate.numbers_in(["1 391.2 %"]) == generate.numbers_in(["1\u202f391,2 %"])
+    assert generate.numbers_in(["period 2024-12-31"]) == Counter({"2024": 1, "12": 1, "31": 1})
+
+
+def test_the_report_says_the_llm_wrote_it_and_the_model_is_not_asked_for_it():
+    assert AssessmentReport.model_fields["source"].default == "llm"
+    assert "source" not in generate.output_schema()["properties"]
+
+
+def test_the_rules_table_has_r7_and_r8_with_the_partial_rating():
+    from src.report.rating import rules_table
+
+    assert "R7" not in rules_table() and "R8" not in rules_table()
+    assert "R7" in rules_table(True) and "R8" in rules_table(True)
+
+
+def test_settings_have_one_report_section():
+    from src.settings import Settings
+
+    assert list(Settings.model_fields).count("report") == 1

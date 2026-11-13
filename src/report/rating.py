@@ -14,8 +14,8 @@ The rules look at the current year of the assessment input (`build_assessment_in
 | R4 | no bankruptcy score could be computed | no rating |
 | R5 | both models safe, profit for the period not negative, reliable data | low |
 | R6 | everything else | medium |
-| R7 | partial rating only (off by default): no score and current ratio below 1 | high |
-| R8 | partial rating only (off by default): no score and current ratio 1 or more | medium |
+| R7 | partial rating only (`partial`, on in config/fides.yaml): no score and current ratio below 1 | high |
+| R8 | partial rating only (`partial`): no score and current ratio 1 or more | medium |
 
 The team can change this without editing the code (`report.rating` in config/fides.yaml, see `RatingConfig`):
 switch single rules off and allow a partial rating from the balance sheet alone for companies without a score.
@@ -73,8 +73,18 @@ class RatingDecision(BaseModel):
     partial: bool = False  # the partial rating (R7, R8) was switched on when this was decided
 
 
-def rules_table() -> str:
-    """The rules above as a Markdown block, for the pages reviewers read."""
+def rules_table(partial: bool = False) -> str:
+    """The rules above as a Markdown block, for the pages reviewers read (R7 and R8 with the partial rating)."""
+    partial_rows = (
+        [
+            "| R7 | no bankruptcy score could be computed and the current ratio is below 1 (partial rating) "
+            "| high risk |",
+            "| R8 | no bankruptcy score could be computed and the current ratio is 1 or more (partial rating) "
+            "| medium risk |",
+        ]
+        if partial
+        else []
+    )
     return "\n".join(
         [
             f"**How the risk rating is decided** (rules `{RULES_VERSION}`, a proposal: "
@@ -87,7 +97,10 @@ def rules_table() -> str:
             "| R1 | equity is negative | high risk |",
             "| R2 | IN05 and Altman Z′ are both in the distress zone | high risk |",
             "| R3 | one of the two models is in the distress zone and the period ends with a loss | high risk |",
-            "| R4 | no bankruptcy score could be computed (usually no income statement in the filing) | no rating |",
+            *partial_rows,
+            "| R4 | no bankruptcy score could be computed (usually no income statement in the filing)"
+            + (" and no current ratio" if partial else "")
+            + " | no rating |",
             "| R5 | both models are in the safe zone, the period is not a loss, all accounting checks passed and no "
             "score is computed from values flagged for review | low risk |",
             "| R6 | everything else | medium risk |",

@@ -49,7 +49,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"{'file':16} {'company':26} {'IN05':16} {'Altman Z′':16} {'quality':8} rating (rule)")
     for path in paths:
         data = assessment_input(path)
-        decision = rate(data)
+        decision = rate(data, settings.report.rating)
         b = data["bankruptcy"]
 
         def zone(key: str, b=b) -> str:

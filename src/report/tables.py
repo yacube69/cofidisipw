@@ -128,9 +128,15 @@ def figure_tables(data: dict[str, Any], language: str = "en") -> tuple[list[Tabl
     result = (
         t["checks_passed"]
         if validation["passed"]
-        else t["checks_failed"].format(count=validation["failed_count"], names=", ".join(validation["failed"]))
+        else t["checks_failed"].format(count=validation["failed_count"], names=_failed_names(validation["failed"]))
     )
     return tables, t["checks_text"].format(total=validation["checks_total"], result=result)
+
+
+def _failed_names(failed: list[Any]) -> str:
+    """The names of the failed accounting checks (`{name, period, message}` of the assessment input), once each."""
+    names = (str(check["name"]) if isinstance(check, dict) else str(check) for check in failed)
+    return ", ".join(dict.fromkeys(names))
 
 
 def figures_markdown(data: dict[str, Any], language: str = "en") -> list[str]:

@@ -139,8 +139,9 @@ rating) to the model, validates the answer with `AssessmentReport` and returns a
 tokens, warnings). Providers: `anthropic`, `mistral`, `gemini`; clients, default models and key variables
 (`ANTHROPIC_API_KEY`, `MISTRAL_API_KEY`, `GEMINI_API_KEY`) are those of the vision baseline, so changing the provider
 is one argument. Temperature 0. If the model gives a rating other than the rules' value, the rules' value is kept and
-a warning is recorded. Errors are recorded, not raised. The pipeline's report stage is still the mock: wiring it
-needs the decisions below (provider in the settings, language, rating approach).
+a warning is recorded and the rules' reasoning replaces the model's paragraph. Errors are recorded, not raised. The
+pipeline's report stage is the rule-based assessment of CIPW-55 (`src/report/fallback.py`); wiring this report into it
+needs the decisions below (the model through `src/llm.py`, one set of rating rules, language).
 
 The free Gemini tier allows about 20 requests a day per model, and a "busy" answer (503) may count against it: a 503 is
 not retried (a 429 per minute is), the script stops after 3 busy answers in a row, and an error never replaces a report

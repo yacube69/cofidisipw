@@ -50,3 +50,6 @@ class AssessmentReport(BaseModel):
         None, description="Calculated by the code from the rating, not written by the LLM."
     )
     data_quality_note: str = Field(description="What an analyst must know about the reliability of the numbers.")
+    source: str = Field(
+        "llm", description="Who wrote the text: \"llm\" here (\"rules\" in src/report/fallback.py); set by the code."
+    )
