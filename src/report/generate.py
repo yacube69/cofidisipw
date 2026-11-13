@@ -33,12 +33,12 @@ from src.report.models import AssessmentReport
 from src.report.rating import RatingConfig, RatingDecision, rate, rules_table
 from src.report.recommendation import RecommendationConfig, recommend
 from src.report.tables import figures_markdown
-from src.report.texts import texts
+from src.report.texts import period_date, texts
 from src.version import file_version
 
 ROOT = Path(__file__).resolve().parents[2]
 PROMPT_PATH = ROOT / "prompts" / "assessment_v6.md"
-TRANSLATION_PROMPT_PATH = ROOT / "prompts" / "translation_v2.md"
+TRANSLATION_PROMPT_PATH = ROOT / "prompts" / "translation_v3.md"
 TOOL_NAME = "record_assessment"
 DEFAULT_LANGUAGE = "en"
 MAX_TOKENS = 4000
@@ -445,7 +445,7 @@ def report_markdown(run: ReportRun, data: dict[str, Any]) -> str:
     company = data["company"]
     title = (
         f"{company['name'] or t['no_company']} (IČO {company['ico'] or '?'}), "
-        f"{t['period_ending']} {company['period_end']}"
+        f"{t['period_ending']} {period_date(run.language, company['period_end'])}"
     )
     lines = [f"# {title}", ""]
     if run.report is None:

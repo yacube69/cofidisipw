@@ -18,7 +18,7 @@ from docx.shared import Cm, Pt, RGBColor
 
 from src.report.generate import ReportRun
 from src.report.tables import figure_tables
-from src.report.texts import texts
+from src.report.texts import period_date, texts
 
 FONT = "Calibri"
 NAVY, BLUE, GRAY, TEXT, LINE, ZEBRA = "17324D", "2F6690", "6B7785", "262626", "D0D7DE", "F5F8FB"
@@ -209,7 +209,7 @@ def _company(document: Any, run: ReportRun, data: dict[str, Any]) -> None:
     company = data["company"]
     title = (
         f"{company['name'] or t['no_company']} (IČO {company['ico'] or '?'}), "
-        f"{t['period_ending']} {company['period_end']}"
+        f"{t['period_ending']} {period_date(run.language, company['period_end'])}"
     )
     heading = document.add_heading(title, level=1)
     _border(heading, "bottom", NAVY, 12, 4)

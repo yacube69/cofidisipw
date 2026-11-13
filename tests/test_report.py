@@ -639,7 +639,14 @@ def test_the_czech_page_uses_czech_headings_decimal_comma_and_czech_units():
     data = _input()
     run = _run(FakeAnthropic(), "anthropic", answer_data=data, language="cs")
     page = generate.report_markdown(run, data)
-    for text in ("## Shrnutí", "## Doporučení", "Rating rizika", "Klíčové údaje", "Běžná likvidita", "Modely bankrotu"):
+    for text in (
+        "## Shrnutí",
+        "## Doporučení",
+        "Hodnocení rizika",
+        "Klíčové údaje",
+        "Běžná likvidita",
+        "Modely bankrotu",
+    ):
         assert text in page
     assert "## Summary" not in page and "Current ratio" not in page
     assert amount(29_460_000_000, "cs") == "29,46 mld." and amount(176_520_000, "cs") == "176,52 mil."
@@ -765,7 +772,7 @@ def test_the_word_file_follows_the_language_and_puts_companies_on_separate_pages
     data = _input()
     run = _run(FakeAnthropic(), "anthropic", answer_data=data, language="cs")
     document, paragraphs = _docx_text(export_docx.build_docx([(run, data), (run, data)], tmp_path / "r.docx"))
-    assert "Rating rizika (podle pravidel R2): vysoké riziko" in paragraphs and "Doporučení" in paragraphs
+    assert "Hodnocení rizika (podle pravidel R2): vysoké riziko" in paragraphs and "Doporučení" in paragraphs
     assert document.tables[0].rows[0].cells[0].text == "položka" and len(document.tables) == 8
     assert sum(1 for p in document.paragraphs if 'w:br w:type="page"' in p._p.xml) == 1
 
@@ -777,3 +784,19 @@ def test_the_word_export_needs_something_to_write(tmp_path):
 
     with _pytest.raises(ValueError):
         export_docx.build_docx([], tmp_path / "r.docx")
+
+
+def test_the_czech_title_writes_the_date_the_czech_way():
+    from src.report.texts import period_date
+
+    assert period_date("cs", "2025-12-31") == "31. 12. 2025"
+    assert period_date("cs", "2024-01-05") == "5. 1. 2024"
+    assert period_date("en", "2025-12-31") == "2025-12-31"
+    assert period_date("cs", "unknown") == "unknown"
+
+
+def test_the_translation_prompt_keeps_the_czech_terms_of_the_review():
+    text = generate.TRANSLATION_PROMPT_PATH.read_text(encoding="utf-8")
+    assert generate.TRANSLATION_PROMPT_PATH.name == "translation_v3.md"
+    for term in ("neuvedeno", "zóna ohrožení", "modely bankrotu", "částečné hodnocení"):
+        assert term in text

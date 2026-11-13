@@ -78,7 +78,7 @@ It is `AssessmentReport.recommendation` (optional, filled by the code, not part 
 
 **Languages (10 Nov): written once, then translated.** The report is written in English (prompt `assessment_v6.md`);
 another language (`report.language` or `--language cs`) is the **translation of that English report**
-(`prompts/translation_v2.md`, `generate.translate_report`), so every language says the same. Writing each language
+(`prompts/translation_v3.md`, `generate.translate_report`), so every language says the same. Writing each language
 from scratch was tried on Skyport and gave different risks in English and Czech. The code checks the translation: the
 same number of items in each list (otherwise an error, nothing is saved) and every number of the English text in the
 translation (a difference is a warning in the run and in the JSON). Rating and recommendation are set by the code, not

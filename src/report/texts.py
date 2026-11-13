@@ -108,9 +108,9 @@ EN: dict[str, Any] = {
 
 CS: dict[str, Any] = {
     "no_company": "Neznámá společnost",
-    "period_ending": "období končící",
+    "period_ending": "k",
     "no_report": "Bez zprávy:",
-    "rating_line": "Rating rizika (podle pravidel {rules}): {rating}",
+    "rating_line": "Hodnocení rizika (podle pravidel {rules}): {rating}",
     "data_quality_input": "Kvalita vstupních dat:",
     "quality": {"good": "dobrá", "limited": "omezená", "poor": "slabá"},
     "summary": "Shrnutí",
@@ -118,15 +118,15 @@ CS: dict[str, Any] = {
     "risks": "Rizika",
     "red_flags": "Varovné signály",
     "none": "žádné",
-    "rating_reasoning": "Odůvodnění ratingu rizika",
+    "rating_reasoning": "Odůvodnění hodnocení rizika",
     "recommendation": "Doporučení",
     "recommendation_note": (
-        "Orientační, vypočtené z ratingu rizika podle pevných pravidel; rozhodnutí je na analytikovi."
+        "Orientační, vypočtené z hodnocení rizika podle pevných pravidel; rozhodnutí je na analytikovi."
     ),
     "criteria": "Kritéria:",
     "data_quality_note": "Poznámka ke kvalitě dat",
-    "footer": "Model {model}, prompt {prompt}, pravidla ratingu {rules}.",
-    "rating": {"high": "vysoké riziko", "medium": "střední riziko", "low": "nízké riziko", None: "bez ratingu"},
+    "footer": "Model {model}, prompt {prompt}, pravidla hodnocení {rules}.",
+    "rating": {"high": "vysoké riziko", "medium": "střední riziko", "low": "nízké riziko", None: "bez hodnocení"},
     "levels": {
         "recommended": "Doporučeno",
         "caution": "Doporučeno s opatrností (další posouzení)",
@@ -191,8 +191,8 @@ CS: dict[str, Any] = {
         "Každé číslo v textu odpovídá vstupu",
         "Nic není vymyšleno ani odhadnuto (příčiny, odvětví, plány)",
         "Silné stránky, rizika a varovné signály odpovídají tomu, co by řekl analytik",
-        "Odůvodnění ratingu je srozumitelné a odpovídá číslům",
-        "Doporučení vychází z ratingu a jeho kritéria jsou srozumitelná",
+        "Odůvodnění hodnocení je srozumitelné a odpovídá číslům",
+        "Doporučení vychází z hodnocení a jeho kritéria jsou srozumitelná",
         "Poznámka ke kvalitě dat říká, co musí analytik vědět",
     ],
     "comments": "Poznámky:",
@@ -255,3 +255,12 @@ def texts(language: str) -> dict[str, Any]:
 
 def has_texts(language: str) -> bool:
     return language.lower()[:2] in _TEXTS
+
+
+def period_date(language: str, iso: str) -> str:
+    """The end of the period as a reader of the language writes it (Czech: 31. 12. 2025; otherwise as given)."""
+    if language.lower()[:2] == "cs":
+        parts = str(iso).split("-")
+        if len(parts) == 3 and all(p.isdigit() for p in parts):
+            return f"{int(parts[2])}. {int(parts[1])}. {parts[0]}"
+    return str(iso)
