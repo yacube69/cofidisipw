@@ -40,6 +40,7 @@ Where a value comes from, highest first:
 | `llm.price_in_per_mtok`, `llm.price_out_per_mtok` | 0, 0 | USD per million tokens for `Result.llm_usage.cost_usd`; 0 = not counted |
 | `llm.max_cost_usd` | 0.50 | upper limit for one AI report (CIPW-16) |
 | `llm.api_key` | – | `MISTRAL_API_KEY` only; a key in `config/fides.yaml` is refused |
+| `report.*` | `cs`, `gemini`, 20 %, partial rating on | language (`cs`, `en`) of the PDF labels and the AI report, provider and model, risk threshold, rating rules and the recommendation per rating of the AI report (CIPW-16, `docs/assessment.md`); `primary`, `accent`, `logo`: Cofidis' colours and logo of the PDF (CIPW-43, `docs/report.md`) |
 | `api.max_upload_mb`, `api.max_results` | 60, 20 | web app API; `max_results` results are also kept in memory, the rest is read from storage |
 | `auth.mode` | none | sign-in: `none` (one computer) or `local` (accounts kept by Fides), `docs/users.md` |
 | `auth.idle_minutes`, `auth.max_hours` | 120, 12 | a session ends after this long without a request, and after this long in any case |
@@ -78,7 +79,7 @@ Read it with `src.runlog.read_log(path)` or `pandas.read_json(path, lines=True)`
 | `tool_version`, `git_commit`, `git_describe`, `git_dirty` | the code: version from `pyproject.toml`, commit from git (in the image from the build argument `GIT_COMMIT`, set by CI) |
 | `settings_hash`, `settings` | fingerprint and values of the settings that change a result: OCR, LLM, offline. Paths and the Tesseract location are left out, so the same configuration gives the same hash on every computer |
 | `dictionary_version` | `v<version> <content hash>` of `config/line_items.yaml` |
-| `prompt_version`, `model` | content hash of `prompts/report.md` and the model, only when an LLM wrote the report; `null` for mock data, rule-based and skipped reports, and offline mode |
+| `prompt_version`, `model` | content hash of `prompts/assessment_v7.md` and the model, only when an LLM wrote the report; `null` for mock data, rule-based and skipped reports, and offline mode |
 | `offline`, `ocr_config`, `tesseract_version`, `python_version` | |
 | `started_at`, `finished_at` | |
 | `log_file` | the run log, relative to the repository root |

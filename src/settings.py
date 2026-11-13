@@ -33,6 +33,9 @@ from pydantic_settings import (
     YamlConfigSettingsSource,
 )
 
+from src.report.rating import RatingConfig
+from src.report.recommendation import RecommendationConfig
+
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG_FILE = ROOT / "config" / "fides.yaml"
 ENV_FILE = ROOT / ".env"
@@ -92,10 +95,17 @@ class PerformanceSettings(BaseModel):
     """How pages are read side by side (CIPW-50, src/extraction/parallel.py)."""
 
     ocr_workers: int = Field(0, ge=0, description="Pages OCR'd at the same time; 0 = one per CPU core, 1 = one by one.")
-    tesseract_threads: int = Field(1, ge=0, description="Threads per Tesseract process when pages run side by side "
-                                   "(OMP_THREAD_LIMIT); 0 = Tesseract's own default.")
-    light_locator: bool = Field(True, description="Scans: find the statements from the top of each page first and "
-                                "read whole pages only where needed; the full read is the fallback.")
+    tesseract_threads: int = Field(
+        1,
+        ge=0,
+        description="Threads per Tesseract process when pages run side by side "
+        "(OMP_THREAD_LIMIT); 0 = Tesseract's own default.",
+    )
+    light_locator: bool = Field(
+        True,
+        description="Scans: find the statements from the top of each page first and "
+        "read whole pages only where needed; the full read is the fallback.",
+    )
 
 
 class TesseractSettings(BaseModel):
@@ -131,9 +141,23 @@ class AresSettings(BaseModel):
 
 
 class ReportSettings(BaseModel):
-    """The PDF report (CIPW-43, src/report/pdf.py): Cofidis' brand, Fides credited in the footer."""
+    """The report: the AI assessment (CIPW-16) and its PDF (CIPW-43, src/report/pdf.py), in Cofidis' brand.
 
-    language: Literal["cs", "en"] = Field("cs", description="Language of the labels (the AI text has its own).")
+    Provider, rules and recommendation wait for answers of the team or of Cofidis.
+    """
+
+    language: Literal["cs", "en"] = Field(
+        "cs", description="Language of the report: the labels of the PDF and the language of the AI report."
+    )
+    provider: Literal["gemini", "mistral", "anthropic"] = Field("gemini", description="Open question for the team.")
+    model: str = Field("", description="'' = the provider's default model.")
+    worsening_pct: float = Field(
+        20.0, gt=0, description="A worsening above this percentage is a risk (prompts from v4 on; v1-v3 say 20)."
+    )
+    rating: RatingConfig = Field(default_factory=RatingConfig)
+    recommendation: RecommendationConfig = Field(
+        default_factory=RecommendationConfig, description="Recommendation for each risk rating (open question)."
+    )
     primary: str = Field("#D0103A", description="Cofidis red (cofidis.hu/toolkit): header band, headings.")
     accent: str = Field("#FECB00", description="Cofidis yellow (cofidis.hu/toolkit): the verdict box.")
     logo: str = Field("config/brand/cofidis-logo.png", description="Cofidis' logo (PNG or JPEG), relative to the "
@@ -198,6 +222,7 @@ class Settings(BaseSettings):
     performance: PerformanceSettings = Field(default_factory=PerformanceSettings)
     tesseract: TesseractSettings = Field(default_factory=TesseractSettings)
     llm: LlmSettings = Field(default_factory=LlmSettings)
+    report: ReportSettings = Field(default_factory=ReportSettings)
     api: ApiSettings = Field(default_factory=ApiSettings)
     auth: AuthSettings = Field(default_factory=AuthSettings)
     storage: StorageSettings = Field(default_factory=StorageSettings)
