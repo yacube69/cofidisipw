@@ -130,7 +130,11 @@ def rate(data: dict[str, Any], config: RatingConfig | None = None) -> RatingDeci
 
     def decision(value: RatingValue | None, rule: str, why: str) -> RatingDecision:
         return RatingDecision(
-            value=value, rules=[rule], reasoning=f"{why} ({scores_text}).{caveat}", rules_version=version, partial=config.partial
+            value=value,
+            rules=[rule],
+            reasoning=f"{why} ({scores_text}).{caveat}",
+            rules_version=version,
+            partial=config.partial,
         )
 
     if on("R1") and equity is not None and equity < 0:
