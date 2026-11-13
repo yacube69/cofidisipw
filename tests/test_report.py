@@ -210,7 +210,7 @@ def test_the_prompt_the_pipeline_records_exists_and_has_its_placeholder():
     from src.pipeline import REPORT_PROMPT
 
     text = (Path(__file__).resolve().parents[1] / "prompts" / REPORT_PROMPT).read_text(encoding="utf-8")
-    assert REPORT_PROMPT == "assessment_v6.md" and text.count("{{LANGUAGE}}") == 2
+    assert REPORT_PROMPT == "assessment_v7.md" and text.count("{{LANGUAGE}}") == 2
     for section in ("key_figures", "ratios", "bankruptcy", "benchmarks", "validation", "data_quality", "rating"):
         assert f"`{section}`" in text
 
@@ -664,10 +664,12 @@ def test_an_unknown_language_gets_english_fixed_texts():
     )
 
 
-def test_prompt_v6_keeps_the_placeholders_and_asks_for_czech_numbers():
+def test_prompt_v7_keeps_the_placeholders_and_asks_for_czech_numbers():
     text = generate.build_prompt("cs", generate.PROMPT_PATH)
     assert "mld. Kč" in text and "Write all text in cs" in text
     assert "do not mention a recommendation" in text
+    for rule in ("not reported", "peak liquidity", "across zero", "month as a word"):
+        assert rule in text
 
 
 # ---------------------------------------------------------------------------------------------- translation (B)

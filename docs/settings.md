@@ -79,7 +79,7 @@ Read it with `src.runlog.read_log(path)` or `pandas.read_json(path, lines=True)`
 | `tool_version`, `git_commit`, `git_describe`, `git_dirty` | the code: version from `pyproject.toml`, commit from git (in the image from the build argument `GIT_COMMIT`, set by CI) |
 | `settings_hash`, `settings` | fingerprint and values of the settings that change a result: OCR, LLM, offline. Paths and the Tesseract location are left out, so the same configuration gives the same hash on every computer |
 | `dictionary_version` | `v<version> <content hash>` of `config/line_items.yaml` |
-| `prompt_version`, `model` | content hash of `prompts/assessment_v6.md` and the model, only when an LLM wrote the report; `null` for mock data, rule-based and skipped reports, and offline mode |
+| `prompt_version`, `model` | content hash of `prompts/assessment_v7.md` and the model, only when an LLM wrote the report; `null` for mock data, rule-based and skipped reports, and offline mode |
 | `offline`, `ocr_config`, `tesseract_version`, `python_version` | |
 | `started_at`, `finished_at` | |
 | `log_file` | the run log, relative to the repository root |

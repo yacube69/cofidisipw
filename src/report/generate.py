@@ -1,6 +1,6 @@
 """The AI assessment call (CIPW-16): assessment input -> LLM -> `AssessmentReport`.
 
-The LLM gets the prompt `prompts/assessment_v6.md` as system prompt and, as user message, the assessment input
+The LLM gets the prompt `prompts/assessment_v7.md` as system prompt and, as user message, the assessment input
 (`build_assessment_input`) plus the rating decided by the rules (`rate`). It answers through a forced tool call
 (Anthropic, Mistral) or as JSON (Gemini). The answer is validated with Pydantic. The rating is not the model's: if it
 differs from the rule's, the rule's value is written back and a warning says so (rating approach A of the ticket,
@@ -37,7 +37,7 @@ from src.report.texts import period_date, texts
 from src.version import file_version
 
 ROOT = Path(__file__).resolve().parents[2]
-PROMPT_PATH = ROOT / "prompts" / "assessment_v6.md"
+PROMPT_PATH = ROOT / "prompts" / "assessment_v7.md"
 TRANSLATION_PROMPT_PATH = ROOT / "prompts" / "translation_v3.md"
 TOOL_NAME = "record_assessment"
 DEFAULT_LANGUAGE = "en"

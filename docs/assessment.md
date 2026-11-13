@@ -76,7 +76,7 @@ the accounting checks. The recommendation is indicative; the decision stays with
 until Cofidis names its own criteria; changing it needs no new model call (the recommendation is added to saved answers).
 It is `AssessmentReport.recommendation` (optional, filled by the code, not part of the tool schema).
 
-**Languages (10 Nov): written once, then translated.** The report is written in English (prompt `assessment_v6.md`);
+**Languages (10 Nov): written once, then translated.** The report is written in English (prompt `assessment_v7.md`);
 another language (`report.language` or `--language cs`) is the **translation of that English report**
 (`prompts/translation_v3.md`, `generate.translate_report`), so every language says the same. Writing each language
 from scratch was tried on Skyport and gave different risks in English and Czech. The code checks the translation: the
@@ -98,7 +98,7 @@ answers already saved cost no call. It is the report page laid out for reading (
 colour for each risk rating, tables with a dark header, header and page number); text, numbers, tables, rating and
 recommendation are those of the page, and the review checklist is left out. Needs `python-docx` (in `requirements.txt`).
 
-## Prompt (`prompts/assessment_v6.md`, v1 to v5 kept)
+## Prompt (`prompts/assessment_v7.md`, v1 to v6 kept)
 
 System prompt for the LLM: experienced credit analyst, only numbers from the input, exact values with their year,
 no speculation, nothing built on flagged values, no industry comparison without benchmarks, rating copied from the
@@ -125,6 +125,10 @@ debt to equity as risk or red flag, a very low current ratio as red flag, a prof
 result.
 v6 follows the answer of Cofidis (9 Nov): reports in English and Czech (Czech number conventions in the prompt); the AI
 must not write a recommendation, the code adds one from the rating. Nothing else changes.
+v7 follows the reading of the 15 reports (13 Nov; wording only, no new threshold): "not reported" instead of "not
+printed"; dates with the month as a word; a space between thousands also in percentages; ratio names as in the input
+(no "peak liquidity"); no percentage across zero (loss to profit); every key figure, the financial result included, is
+checked against the worsening threshold; a rating that is `null` is explained once.
 To compare versions:
 `python scripts/generate_reports.py <file> --prompt assessment_v2.md`.
 

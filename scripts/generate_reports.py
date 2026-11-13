@@ -7,7 +7,7 @@
     python scripts/generate_reports.py --pack                         # no call: all saved reports in one page
 
 The input of each company is built from the verified ground truth (`scripts/build_assessment_inputs.py`), the rating
-comes from the rules (`src/report/rating.py`, a proposal), the LLM writes the text (`prompts/assessment_v6.md`).
+comes from the rules (`src/report/rating.py`, a proposal), the LLM writes the text (`prompts/assessment_v7.md`).
 Keys come from the environment or .env (ANTHROPIC_API_KEY, MISTRAL_API_KEY, GEMINI_API_KEY), never from this repo.
 Answers are saved in outputs/reports/cache (same prompt, input, model and language: no second call, no second
 charge); --force calls again. Stops when a daily quota is used up.

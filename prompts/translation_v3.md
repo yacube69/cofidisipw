@@ -1,7 +1,7 @@
 # Translation prompt v3 (CIPW-16)
 
 Used when a report is wanted in a language other than English: the report is written once in English (prompt
-`assessment_v6.md`) and this prompt translates its text, so every language says the same thing. The code checks that
+`assessment_v7.md`) and this prompt translates its text, so every language says the same thing. The code checks that
 the number of items is the same and that every number of the English text is in the translation.
 Everything above the first horizontal rule below is a header for people; it is not sent to the model.
 Change the text below only by creating `translation_v4.md`.
