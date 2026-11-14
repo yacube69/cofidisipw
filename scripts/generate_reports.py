@@ -1,14 +1,17 @@
 """AI assessment reports of the ground truth companies (CIPW-16, step 5).
 
     python scripts/generate_reports.py --dry-run                      # no call: prompt, input and rating per company
-    python scripts/generate_reports.py --provider gemini              # all files in data/ground_truth/
-    python scripts/generate_reports.py 26161516_2025 --provider gemini
-    python scripts/generate_reports.py --provider mistral --language cs
+    python scripts/generate_reports.py                                # all files in data/ground_truth/, by `llm`
+    python scripts/generate_reports.py 26161516_2025 --language cs
+    python scripts/generate_reports.py --gemini                       # tuning the prompt with a free Gemini key
     python scripts/generate_reports.py --pack                         # no call: all saved reports in one page
 
 The input of each company is built from the verified ground truth (`scripts/build_assessment_inputs.py`), the rating
-comes from the rules (`src/report/rating.py`, a proposal), the LLM writes the text (`prompts/assessment_v7.md`).
-Keys come from the environment or .env (ANTHROPIC_API_KEY, MISTRAL_API_KEY, GEMINI_API_KEY), never from this repo.
+comes from the rules (`src/report/rating.py`, a proposal), the LLM writes the text (`prompts/assessment_v8.md`).
+By default the model is the one of `settings.llm` through `src.llm.ask_json` (Mistral's API or an own server, offline
+mode refused, key from MISTRAL_API_KEY in the environment or .env, never from this repo).
+`--gemini` is only for tuning the prompt on the PUBLIC ground truth with a free key (GEMINI_API_KEY): it is a flag of
+this script, not a setting, and the pipeline and the app never use it.
 Answers are saved in outputs/reports/cache (same prompt, input, model and language: no second call, no second
 charge); --force calls again. Stops when a daily quota is used up.
 
@@ -33,36 +36,78 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from build_assessment_inputs import assessment_input  # noqa: E402
 
-from src.extraction.vision import DEFAULT_MODELS, MODEL_ENV, PROVIDERS, is_daily_quota  # noqa: E402
+from src.extraction.vision import DEFAULT_MODELS, MODEL_ENV, ApiError, is_daily_quota, make_client  # noqa: E402
+from src.llm import Reply  # noqa: E402
 from src.report import export_docx, generate  # noqa: E402
 from src.report.models import AssessmentReport  # noqa: E402
 from src.report.rating import RatingDecision, rate  # noqa: E402
+from src.result import LLMUsage  # noqa: E402
 from src.settings import get_settings  # noqa: E402
+
+GEMINI_MAX_TOKENS = 16000  # Gemini counts its thinking
+MAX_RETRIES = 2  # "busy" (503) and "too many requests" (429): every retry can count against a free quota
+
+
+def gemini_ask(model: str) -> generate.Ask:
+    """The Gemini flag: a free key to tune the prompt on the public ground truth. Few retries, none for a 503."""
+    client = make_client("gemini")
+    client.max_retries = min(client.max_retries, MAX_RETRIES)
+    client.retry_statuses = tuple(code for code in client.retry_statuses if code != 503)
+
+    def ask(system: str, user: str) -> Reply:
+        body: dict[str, Any] = {
+            "systemInstruction": {"parts": [{"text": system}]},
+            "contents": [{"role": "user", "parts": [{"text": user}]}],
+        }
+        config: dict[str, Any] = {"maxOutputTokens": GEMINI_MAX_TOKENS, "responseMimeType": "application/json"}
+        try:
+            data = client.generate(model, {**body, "generationConfig": {**config, "temperature": 0}})
+        except ApiError as exc:
+            if exc.status_code != 400 or "temperature" not in str(exc).lower():
+                raise
+            data = client.generate(model, {**body, "generationConfig": config})
+        usage = data.get("usageMetadata") or {}
+        candidates = data.get("candidates") or []
+        if not candidates:
+            raise ValueError(f"no answer from the model: {str(data.get('promptFeedback') or data)[:300]}")
+        if candidates[0].get("finishReason") == "MAX_TOKENS":
+            raise ValueError("answer cut off at max_tokens")
+        parts = (candidates[0].get("content") or {}).get("parts", [])
+        text = "".join(p.get("text", "") for p in parts if not p.get("thought"))
+        if not text.strip():
+            raise ValueError(f"the model returned no text (finish reason {candidates[0].get('finishReason')})")
+        answer = json.loads(text)
+        if not isinstance(answer, dict):
+            raise ValueError("the answer is not a JSON object")
+        tokens_out = usage.get("candidatesTokenCount", 0) + usage.get("thoughtsTokenCount", 0)
+        return Reply(
+            data=answer,
+            usage=LLMUsage(input_tokens=usage.get("promptTokenCount", 0), output_tokens=tokens_out, cost_usd=0.0),
+            model=model,
+        )
+
+    return ask
 
 
 def cache_key(
     data: dict[str, Any],
     decision: RatingDecision,
-    provider: str,
     model: str,
     language: str,
     prompt: Path,
     worsening_pct: float = 20.0,
 ) -> str:
     system = generate.build_prompt(language, prompt, worsening_pct)
-    text = system + generate.user_message(data, decision) + provider + model + language
+    text = system + generate.user_message(data, decision) + model + language
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 
 
-def load_cached(
-    path: Path, decision: RatingDecision, provider: str, model: str, language: str
-) -> generate.ReportRun | None:
+def load_cached(path: Path, decision: RatingDecision, model: str, language: str) -> generate.ReportRun | None:
     if not path.exists():
         return None
     saved = json.loads(path.read_text(encoding="utf-8"))
     return generate.ReportRun(
         file=saved["file"],
-        provider=provider,
         model=model,
         language=language,
         prompt_version=saved["prompt_version"],
@@ -71,6 +116,7 @@ def load_cached(
         raw=saved.get("raw"),
         input_tokens=saved.get("input_tokens", 0),
         output_tokens=saved.get("output_tokens", 0),
+        cost_usd=saved.get("cost_usd", 0.0),
         warnings=saved.get("warnings", []),
     )
 
@@ -87,6 +133,7 @@ def save_cache(path: Path, run: generate.ReportRun) -> None:
                 "raw": run.raw,
                 "input_tokens": run.input_tokens,
                 "output_tokens": run.output_tokens,
+                "cost_usd": run.cost_usd,
                 "warnings": run.warnings,
             },
             ensure_ascii=False,
@@ -97,10 +144,10 @@ def save_cache(path: Path, run: generate.ReportRun) -> None:
     )
 
 
-def translation_key(english: generate.ReportRun, provider: str, model: str, language: str, prompt: Path) -> str:
+def translation_key(english: generate.ReportRun, model: str, language: str, prompt: Path) -> str:
     assert english.report is not None
     system = generate.build_prompt(language, prompt)
-    text = system + generate.translation_user_message(english.report) + provider + model + language
+    text = system + generate.translation_user_message(english.report) + model + language
     return hashlib.sha256(text.encode("utf-8")).hexdigest()[:16]
 
 
@@ -117,7 +164,6 @@ def write_files(out: Path, stem: str, run: generate.ReportRun, data: dict[str, A
                 "input": data,
                 "rating": run.rating.model_dump(),
                 "report": run.report.model_dump() if run.report else None,
-                "provider": run.provider,
                 "model": run.model,
                 "language": run.language,
                 "prompt_version": run.prompt_version,
@@ -152,6 +198,7 @@ def get_report(
     prompt: Path,
     settings: Any,
     english: generate.ReportRun | None,
+    ask: generate.Ask | None,
 ) -> tuple[generate.ReportRun, str]:
     """The report of one company in one language: from the saved answer, or by a model call.
 
@@ -160,21 +207,21 @@ def get_report(
     """
     out = settings.paths.outputs / report_dir(language)
     if language == "en":
-        key = cache_key(data, decision, args.provider, model, "en", prompt, report_cfg.worsening_pct)
+        key = cache_key(data, decision, model, "en", prompt, report_cfg.worsening_pct)
     else:
         assert english is not None
-        key = translation_key(english, args.provider, model, language, generate.TRANSLATION_PROMPT_PATH)
+        key = translation_key(english, model, language, generate.TRANSLATION_PROMPT_PATH)
     cache = out / "cache" / f"{stem}_{key}.json"
-    run = None if args.force else load_cached(cache, decision, args.provider, model, language)
+    run = None if args.force else load_cached(cache, decision, model, language)
     status = "cached"
     if run is None:
         if language == "en":
             run = generate.generate_report(
                 data,
                 file=stem,
-                provider=args.provider,
-                model=model,
                 language="en",
+                ask=ask,
+                settings=settings,
                 decision=decision,
                 prompt_path=prompt,
                 worsening_pct=report_cfg.worsening_pct,
@@ -182,8 +229,9 @@ def get_report(
             )
         else:
             run = generate.translate_report(
-                english, data, language=language, model=model, recommendation_config=report_cfg.recommendation
-            )
+                english, data, language=language, ask=ask, settings=settings,
+                recommendation_config=report_cfg.recommendation,
+            )  # fmt: skip
         status = "ok" if run.ok else "ERROR"
         if run.ok:
             save_cache(cache, run)
@@ -197,8 +245,12 @@ def get_report(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("files", nargs="*", help="ground truth names (without .json); default: all")
-    parser.add_argument("--provider", choices=PROVIDERS, help="default: report.provider in config/fides.yaml")
-    parser.add_argument("--model", help="default: the provider's model (see MODEL_ENV in src/extraction/vision.py)")
+    parser.add_argument(
+        "--gemini",
+        action="store_true",
+        help="tune the prompt on the public ground truth with a free Gemini key (GEMINI_API_KEY); default: `llm`",
+    )
+    parser.add_argument("--model", help="with --gemini: the Gemini model (default: GEMINI_MODEL or the project's)")
     parser.add_argument("--language", help="report language, ISO 639-1; default: report.language in config/fides.yaml")
     parser.add_argument(
         "--prompt", default=generate.PROMPT_PATH.name, help="prompt file in prompts/ (to compare versions)"
@@ -223,17 +275,26 @@ def main(argv: list[str] | None = None) -> int:
 
     settings = get_settings()
     report_cfg = settings.report
-    args.provider = args.provider or report_cfg.provider
     args.language = args.language or report_cfg.language
     prompt = ROOT / "prompts" / args.prompt
-    model = args.model or report_cfg.model or os.getenv(MODEL_ENV[args.provider]) or DEFAULT_MODELS[args.provider]
+    if args.gemini:
+        model = args.model or os.getenv(MODEL_ENV["gemini"]) or DEFAULT_MODELS["gemini"]
+    else:
+        model = settings.llm.model
+        if args.model:
+            parser.error("--model is only for --gemini; the model of the report is `llm.model` (MISTRAL_MODEL)")
+        if not args.dry_run and not settings.llm_enabled:
+            print("No AI model connected: offline mode, or no MISTRAL_API_KEY. Set the key in .env, or use --gemini "
+                  "on the public ground truth.")  # fmt: skip
+            return 2
+    ask = gemini_ask(model) if args.gemini and not args.dry_run else None
     gt_dir = settings.paths.ground_truth
     out = settings.paths.outputs / report_dir(args.language)
     paths = [gt_dir / f"{n}.json" for n in args.files] or sorted(
         p for p in gt_dir.glob("*.json") if not p.name.startswith("_")
     )
     print(
-        f"provider {args.provider}, model {model}, language {args.language}, "
+        f"model {model} ({'Gemini flag' if args.gemini else 'llm settings'}), language {args.language}, "
         f"prompt {args.prompt} ({generate.prompt_version(prompt)})"
     )
     if args.dry_run:
@@ -255,12 +316,14 @@ def main(argv: list[str] | None = None) -> int:
             size = len(generate.user_message(data, decision))
             print(f"{path.stem:16} {name:25} {rating:14} input {size} characters")
             continue
-        run, status = get_report(path.stem, data, decision, "en", args, report_cfg, model, prompt, settings, None)
+        run, status = get_report(
+            path.stem, data, decision, "en", args, report_cfg, model, prompt, settings, None, ask
+        )
         if args.language != "en":
             english = run
             if english.ok:  # one analysis, translated: every language says the same
                 run, status = get_report(
-                    path.stem, data, decision, args.language, args, report_cfg, model, prompt, settings, english
+                    path.stem, data, decision, args.language, args, report_cfg, model, prompt, settings, english, ask
                 )
             else:
                 run, status = english, "ERROR"
@@ -272,7 +335,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"    {run.error[:300]}")
         summary.append(
             f"| {path.stem} | {name} | {rating} | {status} | {run.input_tokens}/{run.output_tokens} | "
-            f"{'-' if cost is None else f'{cost:.4f}'} |"
+            f"{'-' if not cost else f'{cost:.4f}'} |"
         )
         write_files(settings.paths.outputs / report_dir(run.language), path.stem, run, data)
         if run.ok:

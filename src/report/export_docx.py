@@ -265,7 +265,7 @@ def _company(document: Any, run: ReportRun, data: dict[str, Any]) -> None:
     _paragraph(document, rules_intro)
     _table(document, rules_header, rules_body)
     footer = t["footer"].format(
-        model=f"{run.provider}/{run.model}", prompt=run.prompt_version, rules=run.rating.rules_version
+        model=run.model, prompt=run.prompt_version, rules=run.rating.rules_version
     )
     _paragraph(document, footer, 8.5, GRAY, italic=True)
 

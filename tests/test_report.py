@@ -4,19 +4,18 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from types import SimpleNamespace
 
 import pytest
 from pydantic import ValidationError
 
-from src.extraction.vision import ApiError
+from src.llm import LlmError, Reply
 from src.ratios.bankruptcy import compute_bankruptcy
 from src.ratios.engine import compute_ratios
 from src.report import generate
 from src.report.inputs import assessment_input_from_result, build_assessment_input
 from src.report.models import AssessmentReport, ReportRating
 from src.report.rating import rate
-from src.result import Result
+from src.result import LLMUsage, Result
 from src.schema import GroundTruth
 from src.validation.review import validate_and_review
 
@@ -339,7 +338,7 @@ def test_the_prompt_the_pipeline_records_exists_and_has_its_placeholder():
     from src.pipeline import REPORT_PROMPT
 
     text = (Path(__file__).resolve().parents[1] / "prompts" / REPORT_PROMPT).read_text(encoding="utf-8")
-    assert REPORT_PROMPT == "assessment_v7.md" and text.count("{{LANGUAGE}}") == 2
+    assert REPORT_PROMPT == "assessment_v8.md" and text.count("{{LANGUAGE}}") == 2
     for section in ("key_figures", "ratios", "bankruptcy", "benchmarks", "validation", "data_quality", "rating"):
         assert f"`{section}`" in text
 
@@ -357,50 +356,21 @@ ANSWER = {
 }
 
 
-class FakeAnthropic:
-    def __init__(self, answer=None, stop="tool_use"):
-        self.calls, self.answer, self.stop = [], ANSWER if answer is None else answer, stop
-        self.messages = self
+class FakeAsk:
+    """The model, as `generate` asks it: (system, user) -> Reply. `calls` keeps what was sent."""
 
-    def create(self, **kwargs):
-        self.calls.append(kwargs)
-        block = SimpleNamespace(type="tool_use", name=generate.TOOL_NAME, input=self.answer)
-        return SimpleNamespace(
-            usage=SimpleNamespace(input_tokens=1000, output_tokens=200), stop_reason=self.stop, content=[block]
-        )
-
-
-class FakeMistral:
-    def __init__(self, answer=None):
+    def __init__(self, answer=None, tokens=(1000, 200), cost=0.0, model="mistral-medium-3.5"):
         self.calls, self.answer = [], ANSWER if answer is None else answer
+        self.tokens, self.cost, self.model = tokens, cost, model
 
-    def chat(self, payload):
-        self.calls.append(payload)
-        call = {"function": {"name": generate.TOOL_NAME, "arguments": json.dumps(self.answer)}}
-        return {
-            "usage": {"prompt_tokens": 900, "completion_tokens": 150},
-            "choices": [{"finish_reason": "tool_calls", "message": {"tool_calls": [call]}}],
-        }
+    def __call__(self, system, user):
+        self.calls.append((system, user))
+        usage = LLMUsage(input_tokens=self.tokens[0], output_tokens=self.tokens[1], cost_usd=self.cost)
+        return Reply(data=self.answer, usage=usage, model=self.model)
 
 
-class FakeGemini:
-    def __init__(self, text=None, reject_temperature=False):
-        self.calls, self.text, self.reject = [], json.dumps(ANSWER) if text is None else text, reject_temperature
-
-    def generate(self, model, body):
-        self.calls.append((model, body))
-        if self.reject and "temperature" in body["generationConfig"]:
-            raise ApiError(400, "temperature is not supported")
-        return {
-            "usageMetadata": {"promptTokenCount": 800, "candidatesTokenCount": 100, "thoughtsTokenCount": 50},
-            "candidates": [{"finishReason": "STOP", "content": {"parts": [{"text": self.text}]}}],
-        }
-
-
-def _run(client, provider, answer_data=None, **kwargs):
-    return generate.generate_report(
-        answer_data or _input(), file="26161516_2025", provider=provider, client=client, **kwargs
-    )
+def _run(ask, answer_data=None, **kwargs):
+    return generate.generate_report(answer_data or _input(), file="26161516_2025", ask=ask, **kwargs)
 
 
 def test_prompt_is_filled_with_the_language_and_has_no_header():
@@ -416,42 +386,93 @@ def test_user_message_carries_the_input_and_the_rule_rating():
     assert message["rating"]["value"] == "high" and message["rating"]["rules"] == ["R2"]
 
 
-def test_the_tool_schema_has_the_fields_of_the_report_model():
-    schema = generate.output_schema()
+def test_the_prompt_asks_for_the_fields_of_the_report_model():
     written_by_the_model = set(AssessmentReport.model_fields) - {"recommendation", "source"}  # the code adds them
-    assert set(schema["properties"]) == written_by_the_model
-    assert set(schema["required"]) == written_by_the_model
+    answer = generate.build_prompt("en").split("## Answer")[1]
+    assert all(f'"{name}"' in answer for name in written_by_the_model) and "JSON object" in answer
+    assert not any(f'"{name}"' in answer for name in ("recommendation", "source"))
 
 
-def test_anthropic_call_gives_a_validated_report_in_our_language():
-    client = FakeAnthropic()
-    run = _run(client, "anthropic", language="en")
+def test_the_ask_gives_a_validated_report_in_our_language():
+    ask = FakeAsk()
+    run = _run(ask, language="en")
     assert run.ok and run.report.language == "en" and run.report.rating.value == "high"
-    assert (run.input_tokens, run.output_tokens) == (1000, 200)
-    call = client.calls[0]
-    assert call["temperature"] == 0 and call["tool_choice"]["name"] == generate.TOOL_NAME
-    assert "Write all text in en." in call["system"]
+    assert (run.input_tokens, run.output_tokens, run.model) == (1000, 200, "mistral-medium-3.5")
+    system, user = ask.calls[0]
+    assert "Write all text in en." in system and json.loads(user)["rating"]["value"] == "high"
 
 
-def test_mistral_call():
-    client = FakeMistral()
-    run = _run(client, "mistral")
-    assert run.ok and run.model == "mistral-medium-3.5"
-    payload = client.calls[0]
-    assert payload["temperature"] == 0 and payload["messages"][0]["role"] == "system"
+class FakeChat:
+    """Mistral's chat completions, as `src.llm` asks it."""
+
+    def __init__(self, answer=None):
+        self.payloads, self.answer = [], ANSWER if answer is None else answer
+
+    def chat(self, payload):
+        self.payloads.append(payload)
+        message = {"content": json.dumps(self.answer)}
+        return {"usage": {"prompt_tokens": 900, "completion_tokens": 150},
+                "choices": [{"finish_reason": "stop", "message": message}]}  # fmt: skip
 
 
-def test_gemini_call_and_temperature_fallback():
-    client = FakeGemini(reject_temperature=True)
-    run = _run(client, "gemini")
-    assert run.ok and run.temperature_used is False and any("temperature" in w for w in run.warnings)
-    assert run.output_tokens == 150  # thinking tokens count as output
-    assert len(client.calls) == 2
+@pytest.fixture
+def llm_settings():
+    from pydantic import SecretStr
+
+    from src.settings import get_settings
+
+    s = get_settings().model_copy(deep=True)
+    s.offline, s.llm.api_key = False, SecretStr("test-key")
+    s.llm.price_in_per_mtok, s.llm.price_out_per_mtok = 0.4, 2.0
+    return s
+
+
+def test_by_default_the_report_goes_through_src_llm_ask_json(monkeypatch, llm_settings):
+    """No provider choice: `settings.llm` (Mistral's API or an own server) through `ask_json`, with its cost."""
+    chat = FakeChat()
+    seen = []
+    monkeypatch.setattr("src.llm.client", lambda settings: seen.append(settings.llm.url) or chat)
+    run = generate.generate_report(_input(), file="26161516_2025", settings=llm_settings)
+    assert run.ok and run.model == llm_settings.llm.model and seen == [llm_settings.llm.url]
+    payload = chat.payloads[0]
+    assert payload["response_format"] == {"type": "json_object"} and payload["temperature"] == 0
+    assert payload["max_tokens"] == generate.MAX_TOKENS and "Write all text in en." in payload["messages"][0]["content"]
+    assert (run.input_tokens, run.output_tokens) == (900, 150)
+    assert run.cost_usd == pytest.approx((900 * 0.4 + 150 * 2.0) / 1e6)
+
+
+def test_offline_mode_calls_no_model_and_says_so(monkeypatch, llm_settings):
+    chat = FakeChat()
+    monkeypatch.setattr("src.llm.client", lambda settings: chat)
+    llm_settings.offline = True
+    run = generate.generate_report(_input(), file="x", settings=llm_settings)
+    assert not run.ok and "LlmError" in run.error and "no AI model connected" in run.error and chat.payloads == []
+    english = _english()
+    translated = generate.translate_report(english, _input(), language="cs", settings=llm_settings)
+    assert not translated.ok and "no AI model connected" in translated.error and chat.payloads == []
+
+
+def test_an_own_server_needs_no_key(monkeypatch, llm_settings):
+    chat = FakeChat()
+    monkeypatch.setattr("src.llm.client", lambda settings: chat)
+    llm_settings.llm.api_key, llm_settings.llm.url = None, "http://fides-llm.cofidis.local/v1"
+    assert generate.generate_report(_input(), file="x", settings=llm_settings).ok and len(chat.payloads) == 1
+
+
+def test_a_call_above_the_cost_cap_is_an_error_not_a_report(llm_settings):
+    llm_settings.llm.max_cost_usd = 0.50
+    assert _run(FakeAsk(cost=0.40), settings=llm_settings).ok
+    run = _run(FakeAsk(cost=0.60), settings=llm_settings)
+    assert not run.ok and "above llm.max_cost_usd" in run.error and run.cost_usd == 0.60
+    english = _english()
+    expensive = FakeAsk(CZECH, cost=0.60)
+    run = generate.translate_report(english, _input(), language="cs", ask=expensive, settings=llm_settings)
+    assert not run.ok and "above llm.max_cost_usd" in run.error
 
 
 def test_the_rating_is_the_rules_not_the_models():
     answer = {**ANSWER, "rating": {"value": "low", "reasoning": "x"}}
-    run = _run(FakeAnthropic(answer), "anthropic")
+    run = _run(FakeAsk(answer))
     assert run.ok and run.report.rating.value == "high"
     assert any("the rules give 'high'" in w for w in run.warnings)
 
@@ -460,37 +481,35 @@ def test_no_rating_stays_none_even_when_the_model_writes_none():
     data = _input("26701529_2024")  # no scores and no red or amber ratios (Power Reality has 3 amber: R9 rates it)
     for value in (None, "none", "null"):
         answer = {**ANSWER, "rating": {"value": value, "reasoning": "Not possible."}}
-        run = _run(FakeAnthropic(answer), "anthropic", answer_data=data)
+        run = _run(FakeAsk(answer), answer_data=data)
         assert run.ok and run.report.rating.value is None and not run.warnings
 
 
 def test_bad_answers_become_errors_not_exceptions():
-    assert "ValidationError" in (_run(FakeAnthropic({"summary": "only"}), "anthropic").error or "")
-    assert "JSONDecodeError" in (_run(FakeGemini("not json"), "gemini").error or "")
-    assert "cut off" in (_run(FakeAnthropic(stop="max_tokens"), "anthropic").error or "")
-    assert _run(FakeAnthropic(), "anthropic").report is not None
+    assert "ValidationError" in (_run(FakeAsk({"summary": "only"})).error or "")
+    assert _run(FakeAsk()).report is not None
 
+    def refused(system, user):
+        raise LlmError("the answer of the model is not a JSON object: Firma je zdravá.")
 
-def test_unknown_provider_is_refused():
-    with pytest.raises(ValueError, match="unknown provider"):
-        generate.generate_report(_input(), provider="nope")
+    assert "LlmError" in (_run(refused).error or "")
 
 
 def test_markdown_for_the_reviewers():
     data = _input()
-    run = _run(FakeAnthropic(), "anthropic", answer_data=data)
+    run = _run(FakeAsk(), answer_data=data)
     text = generate.report_markdown(run, data)
     assert text.startswith("# Mondi Štětí a.s.") and "Risk rating (by rules R2): high risk" in text
     assert "## Red flags" in text and "## Review (fill in)" in text and "- none" in text  # risks is empty
     failed = generate.ReportRun(
-        file="x", provider="gemini", model="m", language="en", prompt_version="v", rating=rate(data), error="boom"
+        file="x", model="m", language="en", prompt_version="v", rating=rate(data), error="boom"
     )
     assert "**No report:** boom" in generate.report_markdown(failed, data)
 
 
 def test_sentences_from_the_model_are_tidied():
     answer = {**ANSWER, "data_quality_note": " overall data quality is good.", "risks": ["  cash fell."]}
-    run = _run(FakeAnthropic(answer), "anthropic")
+    run = _run(FakeAsk(answer))
     assert run.report.data_quality_note == "Overall data quality is good."
     assert run.report.risks == ["Cash fell."]
 
@@ -518,33 +537,62 @@ def test_rating_reasons_name_what_decided():
     assert "check failed" in rate(_case("safe", "safe", passed=False)).reasoning
 
 
-def test_report_clients_retry_only_twice(monkeypatch):
-    client = FakeGemini()
-    client.max_retries = 6
-    monkeypatch.setattr(generate, "make_client", lambda provider: client)
-    run = generate.generate_report(_input(), file="26161516_2025", provider="gemini")
-    assert run.ok and client.max_retries == generate.MAX_RETRIES
+class FakeGeminiClient:
+    def __init__(self, reject_temperature=False, text=None):
+        self.calls, self.reject = [], reject_temperature
+        self.text = json.dumps(ANSWER) if text is None else text
+        self.max_retries, self.retry_statuses = 6, (429, 503)
+
+    def generate(self, model, body):
+        from src.extraction.vision import ApiError
+
+        self.calls.append((model, body))
+        if self.reject and "temperature" in body["generationConfig"]:
+            raise ApiError(400, "temperature is not supported")
+        return {
+            "usageMetadata": {"promptTokenCount": 800, "candidatesTokenCount": 100, "thoughtsTokenCount": 50},
+            "candidates": [{"finishReason": "STOP", "content": {"parts": [{"text": self.text}]}}],
+        }
 
 
-def test_a_busy_answer_is_not_retried_because_it_may_count_against_the_quota(monkeypatch):
-    client = FakeGemini()
-    client.max_retries, client.retry_statuses = 6, (429, 503)
-    monkeypatch.setattr(generate, "make_client", lambda provider: client)
-    run = generate.generate_report(_input(), file="26161516_2025", provider="gemini")
-    assert run.ok and client.retry_statuses == (429,)
+def _script():
+    import importlib.util
+
+    root = Path(__file__).resolve().parents[1]
+    spec = importlib.util.spec_from_file_location("generate_reports", root / "scripts" / "generate_reports.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
-def test_a_client_given_by_the_caller_is_left_as_it_is():
-    client = FakeGemini()
-    client.max_retries, client.retry_statuses = 6, (429, 503)
-    run = _run(client, "gemini")
-    assert run.ok and client.max_retries == 6 and client.retry_statuses == (429, 503)
+def test_gemini_is_a_flag_of_the_script_only(monkeypatch):
+    """`scripts/generate_reports.py --gemini` tunes the prompt with a free key; the settings and `generate` have no
+    provider, so the pipeline and the app can never send statements to Google."""
+    from src.settings import ReportSettings
+
+    script, client = _script(), FakeGeminiClient(reject_temperature=True)
+    monkeypatch.setattr(script, "make_client", lambda provider: client)
+    reply = script.gemini_ask("gemini-test")("system", "user")
+    assert reply.data == ANSWER and reply.model == "gemini-test" and reply.usage.cost_usd == 0.0
+    assert (reply.usage.input_tokens, reply.usage.output_tokens) == (800, 150)  # thinking tokens count as output
+    assert len(client.calls) == 2  # the model rejected temperature=0: asked again without it
+    assert client.max_retries == script.MAX_RETRIES and client.retry_statuses == (429,)  # a 503 is not retried
+    run = _run(script.gemini_ask("gemini-test"))
+    assert run.ok and run.model == "gemini-test" and run.cost_usd == 0.0
+    assert "provider" not in ReportSettings.model_fields and "model" not in ReportSettings.model_fields
+    assert "gemini" not in Path(generate.__file__).read_text(encoding="utf-8").lower().replace("--gemini", "")
+
+
+def test_the_gemini_flag_reports_a_bad_answer_as_an_error(monkeypatch):
+    script = _script()
+    monkeypatch.setattr(script, "make_client", lambda provider: FakeGeminiClient(text="not json"))
+    assert "JSONDecodeError" in (_run(script.gemini_ask("m")).error or "")
 
 
 def test_review_pack_collects_the_saved_reports(tmp_path):
     data = _input()
     for stem, with_report in (("a_2025", True), ("b_2025", False)):
-        report = _run(FakeAnthropic(), "anthropic", answer_data=data)
+        report = _run(FakeAsk(), answer_data=data)
         (tmp_path / f"{stem}.json").write_text(
             json.dumps(
                 {
@@ -569,7 +617,7 @@ def test_review_pack_collects_the_saved_reports(tmp_path):
 def test_review_pack_warns_about_mixed_prompt_versions(tmp_path):
     data = _input()
     for stem in ("a", "b"):
-        run = _run(FakeAnthropic(), "anthropic", answer_data=data)
+        run = _run(FakeAsk(), answer_data=data)
         (tmp_path / f"{stem}.json").write_text(
             json.dumps(
                 {
@@ -640,7 +688,8 @@ def test_report_settings_default_to_what_we_use_now():
     from src.settings import Settings
 
     report = Settings().report
-    assert (report.language, report.provider, report.worsening_pct) == ("cs", "gemini", 20)
+    assert (report.language, report.worsening_pct) == ("cs", 20)
+    assert not hasattr(report, "provider") and not hasattr(report, "model")  # the model is `llm` (CIPW-58)
     assert report.rating.partial and not report.rating.disabled_rules
 
 
@@ -679,7 +728,7 @@ def test_figures_tables_come_from_the_input_with_the_reasons_of_missing_ratios()
 
 def test_the_report_page_ends_with_the_figures_before_the_review_checklist(tmp_path):
     data = _input("28297580_2025")
-    run = generate.generate_report(data, file="x", client=FakeGemini(), provider="gemini")
+    run = generate.generate_report(data, file="x", ask=FakeAsk())
     page = generate.report_markdown(run, data)
     order = [page.index(h) for h in ("## Data quality note", "## Figures for the reviewer", "## Review (fill in)")]
     assert order == sorted(order)
@@ -751,7 +800,7 @@ def test_every_rating_gets_a_recommendation_level():
 
 def test_the_recommendation_is_added_by_the_code_and_survives_the_report_page():
     data = _input()
-    run = _run(FakeAnthropic(), "anthropic", answer_data=data)
+    run = _run(FakeAsk(), answer_data=data)
     assert run.report.recommendation is not None
     page = generate.report_markdown(run, data)
     assert "## Recommendation" in page and run.report.recommendation.label in page
@@ -773,7 +822,7 @@ def test_the_czech_page_uses_czech_headings_decimal_comma_and_czech_units():
     from src.report.tables import amount
 
     data = _input()
-    run = _run(FakeAnthropic(), "anthropic", answer_data=data, language="cs")
+    run = _run(FakeAsk(), answer_data=data, language="cs")
     page = generate.report_markdown(run, data)
     for text in (
         "## Shrnutí",
@@ -822,7 +871,7 @@ CZECH = {
 
 
 def _english():
-    return _run(FakeAnthropic(), "anthropic")
+    return _run(FakeAsk())
 
 
 def test_numbers_are_compared_as_values_not_as_written():
@@ -832,32 +881,32 @@ def test_numbers_are_compared_as_values_not_as_written():
 
 def test_a_translation_keeps_the_analysis_and_the_code_sets_rating_and_recommendation():
     english = _english()
-    client = FakeAnthropic(CZECH)
-    run = generate.translate_report(english, _input(), language="cs", client=client)
+    ask = FakeAsk(CZECH)
+    run = generate.translate_report(english, _input(), language="cs", ask=ask)
     assert run.ok and run.language == "cs" and run.report.language == "cs"
     assert run.report.rating.value == english.report.rating.value == "high"  # the model's "low" is not kept
     assert run.report.recommendation.label == "Nedoporučeno"
     assert run.warnings == []  # every number of the English text is in the Czech one
     assert "+" in run.prompt_version and english.prompt_version in run.prompt_version
-    assert json.loads(client.calls[0]["messages"][0]["content"])["summary"] == english.report.summary
+    assert json.loads(ask.calls[0][1])["summary"] == english.report.summary  # the user message
 
 
 def test_a_translation_with_a_changed_number_is_a_warning():
     changed = {**CZECH, "summary": "Mondi Štětí a.s. má celková aktiva 29,6 mld. Kč."}
-    run = generate.translate_report(_english(), _input(), language="cs", client=FakeAnthropic(changed))
+    run = generate.translate_report(_english(), _input(), language="cs", ask=FakeAsk(changed))
     assert run.ok and any("numbers differ" in w and "29.5" in w and "29.6" in w for w in run.warnings)
 
 
 def test_a_translation_with_other_number_of_items_is_an_error():
     changed = {**CZECH, "risks": ["Nové riziko."]}
-    run = generate.translate_report(_english(), _input(), language="cs", client=FakeAnthropic(changed))
+    run = generate.translate_report(_english(), _input(), language="cs", ask=FakeAsk(changed))
     assert not run.ok and "number of items in risks" in run.error
 
 
 def test_nothing_to_translate_is_an_error_not_a_crash():
     english = _english()
     english.report = None
-    run = generate.translate_report(english, _input(), language="cs", client=FakeAnthropic(CZECH))
+    run = generate.translate_report(english, _input(), language="cs", ask=FakeAsk(CZECH))
     assert not run.ok and "no English report" in run.error
 
 
@@ -887,7 +936,7 @@ def test_the_word_file_has_the_text_and_the_tables_of_the_report_page(tmp_path):
     from src.report import export_docx
 
     data = _input()
-    run = _run(FakeAnthropic(), "anthropic", answer_data=data)
+    run = _run(FakeAsk(), answer_data=data)
     document, paragraphs = _docx_text(export_docx.build_docx([(run, data)], tmp_path / "r.docx"))
     page = generate.report_markdown(run, data)
     assert paragraphs[0].startswith("Mondi Štětí a.s. (IČO 26161516)")
@@ -908,7 +957,7 @@ def test_the_word_file_follows_the_language_and_puts_companies_on_separate_pages
     from src.report import export_docx
 
     data = _input()
-    run = _run(FakeAnthropic(), "anthropic", answer_data=data, language="cs")
+    run = _run(FakeAsk(), answer_data=data, language="cs")
     document, paragraphs = _docx_text(export_docx.build_docx([(run, data), (run, data)], tmp_path / "r.docx"))
     assert "Hodnocení rizika (podle pravidel R2): vysoké riziko" in paragraphs and "Doporučení" in paragraphs
     assert document.tables[0].rows[0].cells[0].text == "položka" and len(document.tables) == 8
@@ -935,7 +984,7 @@ def test_the_czech_title_writes_the_date_the_czech_way():
 
 def test_the_translation_prompt_keeps_the_czech_terms_of_the_review():
     text = generate.TRANSLATION_PROMPT_PATH.read_text(encoding="utf-8")
-    assert generate.TRANSLATION_PROMPT_PATH.name == "translation_v3.md"
+    assert generate.TRANSLATION_PROMPT_PATH.name == "translation_v4.md"
     for term in ("neuvedeno", "zóna ohrožení", "modely bankrotu", "částečné hodnocení"):
         assert term in text
 
@@ -966,14 +1015,14 @@ def test_failed_accounting_checks_do_not_break_the_page_or_the_word_file(tmp_pat
     for language in ("en", "cs"):
         page = "\n".join(figures_markdown(data, language))
         assert "balance_sum, profit_link" in page  # each name once
-    run = _run(FakeAnthropic(), "anthropic", answer_data=data)
+    run = _run(FakeAsk(), answer_data=data)
     assert "balance_sum" in generate.report_markdown(run, data)
     assert export_docx.build_docx([(run, data)], tmp_path / "r.docx").exists()
 
 
 def test_the_rules_reasoning_replaces_the_models_when_the_rating_is_replaced():
     answer = {**ANSWER, "rating": {"value": "low", "reasoning": "The model argues for a low risk."}}
-    run = _run(FakeAnthropic(answer), "anthropic", answer_data=_input())
+    run = _run(FakeAsk(answer), answer_data=_input())
     assert run.rating.value == "high" and run.report.rating.value == "high"
     assert run.report.rating.reasoning == run.rating.reasoning
     assert any("the rules give 'high'" in w for w in run.warnings)
@@ -990,7 +1039,7 @@ def test_the_number_check_sees_the_minus_sign_and_the_narrow_space():
 
 def test_the_report_says_the_llm_wrote_it_and_the_model_is_not_asked_for_it():
     assert AssessmentReport.model_fields["source"].default == "llm"
-    assert "source" not in generate.output_schema()["properties"]
+    assert "source" not in generate.build_prompt("en").split("## Answer")[1]
 
 
 def test_the_rules_table_has_r7_and_r8_with_the_partial_rating():

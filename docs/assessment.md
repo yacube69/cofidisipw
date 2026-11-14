@@ -80,11 +80,11 @@ low = recommended, medium = caution, high = not recommended, no rating = no reco
 behind it: the rule that decided (R1 to R9), every bankruptcy model with its zone, equity, the result for the period and
 the accounting checks. The recommendation is indicative; the decision stays with the analyst. The table is a proposal
 until Cofidis names its own criteria; changing it needs no new model call (the recommendation is added to saved answers).
-It is `AssessmentReport.recommendation` (optional, filled by the code, not part of the tool schema).
+It is `AssessmentReport.recommendation` (optional, filled by the code, not asked of the model).
 
-**Languages (10 Nov): written once, then translated.** The report is written in English (prompt `assessment_v7.md`);
+**Languages (10 Nov): written once, then translated.** The report is written in English (prompt `assessment_v8.md`);
 another language (`report.language` or `--language cs`) is the **translation of that English report**
-(`prompts/translation_v3.md`, `generate.translate_report`), so every language says the same. Writing each language
+(`prompts/translation_v4.md`, `generate.translate_report`), so every language says the same. Writing each language
 from scratch was tried on Skyport and gave different risks in English and Czech. The code checks the translation: the
 same number of items in each list (otherwise an error, nothing is saved) and every number of the English text in the
 translation (a difference is a warning in the run and in the JSON). Rating and recommendation are set by the code, not
@@ -104,7 +104,7 @@ answers already saved cost no call. It is the report page laid out for reading (
 colour for each risk rating, tables with a dark header, header and page number); text, numbers, tables, rating and
 recommendation are those of the page, and the review checklist is left out. Needs `python-docx` (in `requirements.txt`).
 
-## Prompt (`prompts/assessment_v7.md`, v1 to v6 kept)
+## Prompt (`prompts/assessment_v8.md`, v1 to v7 kept)
 
 System prompt for the LLM: experienced credit analyst, only numbers from the input, exact values with their year,
 no speculation, nothing built on flagged values, no industry comparison without benchmarks, rating copied from the
@@ -135,30 +135,38 @@ v7 follows the reading of the 15 reports (13 Nov; wording only, no new threshold
 printed"; dates with the month as a word; a space between thousands also in percentages; ratio names as in the input
 (no "peak liquidity"); no percentage across zero (loss to profit); every key figure, the financial result included, is
 checked against the worsening threshold; a rating that is `null` is explained once.
+v8 (14 Nov, after the review of PR #109) changes the way of asking, not the text rules: the answer is one JSON object
+(the model is reached through `src.llm.ask_json`, which asks for JSON, instead of a tool call), `bankruptcy` is a list
+with every model of `bankruptcy.MODELS`, and every ratio carries its traffic light. The translation prompt is v4.
 To compare versions:
 `python scripts/generate_reports.py <file> --prompt assessment_v2.md`.
 
 ## The call (`src/report/generate.py`)
 
-`generate_report(data, provider=..., model=..., language=...)` sends the prompt and the input (plus the rule-based
-rating) to the model, validates the answer with `AssessmentReport` and returns a `ReportRun` (report or error,
-tokens, warnings). Providers: `anthropic`, `mistral`, `gemini`; clients, default models and key variables
-(`ANTHROPIC_API_KEY`, `MISTRAL_API_KEY`, `GEMINI_API_KEY`) are those of the vision baseline, so changing the provider
-is one argument. Temperature 0. If the model gives a rating other than the rules' value, the rules' value is kept and
-a warning is recorded and the rules' reasoning replaces the model's paragraph. Errors are recorded, not raised. The
-pipeline's report stage is the rule-based assessment of CIPW-55 (`src/report/fallback.py`); wiring this report into it
-needs the decisions below (the model through `src/llm.py`, one set of rating rules, language).
+`generate_report(data, language=...)` sends the prompt and the input (plus the rule-based rating) to the model through
+`src.llm.ask_json` (CIPW-58), validates the JSON answer with `AssessmentReport` and returns a `ReportRun` (report or
+error, model, tokens, cost, warnings). The model is the one of `settings.llm`: Mistral's API or a Mistral model on a
+server of Cofidis' own (`llm.url`), its timeout and retries, the key from `MISTRAL_API_KEY`, temperature 0. **Offline
+mode calls no model** (the run has the error "no AI model connected"), and a call that costs more than
+`llm.max_cost_usd` is an error, not a report. There is no provider or model setting in `report:`. If the model gives a
+rating other than the rules' value, the rules' value is kept, a warning is recorded and the rules' reasoning replaces
+the model's paragraph. Errors are recorded, not raised. The pipeline's report stage is still the rule-based assessment
+of CIPW-55 (`src/report/fallback.py`, which takes its rating from the same `rate()`); wiring this report into it is
+CIPW-17/18.
 
-The free Gemini tier allows about 20 requests a day per model, and a "busy" answer (503) may count against it: a 503 is
-not retried (a 429 per minute is), the script stops after 3 busy answers in a row, and an error never replaces a report
-that is already saved.
+**Gemini is a flag of the script only:** `python scripts/generate_reports.py --gemini` tunes the prompt on the public
+ground truth with a free key (`GEMINI_API_KEY`); it passes its own `ask` function to `generate`, is not a setting and is
+never used by the pipeline or the app. The free tier allows about 20 requests a day per model, and a "busy" answer (503)
+may count against it: a 503 is not retried (a 429 per minute is), the script stops after 3 busy answers in a row, and an
+error never replaces a report that is already saved. Real reports need a Mistral key (question 3 of CIPW-61).
 
 Reports for the ground truth companies (step 5 of the ticket):
 
 ```
 python scripts/generate_reports.py --dry-run                 # no call: prompt, input and rating per company
-python scripts/generate_reports.py --provider gemini         # all 15; saved answers are not charged twice
-python scripts/generate_reports.py 26161516_2025 --provider mistral --language cs
+python scripts/generate_reports.py                           # all 15 by `llm` (Mistral); saved answers are not charged twice
+python scripts/generate_reports.py --gemini                  # the same with a free Gemini key, to tune the prompt
+python scripts/generate_reports.py 26161516_2025 --language cs
 ```
 
 Writes `outputs/reports/<file>.md` (the report with a review checklist for the team), `<file>.json` and
@@ -184,18 +192,17 @@ Everything that still depends on an answer of the team or of Cofidis is a settin
 | Setting | Default | Waiting for |
 | --- | --- | --- |
 | `report.language` | `en` | CIPW-1 decided nothing; ask Marek whether other branches (e.g. France) will use the tool |
-| `report.provider`, `report.model` | `gemini`, provider default | provider, model and project key (no answer yet) |
+| `llm.model`, `llm.url`, `llm.max_cost_usd`, `MISTRAL_API_KEY` | `mistral-medium-3.5`, Mistral's API, 0.50 | the model of the report (CIPW-58; `docs/llm.md`); the key is question 3 of CIPW-61 |
 | `report.worsening_pct` | 20 | threshold for a risk; fills `{{WORSENING_PCT}}` in prompts from v4 on (v1 to v3 have the 20 written in) |
-| `report.rating.disabled_rules` | `[]` | Cofidis criteria; any of R1, R2, R3, R5 can be left out (R4, R6 always apply) |
+| `report.rating.disabled_rules` | `[]` | Cofidis criteria; any of R1, R2, R3, R5, R9 can be left out (R4, R6 always apply) |
 | `report.rating.partial` | `true` | companies without a score get a partial rating from the balance sheet alone (R7 high when the current ratio is below 1, R8 medium, never low); `false` gives no rating instead. On since 12 November 2026: Marek asked to give what can be calculated |
 
 A rating from changed rules carries `rules_version: proposal-2+custom`, one with the partial rating on carries `+partial` (both: `proposal-2+custom+partial`). Every report ends with the table of the rules (R7 and R8 only when the partial rating is on, a rule switched off is left out), in the language of the report, so the reader sees how the rating was decided. New rules beyond these (for example a debt rule)
-are added in `src/report/rating.py` once Cofidis names its criteria. The command line options `--provider`,
-`--model` and `--language` of `scripts/generate_reports.py` still override the settings.
+are added in `src/report/rating.py` once Cofidis names its criteria. The command line options `--language`
+and `--gemini` (with `--model`) of `scripts/generate_reports.py` override the settings.
 
 ## Open decisions
 
 1. Rating by rules (A) or by the LLM (B): the team lead agrees with rules (A) (4 Nov); the criteria stay open (Cofidis).
-2. Report language (CIPW-1) and which LLM and key to use (the decisions page names the Anthropic API, Cofidis
-   uses Mistral).
+2. Report language (CIPW-1) and the key to use: the model is Mistral (decision of 11 Nov), the key is open (CIPW-61).
 3. Rule thresholds, once the traffic lights of CIPW-14 and the formula review of CIPW-15 exist.

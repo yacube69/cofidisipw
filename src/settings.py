@@ -143,14 +143,12 @@ class AresSettings(BaseModel):
 class ReportSettings(BaseModel):
     """The report: the AI assessment (CIPW-16) and its PDF (CIPW-43, src/report/pdf.py), in Cofidis' brand.
 
-    Provider, rules and recommendation wait for answers of the team or of Cofidis.
+    The language model is `llm` (Mistral, CIPW-58); the rules and the recommendation wait for answers of Cofidis.
     """
 
     language: Literal["cs", "en"] = Field(
         "cs", description="Language of the report: the labels of the PDF and the language of the AI report."
     )
-    provider: Literal["gemini", "mistral", "anthropic"] = Field("gemini", description="Open question for the team.")
-    model: str = Field("", description="'' = the provider's default model.")
     worsening_pct: float = Field(
         20.0, gt=0, description="A worsening above this percentage is a risk (prompts from v4 on; v1-v3 say 20)."
     )

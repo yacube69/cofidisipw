@@ -82,8 +82,6 @@ storage:
 # change it here, no code to edit.
 report:
   language: cs           # cs | en: the labels of the PDF and the language of the AI report (Cofidis: Czech and English)
-  provider: gemini       # gemini | mistral | anthropic; open question
-  model: ""              # "" = the provider's default model
   worsening_pct: 20      # a worsening above this is a risk (prompt v4 onwards); open question
   rating:
     disabled_rules: []   # rules left out, from R1, R2, R3, R5, R9 (R4 and R6 always apply); R9 = red/amber ratios

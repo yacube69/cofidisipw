@@ -1,50 +1,45 @@
 """The AI assessment call (CIPW-16): assessment input -> LLM -> `AssessmentReport`.
 
-The LLM gets the prompt `prompts/assessment_v7.md` as system prompt and, as user message, the assessment input
-(`build_assessment_input`) plus the rating decided by the rules (`rate`). It answers through a forced tool call
-(Anthropic, Mistral) or as JSON (Gemini). The answer is validated with Pydantic. The rating is not the model's: if it
-differs from the rule's, the rule's value is written back and a warning says so (rating approach A of the ticket,
-still a proposal until the team decides).
+The LLM gets the prompt `prompts/assessment_v8.md` as system prompt and, as user message, the assessment input
+(`build_assessment_input`) plus the rating decided by the rules (`rate`). It answers with one JSON object, validated
+with Pydantic. The rating is not the model's: if it differs from the rule's, the rule's value and reasoning are
+written back and a warning says so (rating approach A of the ticket, still a proposal until the team decides).
 
-The provider is a parameter (`anthropic`, `mistral`, `gemini`), so changing it is a matter of configuration. The HTTP
-clients, model names and key variables are those of the vision baseline (`src/extraction/vision.py`).
+The model is reached through `src.llm.ask_json` (CIPW-58): Mistral's API or a Mistral model on a server of Cofidis' own,
+the address, model, timeout, retries and cost cap of `settings.llm`, the key from MISTRAL_API_KEY, and no call at all
+in offline mode. There is no other provider here and none in the settings. The script `scripts/generate_reports.py`
+passes its own `ask` function with its `--gemini` flag, to tune the prompt on the public ground truth with a free
+key; that is for that script only, never for the pipeline or the app.
 """
 
 from __future__ import annotations
 
 import json
-import os
 import re
 import time
 from collections import Counter
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from src.extraction.vision import (
-    DEFAULT_MODELS,
-    MODEL_ENV,
-    PROVIDERS,
-    ApiError,
-    cost_usd,
-    make_client,
-)
+from src.llm import Reply, ask_json
 from src.report.models import AssessmentReport
 from src.report.rating import RatingConfig, RatingDecision, rate, rules_table
 from src.report.recommendation import RecommendationConfig, recommend
 from src.report.tables import figures_markdown
 from src.report.texts import period_date, texts
+from src.settings import Settings, get_settings
 from src.version import file_version
 
 ROOT = Path(__file__).resolve().parents[2]
-PROMPT_PATH = ROOT / "prompts" / "assessment_v7.md"
-TRANSLATION_PROMPT_PATH = ROOT / "prompts" / "translation_v3.md"
-TOOL_NAME = "record_assessment"
+PROMPT_PATH = ROOT / "prompts" / "assessment_v8.md"
+TRANSLATION_PROMPT_PATH = ROOT / "prompts" / "translation_v4.md"
 DEFAULT_LANGUAGE = "en"
 MAX_TOKENS = 4000
-MAX_RETRIES = 2  # "busy" (503) and "too many requests" (429): every retry can count against a free quota
-MAX_TOKENS_BY_PROVIDER = {"anthropic": MAX_TOKENS, "mistral": MAX_TOKENS, "gemini": 16000}  # Gemini counts thinking
 NO_RATING_WORDS = ("none", "null", "")
+
+Ask = Callable[[str, str], Reply]  # (system prompt, user message) -> the model's JSON answer with tokens and cost
 
 
 @dataclass
@@ -52,7 +47,6 @@ class ReportRun:
     """One assessment call: the report (or the error), what was asked and what it cost."""
 
     file: str
-    provider: str
     model: str
     language: str
     prompt_version: str
@@ -61,9 +55,8 @@ class ReportRun:
     raw: dict[str, Any] | None = None  # the model's answer exactly as returned
     input_tokens: int = 0
     output_tokens: int = 0
+    cost_usd: float = 0.0  # 0 when the prices are not set (settings.llm.price_*) or the key is a free one
     seconds: float = 0.0
-    stop_reason: str | None = None
-    temperature_used: bool = True
     error: str | None = None
     warnings: list[str] = field(default_factory=list)
 
@@ -71,9 +64,24 @@ class ReportRun:
     def ok(self) -> bool:
         return self.report is not None and self.error is None
 
-    @property
-    def cost_usd(self) -> float | None:
-        return cost_usd(self.input_tokens, self.output_tokens)
+
+def default_ask(settings: Settings | None = None) -> Ask:
+    """The model of `settings.llm` through `src.llm.ask_json`: Mistral, own server, offline mode refused."""
+    settings = settings or get_settings()
+    return lambda system, user: ask_json(system, user, settings, max_tokens=MAX_TOKENS)
+
+
+def _ask(run: ReportRun, ask: Ask, settings: Settings, system: str, user: str) -> dict[str, Any]:
+    """One call: the tokens and the cost go into the run; a call above the cost cap is an error, not a report."""
+    reply = ask(system, user)
+    run.model = reply.model
+    run.input_tokens, run.output_tokens = reply.usage.input_tokens, reply.usage.output_tokens
+    run.cost_usd = reply.usage.cost_usd
+    if reply.usage.cost_usd > settings.llm.max_cost_usd:
+        raise ValueError(
+            f"the call cost USD {reply.usage.cost_usd:.2f}, above llm.max_cost_usd ({settings.llm.max_cost_usd:.2f})"
+        )
+    return reply.data
 
 
 # ---------------------------------------------------------------------------------------------- prompt and schema
@@ -101,167 +109,10 @@ def prompt_version(path: Path = PROMPT_PATH) -> str:
     return file_version(path)
 
 
-def _strings() -> dict[str, Any]:
-    return {"type": "array", "items": {"type": "string"}}
-
-
-def output_schema() -> dict[str, Any]:
-    """JSON schema of the tool input; the same fields as `AssessmentReport` (a test keeps them equal)."""
-    return {
-        "type": "object",
-        "properties": {
-            "language": {"type": "string"},
-            "summary": {"type": "string"},
-            "strengths": _strings(),
-            "risks": _strings(),
-            "red_flags": _strings(),
-            "rating": {
-                "type": "object",
-                "properties": {"value": {"type": ["string", "null"]}, "reasoning": {"type": "string"}},
-                "required": ["value", "reasoning"],
-            },
-            "data_quality_note": {"type": "string"},
-        },
-        "required": ["language", "summary", "strengths", "risks", "red_flags", "rating", "data_quality_note"],
-    }
-
-
-GEMINI_FORMAT_HINT = """Answer with one JSON object and nothing else, in exactly this shape:
-{"language": "en", "summary": "...", "strengths": ["..."], "risks": ["..."], "red_flags": ["..."],
- "rating": {"value": "low" | "medium" | "high" | null, "reasoning": "..."}, "data_quality_note": "..."}"""
-
-
 def user_message(data: dict[str, Any], decision: RatingDecision) -> str:
     """The assessment input with the rule-based rating added, as JSON."""
     rating = {"value": decision.value, "rules": decision.rules, "reasoning": decision.reasoning}
     return json.dumps({**data, "rating": rating}, ensure_ascii=False, indent=1)
-
-
-# ---------------------------------------------------------------------------------------------- provider calls
-
-
-def _call_anthropic(client: Any, model: str, system: str, user: str, max_tokens: int, run: ReportRun) -> dict[str, Any]:
-    import anthropic
-
-    kwargs: dict[str, Any] = {
-        "model": model,
-        "max_tokens": max_tokens,
-        "system": system,
-        "tools": [
-            {"name": TOOL_NAME, "description": "Record the assessment.", "input_schema": output_schema()},
-        ],
-        "tool_choice": {"type": "tool", "name": TOOL_NAME},
-        "messages": [{"role": "user", "content": user}],
-    }
-    try:
-        response = client.messages.create(temperature=0, **kwargs)
-    except anthropic.BadRequestError as exc:
-        if "temperature" not in str(exc).lower():
-            raise
-        run.temperature_used = False
-        run.warnings.append("model rejected temperature=0; called without it")
-        response = client.messages.create(**kwargs)
-    run.input_tokens = response.usage.input_tokens
-    run.output_tokens = response.usage.output_tokens
-    run.stop_reason = response.stop_reason
-    if response.stop_reason == "max_tokens":
-        raise ValueError("answer cut off at max_tokens")
-    block = next((b for b in response.content if b.type == "tool_use" and b.name == TOOL_NAME), None)
-    if block is None:
-        raise ValueError("the model did not call the tool")
-    return dict(block.input)
-
-
-def _call_mistral(client: Any, model: str, system: str, user: str, max_tokens: int, run: ReportRun) -> dict[str, Any]:
-    payload: dict[str, Any] = {
-        "model": model,
-        "max_tokens": max_tokens,
-        "messages": [{"role": "system", "content": system}, {"role": "user", "content": user}],
-        "tools": [
-            {
-                "type": "function",
-                "function": {
-                    "name": TOOL_NAME,
-                    "description": "Record the assessment.",
-                    "parameters": output_schema(),
-                },
-            }
-        ],
-        "tool_choice": "any",
-    }
-    try:
-        data = client.chat({**payload, "temperature": 0})
-    except ApiError as exc:
-        if exc.status_code != 400 or "temperature" not in str(exc).lower():
-            raise
-        run.temperature_used = False
-        run.warnings.append("model rejected temperature=0; called without it")
-        data = client.chat(payload)
-    usage = data.get("usage") or {}
-    run.input_tokens = usage.get("prompt_tokens", 0)
-    run.output_tokens = usage.get("completion_tokens", 0)
-    choice = data["choices"][0]
-    run.stop_reason = choice.get("finish_reason")
-    if run.stop_reason == "length":
-        raise ValueError("answer cut off at max_tokens")
-    calls = (choice.get("message") or {}).get("tool_calls") or []
-    call = next((c for c in calls if (c.get("function") or {}).get("name") == TOOL_NAME), None)
-    if call is None:
-        raise ValueError("the model did not call the tool")
-    arguments = call["function"]["arguments"]
-    return json.loads(arguments) if isinstance(arguments, str) else dict(arguments)
-
-
-def _call_gemini(client: Any, model: str, system: str, user: str, max_tokens: int, run: ReportRun) -> dict[str, Any]:
-    config: dict[str, Any] = {"maxOutputTokens": max_tokens, "responseMimeType": "application/json"}
-    body: dict[str, Any] = {
-        "systemInstruction": {"parts": [{"text": system}]},
-        "contents": [
-            {"role": "user", "parts": [{"text": user + "\n\nWrite the assessment.\n\n" + GEMINI_FORMAT_HINT}]}
-        ],
-    }
-    try:
-        data = client.generate(model, {**body, "generationConfig": {**config, "temperature": 0}})
-    except ApiError as exc:
-        if exc.status_code != 400 or "temperature" not in str(exc).lower():
-            raise
-        run.temperature_used = False
-        run.warnings.append("model rejected temperature=0; called without it")
-        data = client.generate(model, {**body, "generationConfig": config})
-    usage = data.get("usageMetadata") or {}
-    run.input_tokens = usage.get("promptTokenCount", 0)
-    run.output_tokens = usage.get("candidatesTokenCount", 0) + usage.get("thoughtsTokenCount", 0)
-    candidates = data.get("candidates") or []
-    if not candidates:
-        raise ValueError(f"no answer from the model: {str(data.get('promptFeedback') or data)[:300]}")
-    run.stop_reason = candidates[0].get("finishReason")
-    if run.stop_reason == "MAX_TOKENS":
-        raise ValueError("answer cut off at max_tokens")
-    parts = (candidates[0].get("content") or {}).get("parts", [])
-    text = "".join(p.get("text", "") for p in parts if not p.get("thought"))
-    if not text.strip():
-        raise ValueError(f"the model returned no text (finish reason {run.stop_reason})")
-    answer = json.loads(text)
-    if not isinstance(answer, dict):
-        raise ValueError("the answer is not a JSON object")
-    return answer
-
-
-CALLS = {"anthropic": _call_anthropic, "mistral": _call_mistral, "gemini": _call_gemini}
-
-
-def limit_retries(client: Any) -> Any:
-    """Few retries, and none for a "busy" (503) answer: it may count against a free quota."""
-    if hasattr(client, "max_retries"):
-        client.max_retries = min(client.max_retries, MAX_RETRIES)
-    if hasattr(client, "retry_statuses"):
-        client.retry_statuses = tuple(code for code in client.retry_statuses if code != 503)
-    return client
-
-
-def make_limited_client(provider: str) -> Any:
-    """A new client of the provider with the retries above; a client given by the caller is left as it is."""
-    return limit_retries(make_client(provider))
 
 
 # ---------------------------------------------------------------------------------------------- the report
@@ -315,40 +166,36 @@ def generate_report(
     data: dict[str, Any],
     *,
     file: str = "",
-    provider: str = "gemini",
-    model: str | None = None,
     language: str = DEFAULT_LANGUAGE,
-    client: Any = None,
-    max_tokens: int | None = None,
+    ask: Ask | None = None,
+    settings: Settings | None = None,
     decision: RatingDecision | None = None,
     prompt_path: Path = PROMPT_PATH,
     worsening_pct: float = 20.0,
     rating_config: RatingConfig | None = None,
     recommendation_config: RecommendationConfig | None = None,
 ) -> ReportRun:
-    """Call the LLM and return the validated report. Errors are recorded in `run.error`, not raised."""
-    if provider not in PROVIDERS:
-        raise ValueError(f"unknown provider {provider!r}, use one of {PROVIDERS}")
-    model = model or os.getenv(MODEL_ENV[provider]) or DEFAULT_MODELS[provider]
+    """Ask the model and return the validated report. Errors are recorded in `run.error`, not raised.
+
+    `ask` is `src.llm.ask_json` on `settings.llm` unless a script passes its own (the free-key flag of
+    scripts/generate_reports.py, the fakes of the tests)."""
+    settings = settings or get_settings()
     decision = decision or rate(data, rating_config)
     run = ReportRun(
         file=file,
-        provider=provider,
-        model=model,
+        model=settings.llm.model,
         language=language,
         prompt_version=prompt_version(prompt_path),
         rating=decision,
     )
     started = time.perf_counter()
     try:
-        client = client or make_limited_client(provider)
-        run.raw = CALLS[provider](
-            client,
-            model,
+        run.raw = _ask(
+            run,
+            ask or default_ask(settings),
+            settings,
             build_prompt(language, prompt_path, worsening_pct),
             user_message(data, decision),
-            max_tokens or MAX_TOKENS_BY_PROVIDER[provider],
-            run,
         )
         run.report = AssessmentReport.model_validate(_clean(run.raw, language))
         _apply_rules_rating(run.report, decision, run)
@@ -396,9 +243,8 @@ def translate_report(
     data: dict[str, Any],
     *,
     language: str,
-    model: str | None = None,
-    client: Any = None,
-    max_tokens: int | None = None,
+    ask: Ask | None = None,
+    settings: Settings | None = None,
     prompt_path: Path = TRANSLATION_PROMPT_PATH,
     recommendation_config: RecommendationConfig | None = None,
 ) -> ReportRun:
@@ -407,12 +253,10 @@ def translate_report(
     The rating and the recommendation are not translated by the model: the code sets them. Checks: same number of
     items in each list, and every number of the English text must be in the translation (a difference is a warning).
     """
-    provider = english.provider
-    model = model or english.model
+    settings = settings or get_settings()
     run = ReportRun(
         file=english.file,
-        provider=provider,
-        model=model,
+        model=english.model,
         language=language,
         prompt_version=f"{english.prompt_version}+{prompt_version(prompt_path)}",
         rating=english.rating,
@@ -421,14 +265,12 @@ def translate_report(
     try:
         if english.report is None:
             raise ValueError("there is no English report to translate")
-        client = client or make_limited_client(provider)
-        run.raw = CALLS[provider](
-            client,
-            model,
+        run.raw = _ask(
+            run,
+            ask or default_ask(settings),
+            settings,
             build_prompt(language, prompt_path),
             translation_user_message(english.report),
-            max_tokens or MAX_TOKENS_BY_PROVIDER[provider],
-            run,
         )
         run.report = AssessmentReport.model_validate(_clean(run.raw, language))
         run.report.rating.value = english.report.rating.value  # not the model's to change
@@ -507,7 +349,7 @@ def report_markdown(run: ReportRun, data: dict[str, Any]) -> str:
     lines += [
         "---",
         t["footer"].format(
-            model=f"{run.provider}/{run.model}", prompt=run.prompt_version, rules=run.rating.rules_version
+            model=run.model, prompt=run.prompt_version, rules=run.rating.rules_version
         ),
         "",
         f"## {t['review_title']}",
