@@ -124,7 +124,8 @@ def test_flagged_values_make_the_data_quality_limited():
 
 def test_a_company_without_income_statement_has_poor_data_and_no_scores():
     data = _input("08497222_2025")
-    assert data["bankruptcy"]["in05"]["current"]["score"] is None
+    assert [m["key"] for m in data["bankruptcy"]] == ["in05", "altman_z_prime"]  # MODELS, in order
+    assert all(m["current"]["score"] is None for m in data["bankruptcy"])
     assert data["data_quality"]["overall"] == "poor"
 
 
@@ -158,16 +159,23 @@ def test_input_from_result_drops_stub_benchmarks():
 # ---------------------------------------------------------------------------------------------- rating rules
 
 
-def _score(zone: str | None, flag: str = "ok") -> dict:
-    return {"score": None if zone is None else 1.0, "zone": zone, "flag": flag, "reason": None}
+def _model(key: str, zone: str | None, flag: str = "ok", name: str | None = None, probability=None) -> dict:
+    score = {"score": None if zone is None else 1.0, "zone": zone, "flag": flag, "reason": None,
+             "probability": probability}  # fmt: skip
+    return {"key": key, "name": name or key.upper(), "zones": "x", "horizon": None, "current": score}
 
 
-def _case(in05, altman, equity=100.0, profit=10.0, passed=True, in05_flag="ok") -> dict:
+def _case(in05, altman, equity=100.0, profit=10.0, passed=True, in05_flag="ok", extra=(), reds=0, ambers=0) -> dict:
+    """An assessment input as the rules read it: the models list of the input, the traffic lights of the ratios."""
+    models = [
+        _model("in05", in05, in05_flag, "IN05 (Neumaierová & Neumaier)"),
+        _model("altman_z_prime", altman, name="Altman Z′ (private companies)"),
+        *extra,
+    ]
+    lights = ["red"] * reds + ["amber"] * ambers + ["green"]
     return {
-        "bankruptcy": {
-            "in05": {"current": _score(in05, in05_flag)},
-            "altman_z_prime": {"current": _score(altman)},
-        },
+        "bankruptcy": models,
+        "ratios": [{"key": f"r{i}", "light": light, "current": {"value": 1.0}} for i, light in enumerate(lights)],
         "key_figures": {"equity": {"current": equity}, "profit_for_period": {"current": profit}},
         "validation": {"passed": passed},
     }
@@ -197,10 +205,131 @@ def test_rating_rules(case: dict, value: str | None, rule: str):
     assert decision.value == value and decision.rules == [rule]
 
 
+@pytest.mark.parametrize(
+    ("case", "value", "rule"),
+    [
+        (_case("safe", "safe", reds=1), "medium", "R9"),  # the low of R5 is raised: fallback.py's rule
+        (_case("safe", "safe", reds=2), "high", "R9"),
+        (_case("grey", "safe", reds=2), "high", "R9"),  # medium of R6 raised to high
+        (_case("safe", "safe", ambers=3), "medium", "R9"),  # the amber criterion of fallback.py
+        (_case("safe", "safe", ambers=2), "low", "R5"),
+        (_case("grey", "safe", reds=1), "medium", "R6"),  # R9 never lowers or relabels what is already medium
+        (_case("distress", "distress", reds=3), "high", "R2"),  # already high: the earlier rule stays
+        (_case(None, None, reds=2), "high", "R9"),  # no score at all: the lights still count (as in fallback.py)
+        (_case(None, None, reds=1), "medium", "R9"),
+        (_case(None, None, ambers=2), None, "R4"),
+    ],
+)
+def test_red_and_amber_ratios_only_make_the_rating_worse_r9(case: dict, value: str | None, rule: str):
+    decision = rate(case)
+    assert decision.value == value and decision.rules == [rule]
+
+
+def test_r9_can_be_switched_off_and_inputs_without_lights_have_none():
+    from src.report.rating import RatingConfig
+
+    assert rate(_case("safe", "safe", reds=2), RatingConfig(disabled_rules=["R9"])).rules == ["R5"]
+    old = _case("safe", "safe")
+    for ratio in old["ratios"]:
+        ratio.pop("light")
+    assert rate(old).rules == ["R5"]
+
+
+def test_r9_does_not_override_a_partial_rating_of_high():
+    from src.report.rating import RatingConfig
+
+    case = _case(None, None, reds=1)
+    case["ratios"].append({"key": "current_ratio", "light": "red", "current": {"value": 0.5}})
+    decision = rate(case, RatingConfig(partial=True))
+    assert decision.value == "high" and decision.rules == ["R7"]
+
+
 def test_reasoning_names_the_scores_and_the_doubt():
     decision = rate(_case("distress", "distress", in05_flag="unreliable"))
-    assert "IN05 1.0 (distress)" in decision.reasoning and "flagged for review" in decision.reasoning
+    assert "IN05 1.00 (distress)" in decision.reasoning and "flagged for review" in decision.reasoning
     assert rate(_case(None, None)).reasoning.startswith("No bankruptcy score")
+
+
+def test_reasoning_is_written_in_czech_and_english():
+    case = _case("safe", "safe", reds=2)
+    en, cs = rate(case, language="en"), rate(case, language="cs")
+    assert en.value == cs.value == "high" and en.rules == cs.rules == ["R9"]
+    assert en.reasoning.startswith("2 ratios have a red traffic light") and "IN05 1.00 (safe)" in en.reasoning
+    assert cs.reasoning.startswith("Počet ukazatelů s červeným semaforem (slabé): 2")
+    assert "IN05 1,00 (bezpečná zóna)" in cs.reasoning  # the Czech decimal sign and zone words
+    assert rate(_case("safe", "safe", equity=-5.0), language="cs").reasoning.startswith("Vlastní kapitál je záporný")
+
+
+# ---------------------------------------------------------------------------------------------- any number of models
+
+PROBIT = _model("probit12", "safe", name="Probit 12M (Cofidis default model)", probability=0.02)
+
+
+def test_a_third_model_counts_in_r2_r3_and_r5():
+    distress = _model("probit12", "distress", name="Probit 12M (Cofidis default model)", probability=0.4)
+    assert rate(_case("distress", "distress", extra=[distress])).rules == ["R2"]
+    assert rate(_case("distress", "distress", extra=[PROBIT])).rules == ["R6"]  # not all in distress, no loss
+    assert rate(_case("safe", "safe", extra=[distress])).rules == ["R6"]  # one model sees danger: not low
+    assert rate(_case("safe", "safe", extra=[distress], profit=-1.0)).rules == ["R3"]
+    assert rate(_case("safe", "safe", extra=[PROBIT])).rules == ["R5"]
+    assert rate(_case("safe", "safe", extra=[_model("probit12", None, name="Probit 12M")])).rules == ["R6"]
+    assert "Probit 12M" in rate(_case("safe", "safe", extra=[distress], profit=-1.0)).reasoning
+    assert "Probit 12M 1.00 (safe)" in rate(_case("safe", "safe", extra=[PROBIT])).reasoning
+
+
+def test_a_model_that_is_missing_never_makes_the_rating_better():
+    only_in05 = _case("safe", "safe")
+    only_in05["bankruptcy"] = only_in05["bankruptcy"][:1]  # Altman Z′ removed from MODELS: nothing crashes
+    assert rate(only_in05).rules == ["R5"]  # the one model there is, is safe
+    uncomputed = _case("safe", None)
+    assert rate(uncomputed).value == "medium"  # a model that cannot be computed: not low
+    assert rate(uncomputed).reasoning.startswith("No rule for high risk applies, but a bankruptcy model could")
+    no_models = _case("safe", "safe")
+    no_models["bankruptcy"] = []
+    assert rate(no_models).rules == ["R4"]
+
+
+def test_a_third_model_in_the_real_pipeline_parts(monkeypatch):
+    """A model added to MODELS (a 12-month probit with a probability) is in the input, the rating, the criteria and
+    the tables, by its own name."""
+    from src.ratios.bankruptcy import MODELS, Model, Term
+    from src.report.recommendation import criteria
+    from src.report.tables import figure_tables
+
+    probit = Model(
+        key="probit12",
+        name="Probit 12M (Cofidis default model)",
+        source="test",
+        zones="below 0 safe, above 0.5 distress",
+        distress=0.5,
+        safe=0.0,
+        higher_is_safer=False,
+        terms=(Term("X1", "equity / total_assets", -1.0, lambda i: i.get("equity") / i.get("total_assets")),),
+        constant=-0.5,
+        link="probit",
+        horizon="12 months",
+    )
+    fs, validation, ratios, _ = _parts(GT_DIR / "26161516_2025.json")
+    bankruptcy = compute_bankruptcy(fs, validation, models=(*MODELS, probit))
+    data = build_assessment_input(fs, validation, ratios, bankruptcy)
+    third = data["bankruptcy"][2]
+    assert third["key"] == "probit12" and third["horizon"] == "12 months"
+    assert third["current"]["probability"] is not None and third["current"]["score"] is not None
+    decision = rate(data)
+    assert "Probit 12M" in decision.reasoning
+    assert any(line.startswith("Probit 12M") for line in criteria(data, decision, "cs"))
+    tables, _ = figure_tables(data, "cs")
+    bankruptcy_rows = next(rows for title, _, rows in tables if title == "Modely bankrotu")
+    assert [row[0] for row in bankruptcy_rows][-1] == "Probit 12M (Cofidis default model)"
+
+
+def test_a_model_removed_from_models_does_not_break_the_input():
+    from src.ratios.bankruptcy import IN05
+
+    fs, validation, ratios, _ = _parts(GT_DIR / "26161516_2025.json")
+    data = build_assessment_input(fs, validation, ratios, compute_bankruptcy(fs, validation, models=(IN05,)))
+    assert [m["key"] for m in data["bankruptcy"]] == ["in05"]
+    assert rate(data).value in ("low", "medium", "high")
 
 
 # ---------------------------------------------------------------------------------------------- prompt
@@ -328,7 +457,7 @@ def test_the_rating_is_the_rules_not_the_models():
 
 
 def test_no_rating_stays_none_even_when_the_model_writes_none():
-    data = _input("08497222_2025")
+    data = _input("26701529_2024")  # no scores and no red or amber ratios (Power Reality has 3 amber: R9 rates it)
     for value in (None, "none", "null"):
         answer = {**ANSWER, "rating": {"value": value, "reasoning": "Not possible."}}
         run = _run(FakeAnthropic(answer), "anthropic", answer_data=data)
@@ -384,7 +513,7 @@ def test_rating_reasons_name_what_decided():
     low = rate(_case("safe", "safe"))
     assert "all accounting checks passed" in low.reasoning
     medium = rate(_case("safe", "grey"))
-    assert "not both in the safe zone" in medium.reasoning
+    assert "not all in the safe zone" in medium.reasoning
     assert "loss" in rate(_case("safe", "safe", profit=-1.0)).reasoning
     assert "check failed" in rate(_case("safe", "safe", passed=False)).reasoning
 
@@ -463,7 +592,7 @@ def test_default_rating_config_changes_nothing():
 
     data = _case("distress", "distress")
     assert rate(data, RatingConfig()) == rate(data)
-    assert rate(data).rules_version == "proposal-1"
+    assert rate(data).rules_version == "proposal-2"
 
 
 def test_a_rule_can_be_switched_off():
@@ -471,7 +600,7 @@ def test_a_rule_can_be_switched_off():
 
     decision = rate(_case("safe", "safe", equity=-5.0), RatingConfig(disabled_rules=["R1"]))
     assert (decision.value, decision.rules) == ("low", ["R5"])
-    assert decision.rules_version == "proposal-1+custom"
+    assert decision.rules_version == "proposal-2+custom"
 
 
 def test_r4_and_r6_cannot_be_switched_off():

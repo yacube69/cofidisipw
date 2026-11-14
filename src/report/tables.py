@@ -110,8 +110,8 @@ def figure_tables(data: dict[str, Any], language: str = "en") -> tuple[list[Tabl
     tables.append((t["ratios"], header, rows))
 
     rows = []
-    for key, model in data["bankruptcy"].items():
-        cells = []
+    for model in data["bankruptcy"]:  # every model of src.ratios.bankruptcy.MODELS
+        key, cells = model["key"], []
         for year in ("current", "prior"):
             entry = model[year]
             cells.append(

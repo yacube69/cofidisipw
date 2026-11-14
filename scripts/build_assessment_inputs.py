@@ -5,7 +5,8 @@
     python scripts/build_assessment_inputs.py --no-write       # table only
 
 Starts from the verified ground truth (no PDF, no OCR, no LLM call), runs the accounting checks, the ratios and the
-bankruptcy models, and writes `outputs/report_inputs/<file>.json`: exactly what the LLM will get. The table shows
+bankruptcy models (every model of `src.ratios.bankruptcy.MODELS`), and writes `outputs/report_inputs/<file>.json`:
+exactly what the LLM will get. The table shows
 the proposed rating per company, so the team can judge the rules (docs/assessment.md).
 """
 
@@ -21,7 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.ratios.bankruptcy import compute_bankruptcy  # noqa: E402
 from src.ratios.engine import compute_ratios  # noqa: E402
 from src.report.inputs import build_assessment_input  # noqa: E402
-from src.report.rating import rate  # noqa: E402
+from src.report.rating import rate, short_name  # noqa: E402
 from src.schema import GroundTruth  # noqa: E402
 from src.settings import get_settings  # noqa: E402
 from src.validation.review import validate_and_review  # noqa: E402
@@ -46,20 +47,20 @@ def main(argv: list[str] | None = None) -> int:
     paths = [gt_dir / f"{n}.json" for n in args.files] or sorted(
         p for p in gt_dir.glob("*.json") if not p.name.startswith("_")
     )
-    print(f"{'file':16} {'company':26} {'IN05':16} {'Altman Z′':16} {'quality':8} rating (rule)")
+    print(f"{'file':16} {'company':26} {'quality':8} {'rating (rule)':16} bankruptcy models")
     for path in paths:
         data = assessment_input(path)
         decision = rate(data, settings.report.rating)
-        b = data["bankruptcy"]
+        def model_text(m: dict) -> str:
+            score = m["current"]
+            text = "-" if score["score"] is None else f"{score['score']:.2f} {score['zone']}"
+            return f"{short_name(m['name'])} {text}"
 
-        def zone(key: str, b=b) -> str:
-            s = b[key]["current"]
-            return "-" if s["score"] is None else f"{s['score']:.2f} {s['zone']}"
-
+        models = "; ".join(model_text(m) for m in data["bankruptcy"])  # every model of src.ratios.bankruptcy.MODELS
         name = (data["company"]["name"] or "")[:25]
         rating = f"{decision.value or 'none'} ({','.join(decision.rules)})"
         quality = data["data_quality"]["overall"]
-        print(f"{path.stem:16} {name:26} {zone('in05'):16} {zone('altman_z_prime'):16} {quality:8} {rating}")
+        print(f"{path.stem:16} {name:26} {quality:8} {rating:16} {models}")
         if not args.no_write:
             out_dir.mkdir(parents=True, exist_ok=True)
             (out_dir / f"{path.stem}.json").write_text(

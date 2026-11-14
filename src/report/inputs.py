@@ -12,12 +12,13 @@ from __future__ import annotations
 from typing import Any
 
 from src.ratios.bankruptcy import BankruptcyReport
+from src.ratios.benchmarks import light
 from src.ratios.models import Ratio, RatioReport, RatioValue
 from src.result import Result
 from src.schema import FinancialStatements
 from src.validation.models import ValidationReport
 
-INPUT_VERSION = 1
+INPUT_VERSION = 2
 MAX_LISTED = 15  # values flagged for review named one by one; the count says the rest
 
 KEY_FIGURES: list[tuple[str, str]] = [
@@ -84,7 +85,19 @@ def _ratio_value(v: RatioValue) -> dict[str, Any]:
     return {"value": v.value, "flag": v.flag, "reason": v.reason}
 
 
-def _ratios(report: RatioReport) -> list[dict[str, Any]]:
+def _lights(benchmarks: dict[str, Any] | None) -> dict[str, Any]:
+    """The traffic lights stored by the benchmarks stage; none for a stub (mock data belongs to a mock company)."""
+    if not benchmarks or benchmarks.get("mock"):
+        return {}
+    return {k: (v or {}).get("light") for k, v in (benchmarks.get("ratios") or {}).items()}
+
+
+def _ratios(report: RatioReport, benchmarks: dict[str, Any] | None = None) -> list[dict[str, Any]]:
+    """The ratios with their reliability flags and the traffic light of the current year (CIPW-14).
+
+    The light is the benchmarks stage's own when the result has one, else it is worked out from the ratio, so the
+    rating rules (R9) see the same lights with or without a benchmarks stage."""
+    stored = _lights(benchmarks)
     out = []
     for r in report.ratios:
         change = r.change
@@ -98,20 +111,24 @@ def _ratios(report: RatioReport) -> list[dict[str, Any]]:
                 "current": _ratio_value(r.current),
                 "prior": _ratio_value(r.prior),
                 "change": None if change is None else round(change, 4),
+                "light": stored[r.key] if r.key in stored else light(r.key, r.current.value, r.current.flag),
             }
         )
     return out
 
 
-def _bankruptcy(report: BankruptcyReport) -> dict[str, Any]:
-    out = {}
-    for model in (report.get("in05"), report.get("altman_z_prime")):
-        out[model.key] = {
+def _bankruptcy(report: BankruptcyReport) -> list[dict[str, Any]]:
+    """Every model of `src.ratios.bankruptcy.MODELS`, in that order (CIPW-52): nothing here names a model."""
+    return [
+        {
+            "key": model.key,
             "name": model.name,
             "zones": model.zones,
+            "horizon": model.horizon,
             **{
                 period: {
                     "score": s.score,
+                    "probability": s.probability,
                     "zone": s.zone,
                     "flag": s.flag,
                     "reason": s.reason,
@@ -119,7 +136,8 @@ def _bankruptcy(report: BankruptcyReport) -> dict[str, Any]:
                 for period, s in (("current", model.current), ("prior", model.prior))
             },
         }
-    return out
+        for model in report.models
+    ]
 
 
 def _benchmarks(benchmarks: dict[str, Any] | None) -> dict[str, Any]:
@@ -168,7 +186,7 @@ def _data_quality(
     missing = _not_computable(ratios.ratios)
     if missing:
         notes.append("ratios that could not be computed for the current year: " + ", ".join(missing))
-    scores = [m.current for m in (bankruptcy.get("in05"), bankruptcy.get("altman_z_prime"))]
+    scores = [m.current for m in bankruptcy.models]
     if any(s.score is None for s in scores):
         notes.append("a bankruptcy model could not be computed for the current year")
     elif any(s.flag == "unreliable" for s in scores):
@@ -205,7 +223,7 @@ def build_assessment_input(
             "amounts_in": "CZK",
         },
         "key_figures": _key_figures(fs),
-        "ratios": _ratios(ratios),
+        "ratios": _ratios(ratios, benchmarks),
         "bankruptcy": _bankruptcy(bankruptcy),
         "benchmarks": bench,
         "validation": _validation(validation),

@@ -258,7 +258,9 @@ def _company(document: Any, run: ReportRun, data: dict[str, Any]) -> None:
     _paragraph(document, checks)
     from src.report.recommendation import rule_rows
 
-    rules_title, rules_intro, rules_header, rules_body = rule_rows(run.language, run.rating.partial)
+    rules_title, rules_intro, rules_header, rules_body = rule_rows(
+        run.language, run.rating.partial, run.rating.disabled_rules
+    )
     document.add_heading(rules_title, level=2)
     _paragraph(document, rules_intro)
     _table(document, rules_header, rules_body)

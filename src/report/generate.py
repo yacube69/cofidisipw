@@ -491,7 +491,9 @@ def report_markdown(run: ReportRun, data: dict[str, Any]) -> str:
     lines += figures_markdown(data, run.language)
     from src.report.recommendation import rule_rows
 
-    rules_title, rules_intro, rules_header, rules_body = rule_rows(run.language, run.rating.partial)
+    rules_title, rules_intro, rules_header, rules_body = rule_rows(
+        run.language, run.rating.partial, run.rating.disabled_rules
+    )
     lines += [
         "",
         f"## {rules_title}",
@@ -521,11 +523,12 @@ def report_markdown(run: ReportRun, data: dict[str, Any]) -> str:
 
 def review_pack(reports_dir: Path) -> str:
     """All saved reports (`<file>.md` and `<file>.json` of scripts/generate_reports.py) in one page for the team."""
-    rows, pages, versions, partial = [], [], set(), False
+    rows, pages, versions, partial, disabled = [], [], set(), False, set()
     for path in sorted(reports_dir.glob("*.json")):
         saved = json.loads(path.read_text(encoding="utf-8"))
         data, rating = saved["input"], saved["rating"]
         partial = partial or bool(rating.get("partial"))
+        disabled |= set(rating.get("disabled_rules") or [])
         name = data["company"]["name"] or "unknown"
         status = "report" if saved.get("report") else "ERROR"
         version = saved.get("prompt_version") or "?"
@@ -545,7 +548,7 @@ def review_pack(reports_dir: Path) -> str:
         "",
         "Each reviewer takes 2 to 3 companies and fills in the checklist at the end of each report.",
         "",
-        rules_table(partial),
+        rules_table(partial, sorted(disabled)),
         "| file | company | risk rating (rules) | recommendation | input data quality | report | prompt | reviewer |",
         "| --- | --- | --- | --- | --- | --- | --- | --- |",
         *rows,

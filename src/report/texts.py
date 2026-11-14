@@ -58,21 +58,48 @@ EN: dict[str, Any] = {
     "col_current": "current year",
     "rules_title": "How the risk rating is decided",
     "rules_intro": "The risk rating (high risk is the worst, low risk the best) is calculated from the numbers by "
-    "these rules, the first one that applies decides. The AI only writes the text and does not choose it.",
+    "these rules, the first one that applies decides, except R9, which is checked afterwards and can only make the "
+    "rating worse. The AI only writes the text and does not choose it.",
     "rules_header": ["rule", "condition", "risk rating"],
     "rules": {
         "R1": ("equity is negative", "high risk"),
-        "R2": ("IN05 and Altman Z′ are both in the distress zone", "high risk"),
-        "R3": ("one of the two models is in the distress zone and the period ends with a loss", "high risk"),
+        "R2": ("all bankruptcy models with a score are in the distress zone (at least two models)", "high risk"),
+        "R3": ("a bankruptcy model is in the distress zone and the period ends with a loss", "high risk"),
         "R7": ("no bankruptcy score could be computed and the current ratio is below 1 "
                "(partial rating from the balance sheet alone)", "high risk"),
         "R8": ("no bankruptcy score could be computed and the current ratio is 1 or more "
                "(partial rating from the balance sheet alone)", "medium risk"),
         "R4": ("no bankruptcy score could be computed (usually no income statement in the filing)", "no rating"),
         "R4_partial": ("no bankruptcy score and no current ratio could be computed", "no rating"),
-        "R5": ("both models are in the safe zone, the period is not a loss, all accounting checks passed and no "
-               "score is computed from values flagged for review", "low risk"),
+        "R5": ("every bankruptcy model has a score and is in the safe zone, the period is not a loss, all accounting "
+               "checks passed and no score is computed from values flagged for review", "low risk"),
         "R6": ("everything else", "medium risk"),
+        "R9": ("checked after the rules above, it can only make the rating worse: 2 or more ratios with a red "
+               "traffic light give high risk; 1 red ratio or 3 or more amber ratios give at least medium risk",
+               "high / medium risk"),
+    },
+    "reasoning": {
+        "R1": "Equity is negative ({value})",
+        "R2": "All bankruptcy models with a score ({models}) are in the distress zone",
+        "R3": "A bankruptcy model ({models}) is in the distress zone and the period ends with a loss ({value})",
+        "R4": "No bankruptcy score could be computed, so no rating is given",
+        "R5": "All bankruptcy models are in the safe zone, the period is not a loss and all accounting checks passed",
+        "R6": "No rule for high risk applies, but {why}, so the rating is not low",
+        "R7": "Partial rating from the balance sheet alone: no bankruptcy score could be computed, and the current "
+        "ratio is below 1 ({ratio})",
+        "R8": "Partial rating from the balance sheet alone: no bankruptcy score could be computed; the current ratio "
+        "is {ratio}",
+        "R9_red2": "{n} ratios have a red traffic light (weak), so the rating is high",
+        "R9_red1": "One ratio has a red traffic light (weak), so the rating is not lower than medium",
+        "R9_amber": "{n} ratios have an amber traffic light (watch), so the rating is not lower than medium",
+        "why_uncomputed": "a bankruptcy model could not be computed",
+        "why_not_safe": "the bankruptcy models are not all in the safe zone",
+        "why_loss": "the period ends with a loss",
+        "why_checks": "an accounting check failed",
+        "why_doubtful": "a score is computed from values flagged for review",
+        "why_mixed": "the signals are mixed",
+        "caveat": " Computed from values flagged for review.",
+        "money": "{value} CZK",
     },
     "col_prior": "prior year",
     "col_change": "change",
@@ -155,21 +182,47 @@ CS: dict[str, Any] = {
     "col_current": "aktuální rok",
     "rules_title": "Jak se rozhoduje o hodnocení rizika",
     "rules_intro": "Hodnocení rizika (vysoké riziko je nejhorší, nízké riziko nejlepší) se počítá z čísel podle "
-    "těchto pravidel; rozhoduje první pravidlo, které platí. Umělá inteligence pouze píše text a hodnocení nevybírá.",
+    "těchto pravidel; rozhoduje první pravidlo, které platí, kromě R9, které se kontroluje nakonec a může hodnocení "
+    "jen zhoršit. Umělá inteligence pouze píše text a hodnocení nevybírá.",
     "rules_header": ["pravidlo", "podmínka", "hodnocení rizika"],
     "rules": {
         "R1": ("vlastní kapitál je záporný", "vysoké riziko"),
-        "R2": ("IN05 i Altman Z′ jsou v zóně ohrožení", "vysoké riziko"),
-        "R3": ("jeden ze dvou modelů je v zóně ohrožení a období končí ztrátou", "vysoké riziko"),
+        "R2": ("všechny modely bankrotu se skóre jsou v zóně ohrožení (nejméně dva modely)", "vysoké riziko"),
+        "R3": ("některý model bankrotu je v zóně ohrožení a období končí ztrátou", "vysoké riziko"),
         "R7": ("nelze vypočítat skóre bankrotu a běžná likvidita je pod 1 "
                "(částečné hodnocení pouze z rozvahy)", "vysoké riziko"),
         "R8": ("nelze vypočítat skóre bankrotu a běžná likvidita je 1 nebo více "
                "(částečné hodnocení pouze z rozvahy)", "střední riziko"),
         "R4": ("nelze vypočítat skóre bankrotu (obvykle chybí výkaz zisků a ztrát)", "bez hodnocení"),
         "R4_partial": ("nelze vypočítat skóre bankrotu ani běžnou likviditu", "bez hodnocení"),
-        "R5": ("oba modely jsou v bezpečné zóně, období nekončí ztrátou, všechny účetní kontroly prošly a žádné "
-               "skóre není vypočteno z hodnot označených ke kontrole", "nízké riziko"),
+        "R5": ("každý model bankrotu má skóre a je v bezpečné zóně, období nekončí ztrátou, všechny účetní kontroly "
+               "prošly a žádné skóre není vypočteno z hodnot označených ke kontrole", "nízké riziko"),
         "R6": ("vše ostatní", "střední riziko"),
+        "R9": ("kontroluje se po předchozích pravidlech a hodnocení může jen zhoršit: 2 a více ukazatelů s červeným "
+               "semaforem dávají vysoké riziko; 1 červený ukazatel nebo 3 a více oranžových dávají nejméně střední "
+               "riziko", "vysoké / střední riziko"),
+    },
+    "reasoning": {
+        "R1": "Vlastní kapitál je záporný ({value})",
+        "R2": "Všechny modely bankrotu se skóre ({models}) jsou v zóně ohrožení",
+        "R3": "Model bankrotu ({models}) je v zóně ohrožení a období končí ztrátou ({value})",
+        "R4": "Nelze vypočítat žádné skóre bankrotu, hodnocení proto není určeno",
+        "R5": "Všechny modely bankrotu jsou v bezpečné zóně, období nekončí ztrátou a prošly všechny účetní kontroly",
+        "R6": "Neplatí žádné pravidlo pro vysoké riziko, ale {why}, proto hodnocení není nízké",
+        "R7": "Částečné hodnocení pouze z rozvahy: nelze vypočítat žádné skóre bankrotu a běžná likvidita je pod 1 "
+        "({ratio})",
+        "R8": "Částečné hodnocení pouze z rozvahy: nelze vypočítat žádné skóre bankrotu; běžná likvidita je {ratio}",
+        "R9_red2": "Počet ukazatelů s červeným semaforem (slabé): {n}, hodnocení je proto vysoké",
+        "R9_red1": "Jeden ukazatel má červený semafor (slabé), hodnocení proto není nižší než střední",
+        "R9_amber": "Počet ukazatelů s oranžovým semaforem (sledovat): {n}, hodnocení proto není nižší než střední",
+        "why_uncomputed": "nelze vypočítat některý model bankrotu",
+        "why_not_safe": "modely bankrotu nejsou všechny v bezpečné zóně",
+        "why_loss": "období končí ztrátou",
+        "why_checks": "některá účetní kontrola neprošla",
+        "why_doubtful": "některé skóre je vypočteno z hodnot označených ke kontrole",
+        "why_mixed": "signály jsou smíšené",
+        "caveat": " Vypočteno z hodnot označených ke kontrole.",
+        "money": "{value} Kč",
     },
     "col_prior": "předchozí rok",
     "col_change": "změna",

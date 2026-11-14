@@ -19,8 +19,8 @@ All amounts are in CZK.
 | --- | --- |
 | `company` | name, IČO, period ends, full/abbreviated statements, accounting standard |
 | `key_figures` | 18 key lines, current and prior year, change in %, `needs_review` flag (revenue = I. + II.; net turnover = the line "Čistý obrat za účetní období" printed at the end of the income statement, a separate figure, not the same as revenue) |
-| `ratios` | all ratios of the engine: formula, both years, change, flag (`ok` / `unreliable` / `not_meaningful` / `missing`) and reason |
-| `bankruptcy` | IN05 and Altman Z′: score, zone and flag, both years |
+| `ratios` | all ratios of the engine: formula, both years, change, flag (`ok` / `unreliable` / `not_meaningful` / `missing`), reason and the traffic light of the current year (`light`, CIPW-14) |
+| `bankruptcy` | a list with every model of `src.ratios.bankruptcy.MODELS`: `key`, `name`, `zones`, `horizon` and, for both years, score, probability (models with a 12-month horizon), zone, flag and reason |
 | `benchmarks` | industry comparison (CIPW-14). Today `{"available": false}`: the stage is a stub and mock data never gets in |
 | `validation` | accounting checks passed or not, failed checks (up to 15 named), counts |
 | `data_quality` | `good` / `limited` / `poor` and the notes an analyst must know (flagged values, failed checks, ratios not computable, missing benchmarks) |
@@ -46,18 +46,24 @@ Wording: readers see "high risk", "medium risk", "low risk" or "no rating" (a pl
 
 Option A (recommended by the ticket): the rating is calculated by rules from the numbers; the LLM only explains it.
 Same numbers, same rating, every step auditable. Option B: the LLM chooses. `src/report/rating.py` is a written
-version of option A, so the team can read it, run it and change it. `rules_version` is `proposal-1`.
+version of option A, so the team can read it, run it and change it. `rules_version` is `proposal-2`. It is the **only** module that decides the rating: the pipeline, the app and the PDF (`fallback.py`) take it from `rate()` too.
 
 | rule | condition (current year) | risk rating |
 | --- | --- | --- |
 | R1 | equity is negative | high |
-| R2 | IN05 and Altman Z′ both in the distress zone | high |
-| R3 | one model in the distress zone and a loss for the period | high |
-| R4 | no bankruptcy score could be computed | no rating |
-| R5 | both models safe, profit not negative, no failed accounting check, no score from flagged values | low |
+| R2 | every model with a score is in the distress zone, and at least two have a score | high |
+| R3 | a model in the distress zone and a loss for the period | high |
+| R4 | no model has a score | no rating |
+| R5 | every model has a score and is safe, profit not negative, no failed accounting check, no score from flagged values | low |
 | R6 | everything else | medium |
+| R7 / R8 | partial rating only (`report.rating.partial`): no score and current ratio below 1 / 1 or more | high / medium |
+| R9 | 2 or more ratios with a red traffic light: high; 1 red ratio or 3 or more amber ratios: at least medium. Checked after R1 to R8, it only makes the rating worse; `disabled_rules: [R9]` switches it off | high / medium |
 
-Industry benchmarks (traffic lights from CIPW-14) are not used yet; they can become part of the rules later.
+The rules are written over the list of bankruptcy models of the input, so a model added to `MODELS` (for example Cofidis'
+12-month default model) takes part in R2, R3 and R5 by itself, and a model that cannot be computed never makes the
+rating better. The reasoning of the rating is written in Czech or English (`rate(data, config, language)`).
+
+Industry benchmarks are not used; the project's own traffic lights of CIPW-14 are (R9).
 
 ## Limits seen on the ground truth
 
@@ -71,7 +77,7 @@ The report ends its narrative with a **recommendation for the analyst**: `Recomm
 review)`, `Not recommended` or `No recommendation (insufficient data)`. It is **not written by the AI**: the code derives
 it from the risk rating by a table (`src/report/recommendation.py`, `report.recommendation` in `config/fides.yaml`:
 low = recommended, medium = caution, high = not recommended, no rating = no recommendation) and lists the **criteria**
-behind it: the rule that decided (R1 to R8), IN05 and Altman Z′ with their zones, equity, the result for the period and
+behind it: the rule that decided (R1 to R9), every bankruptcy model with its zone, equity, the result for the period and
 the accounting checks. The recommendation is indicative; the decision stays with the analyst. The table is a proposal
 until Cofidis names its own criteria; changing it needs no new model call (the recommendation is added to saved answers).
 It is `AssessmentReport.recommendation` (optional, filled by the code, not part of the tool schema).
@@ -183,7 +189,7 @@ Everything that still depends on an answer of the team or of Cofidis is a settin
 | `report.rating.disabled_rules` | `[]` | Cofidis criteria; any of R1, R2, R3, R5 can be left out (R4, R6 always apply) |
 | `report.rating.partial` | `true` | companies without a score get a partial rating from the balance sheet alone (R7 high when the current ratio is below 1, R8 medium, never low); `false` gives no rating instead. On since 12 November 2026: Marek asked to give what can be calculated |
 
-A rating from changed rules carries `rules_version: proposal-1+custom`, one with the partial rating on carries `+partial` (both: `proposal-1+custom+partial`). Every report ends with the table of the rules (R7 and R8 only when the partial rating is on), in the language of the report, so the reader sees how the rating was decided. New rules beyond these (for example a debt rule)
+A rating from changed rules carries `rules_version: proposal-2+custom`, one with the partial rating on carries `+partial` (both: `proposal-2+custom+partial`). Every report ends with the table of the rules (R7 and R8 only when the partial rating is on, a rule switched off is left out), in the language of the report, so the reader sees how the rating was decided. New rules beyond these (for example a debt rule)
 are added in `src/report/rating.py` once Cofidis names its criteria. The command line options `--provider`,
 `--model` and `--language` of `scripts/generate_reports.py` still override the settings.
 

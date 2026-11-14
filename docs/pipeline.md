@@ -47,7 +47,7 @@ They run in this order. A stage is a function `stage(result, ctx) -> StageStatus
 | `ratios` | CIPW-12 | real | `ratios` | `validate` |
 | `bankruptcy` | CIPW-13 | real | `bankruptcy` | `ratios` |
 | `benchmarks` | CIPW-14 | real | `benchmarks` (traffic lights, MPO industry values) | `ratios` |
-| `report` | CIPW-16 | rules | `report`: the rule-based assessment (`src/report/fallback.py`, `source: "rules"`) until the LLM report is built, and whenever no AI model is connected; `llm_usage` | `ratios`, `bankruptcy`, `benchmarks` |
+| `report` | CIPW-16 | rules | `report`: the rule-based assessment (`src/report/fallback.py`, `source: "rules"`; its rating comes from `src/report/rating.py`) until the LLM report is built, and whenever no AI model is connected; `llm_usage` | `ratios`, `bankruptcy`, `benchmarks` |
 | `check_numbers` | CIPW-17 | stub | `number_check`; skipped for a rule-based report, whose numbers are the data's own | `report` |
 
 There is no separate `normalize` stage: the parser multiplies every amount by `Metadata.unit_multiplier` (tis. Kč → Kč), see `docs/schema.md`.

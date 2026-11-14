@@ -38,7 +38,7 @@ python scripts/render_report.py <result.json> --refresh   # a result saved by an
 
 ## Without an AI model: the rule-based assessment
 
-Until the LLM report of CIPW-16 is built, and whenever no AI model is connected (offline mode, no API key), `src/report/fallback.py` builds the assessment from the numbers by fixed rules (CIPW-55). It has the same fields as the AI report and `source: "rules"`.
+Until the LLM report of CIPW-16 is built, and whenever no AI model is connected (offline mode, no API key), `src/report/fallback.py` builds the assessment from the numbers by fixed rules (CIPW-55). It has the same fields as the AI report and `source: "rules"`. The risk rating and its reasoning are not decided there: they come from `rate()` of `src/report/rating.py`, the one module that rates (rules R1 to R9, `docs/assessment.md`).
 
 | Field | Built from |
 | --- | --- |

@@ -5,11 +5,10 @@ has the same fields as the AI report (summary, strengths, risks, red flags, rati
 note) and `source: "rules"`, so the app and the PDF show it the same way and say where it came from. Every number in
 it is the data's own, so it needs no number check (CIPW-17).
 
-Rating (the rule CIPW-16 recommends, auditable and the same for the same numbers):
-    high    a bankruptcy model in distress, negative equity, or two or more red ratios
-    medium  a model in the grey zone, one red ratio, or three or more amber ratios
-    low     otherwise, when at least one model has a score
-    none    no model has a score (its inputs are not in the statement): the text says so
+Rating: not decided here. `rate()` of `src/report/rating.py` is the one module that decides it (rules R1 to R9, over
+every model of `src.ratios.bankruptcy.MODELS`); this module takes its value and its reasoning, in the language of the
+report. R9 is the old rule of this module: 2 or more red ratios give high risk, 1 red or 3 or more amber ones at
+least medium. The summary, strengths, risks and red flags are built here, from the same numbers.
 
 A value computed from an input to review or in a failed check (flag `unreliable`) is still used, as a lender would
 rather see a warning twice, but it is marked "ověřit" / "check" wherever the text names it.
@@ -19,7 +18,9 @@ from __future__ import annotations
 
 from typing import Any
 
+from src.report.inputs import assessment_input_from_result
 from src.report.pdf import LABELS, number, ratio_value
+from src.report.rating import RatingConfig, rate
 from src.result import Result
 
 TEXT = {
@@ -33,15 +34,7 @@ TEXT = {
         "negative_equity": "Záporný vlastní kapitál ({value} tis. Kč)",
         "loss": "Ztráta za účetní období ({value} tis. Kč)",
         "failed": "{n} účetních kontrol neprošlo: dotčené hodnoty ověřte proti výkazu",
-        "reason_distress": "{models} v pásmu tísně",
-        "reason_grey": "{models} v šedé zóně",
-        "reason_red": "slabé ukazatele: {n}",
-        "reason_amber": "ukazatele ke sledování: {n}",
-        "reason_equity": "záporný vlastní kapitál",
-        "reason_none": "bez varovných signálů v modelech a ukazatelích",
-        "reason_no_models": "bankrotní modely nemají skóre (výkaz neobsahuje jejich vstupy), celkové riziko proto "
-        "není určeno",
-        "reason_unreliable": "skóre z hodnot k ověření: {models}",
+        "no_input": "Chybí kontroly, ukazatele nebo modely bankrotu, hodnocení proto není určeno.",
         "note": "Hodnocení sestavila pevná pravidla z čísel výkazu; AI model není připojen.",
         "and": " a ",
     },
@@ -55,15 +48,7 @@ TEXT = {
         "negative_equity": "Negative equity (CZK {value} thousand)",
         "loss": "Loss for the period (CZK {value} thousand)",
         "failed": "{n} accounting checks failed: verify those values against the statement",
-        "reason_distress": "{models} in the distress zone",
-        "reason_grey": "{models} in the grey zone",
-        "reason_red": "weak ratios: {n}",
-        "reason_amber": "ratios to watch: {n}",
-        "reason_equity": "negative equity",
-        "reason_none": "no warning signs in the models and ratios",
-        "reason_no_models": "the bankruptcy models have no score (the statement lacks their inputs), so the overall "
-        "risk is not rated",
-        "reason_unreliable": "scores from values to review: {models}",
+        "no_input": "The checks, ratios or bankruptcy models are missing, so the risk is not rated.",
         "note": "Built by fixed rules from the statement's numbers; no AI model is connected.",
         "and": " and ",
     },
@@ -74,7 +59,8 @@ def _short(name: str) -> str:
     return name.split(" (")[0]  # "IN05 (Neumaierová & Neumaier)" -> "IN05"
 
 
-def rule_based_report(result: Result, lang: str = "cs") -> dict[str, Any]:
+def rule_based_report(result: Result, lang: str = "cs", rating_config: RatingConfig | None = None) -> dict[str, Any]:
+    """The assessment by fixed rules; the rating and its reasoning come from `rate()` with `rating_config`."""
     t, labels = TEXT[lang], LABELS[lang]
     fs = result.statements
     lights = {k: (v or {}).get("light") for k, v in ((result.benchmarks or {}).get("ratios") or {}).items()}
@@ -127,7 +113,6 @@ def rule_based_report(result: Result, lang: str = "cs") -> dict[str, Any]:
     risks = [f"{ratio_text(k)} ({labels['lights']['red']})" for k in reds]
     risks += [f"{ratio_text(k)} ({labels['lights']['amber']})" for k in ambers]
     distress = [m for m in models if m.current.zone == "distress"]
-    grey = [m for m in models if m.current.zone == "grey"]
     flags = [
         t["distress"].format(name=_short(m.name), score=number(m.current.score, 2, lang)
                              + (f"; {labels['check']}" if m.current.flag == "unreliable" else ""))  # fmt: skip
@@ -143,30 +128,13 @@ def rule_based_report(result: Result, lang: str = "cs") -> dict[str, Any]:
     if failed:
         flags.append(t["failed"].format(n=len(failed)))
 
-    # rating by the rule in the module docstring
-    reasons = []
-    if distress:
-        reasons.append(t["reason_distress"].format(models=", ".join(_short(m.name) for m in distress)))
-    if grey:
-        reasons.append(t["reason_grey"].format(models=", ".join(_short(m.name) for m in grey)))
-    if equity is not None and equity < 0:
-        reasons.append(t["reason_equity"])
-    if reds:
-        reasons.append(t["reason_red"].format(n=len(reds)))
-    if ambers:
-        reasons.append(t["reason_amber"].format(n=len(ambers)))
-    doubtful = [m for m in distress + grey if m.current.flag == "unreliable"]
-    if doubtful:
-        reasons.append(t["reason_unreliable"].format(models=", ".join(_short(m.name) for m in doubtful)))
-    if distress or (equity is not None and equity < 0) or len(reds) >= 2:
-        rating = "high"
-    elif grey or reds or len(ambers) >= 3:
-        rating = "medium"
-    elif models:
-        rating = "low"
-    else:
-        rating = None
-    reasoning = "; ".join(reasons) or (t["reason_none"] if models else t["reason_no_models"])
+    # the rating is the rating module's: the same rules for this report, the AI report, the app and the PDF
+    try:
+        decision = rate(assessment_input_from_result(result), rating_config, lang)
+    except ValueError:  # a hand-made result without validation, ratios or bankruptcy: nothing to rate from
+        decision = None
+    rating = decision.value if decision else None
+    reasoning = decision.reasoning if decision else TEXT[lang]["no_input"]
 
     return {
         "mock": False,
@@ -176,6 +144,6 @@ def rule_based_report(result: Result, lang: str = "cs") -> dict[str, Any]:
         "strengths": strengths,
         "risks": risks,
         "red_flags": flags,
-        "rating": {"value": rating, "reasoning": reasoning[0].upper() + reasoning[1:] + "."},
+        "rating": {"value": rating, "reasoning": reasoning},
         "data_quality_note": t["note"],
     }
