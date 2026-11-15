@@ -2,6 +2,15 @@
 
 Log of project decisions. Newest first. Format: date, decision, reason.
 
+## 2026-11-15 — Review of the lead on the rating and the LLM path (CIPW-16)
+
+- **R9 rates only what is rated.** A company without any bankruptcy score keeps "no rating" (R4) when the partial rating is off, however many red ratios it has; with the partial rating on, R7/R8 give the rating and R9 can raise it. Before, R9 also rated companies without a score, so switching the partial rating off did not switch it off. In the app (partial rating on) nothing changes.
+- **The rules' reasoning:** the scores are a sentence of their own ("Scores: IN05 0.55 (distress zone), …"); R2 and R3 no longer repeat the model names in parentheses. `rate()` refuses an assessment input of another version with a clear message (it used to fail on the old shape of `bankruptcy`). A Czech AI report gets the reasoning in Czech when its rating is replaced (`generate_report` passes the language to `rate()`).
+- **`fallback.rule_based_report` defaults to `report.rating` of the settings,** the configuration of the app, so every caller rates the same.
+- **Cost cap before the call:** `generate.answer_limit` limits the answer tokens so that the call stays within `llm.max_cost_usd` (the prices of `settings.llm`; prices at 0 = not counted, no limit) and refuses the call, sending nothing, when even a short answer would not fit. An answer that is still above the cap is kept with a warning instead of being dropped (it was paid for, and a rerun would pay again).
+- **Script cache:** the key of `scripts/generate_reports.py` holds the address of `llm.url`, so the same model name on two servers is not mixed up (the Gemini flag keeps its keys).
+- The reasoning of the two app samples (`data/fixtures`) is written again with the new wording.
+
 ## 2026-11-14 — One module decides the rating, R9 for the red ratios, rules over all bankruptcy models (CIPW-16)
 
 - **Decision (after the review of PR #109):** `src/report/rating.py` is the only module that decides the risk rating. `fallback.py` (the pipeline, the app, the PDF) takes the value and the reasoning from `rate()` and keeps building its own summary, strengths, risks and red flags. The reasoning is written in Czech and English (`rate(data, config, language)`).

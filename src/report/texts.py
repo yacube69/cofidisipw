@@ -80,8 +80,9 @@ EN: dict[str, Any] = {
     },
     "reasoning": {
         "R1": "Equity is negative ({value})",
-        "R2": "All bankruptcy models with a score ({models}) are in the distress zone",
-        "R3": "A bankruptcy model ({models}) is in the distress zone and the period ends with a loss ({value})",
+        "R2": "All bankruptcy models with a score are in the distress zone",
+        "R3": "A bankruptcy model is in the distress zone and the period ends with a loss ({value})",
+        "scores": "Scores",
         "R4": "No bankruptcy score could be computed, so no rating is given",
         "R5": "All bankruptcy models are in the safe zone, the period is not a loss and all accounting checks passed",
         "R6": "No rule for high risk applies, but {why}, so the rating is not low",
@@ -204,8 +205,9 @@ CS: dict[str, Any] = {
     },
     "reasoning": {
         "R1": "Vlastní kapitál je záporný ({value})",
-        "R2": "Všechny modely bankrotu se skóre ({models}) jsou v zóně ohrožení",
-        "R3": "Model bankrotu ({models}) je v zóně ohrožení a období končí ztrátou ({value})",
+        "R2": "Všechny modely bankrotu se skóre jsou v zóně ohrožení",
+        "R3": "Model bankrotu je v zóně ohrožení a období končí ztrátou ({value})",
+        "scores": "Skóre",
         "R4": "Nelze vypočítat žádné skóre bankrotu, hodnocení proto není určeno",
         "R5": "Všechny modely bankrotu jsou v bezpečné zóně, období nekončí ztrátou a prošly všechny účetní kontroly",
         "R6": "Neplatí žádné pravidlo pro vysoké riziko, ale {why}, proto hodnocení není nízké",

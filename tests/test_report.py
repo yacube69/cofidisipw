@@ -12,7 +12,7 @@ from src.llm import LlmError, Reply
 from src.ratios.bankruptcy import compute_bankruptcy
 from src.ratios.engine import compute_ratios
 from src.report import generate
-from src.report.inputs import assessment_input_from_result, build_assessment_input
+from src.report.inputs import INPUT_VERSION, assessment_input_from_result, build_assessment_input
 from src.report.models import AssessmentReport, ReportRating
 from src.report.rating import rate
 from src.result import LLMUsage, Result
@@ -173,6 +173,7 @@ def _case(in05, altman, equity=100.0, profit=10.0, passed=True, in05_flag="ok", 
     ]
     lights = ["red"] * reds + ["amber"] * ambers + ["green"]
     return {
+        "version": INPUT_VERSION,
         "bankruptcy": models,
         "ratios": [{"key": f"r{i}", "light": light, "current": {"value": 1.0}} for i, light in enumerate(lights)],
         "key_figures": {"equity": {"current": equity}, "profit_for_period": {"current": profit}},
@@ -214,8 +215,8 @@ def test_rating_rules(case: dict, value: str | None, rule: str):
         (_case("safe", "safe", ambers=2), "low", "R5"),
         (_case("grey", "safe", reds=1), "medium", "R6"),  # R9 never lowers or relabels what is already medium
         (_case("distress", "distress", reds=3), "high", "R2"),  # already high: the earlier rule stays
-        (_case(None, None, reds=2), "high", "R9"),  # no score at all: the lights still count (as in fallback.py)
-        (_case(None, None, reds=1), "medium", "R9"),
+        (_case(None, None, reds=2), None, "R4"),  # no score: R9 only raises a rating that exists, it is not R4's
+        (_case(None, None, reds=1), None, "R4"),
         (_case(None, None, ambers=2), None, "R4"),
     ],
 )
@@ -459,15 +460,35 @@ def test_an_own_server_needs_no_key(monkeypatch, llm_settings):
     assert generate.generate_report(_input(), file="x", settings=llm_settings).ok and len(chat.payloads) == 1
 
 
-def test_a_call_above_the_cost_cap_is_an_error_not_a_report(llm_settings):
+def test_the_cost_cap_limits_the_answer_before_the_call(llm_settings):
+    llm_settings.llm.price_in_per_mtok, llm_settings.llm.price_out_per_mtok = 1.0, 10.0
+    llm_settings.llm.max_cost_usd = 0.02  # 0.02 USD = 2000 answer tokens at 10 USD per million
+    allowed = generate.answer_limit("s" * 1000, "u" * 1000, llm_settings)
+    assert 1000 < allowed < 2000  # less than MAX_TOKENS, so the call cannot cost more than the cap
+    llm_settings.llm.max_cost_usd = 5.0
+    assert generate.answer_limit("s" * 1000, "u" * 1000, llm_settings) == generate.MAX_TOKENS
+    llm_settings.llm.price_out_per_mtok = 0.0  # prices at 0: the cost is not counted, nothing limits
+    llm_settings.llm.max_cost_usd = 0.0001
+    assert generate.answer_limit("s" * 1000, "u" * 1000, llm_settings) == generate.MAX_TOKENS
+
+
+def test_a_call_that_cannot_fit_the_cost_cap_is_refused_before_it_is_sent(monkeypatch, llm_settings):
+    chat = FakeChat()
+    monkeypatch.setattr("src.llm.client", lambda settings: chat)
+    llm_settings.llm.price_in_per_mtok, llm_settings.llm.price_out_per_mtok = 100.0, 100.0
+    llm_settings.llm.max_cost_usd = 0.05
+    run = generate.generate_report(_input(), file="x", settings=llm_settings)
+    assert not run.ok and "llm.max_cost_usd" in run.error and "nothing was sent" in run.error and chat.payloads == []
+    translated = generate.translate_report(_english(), _input(), language="cs", settings=llm_settings)
+    assert not translated.ok and "nothing was sent" in translated.error and chat.payloads == []
+
+
+def test_an_answer_above_the_cost_cap_is_kept_with_a_warning(llm_settings):
+    """The cap is applied before the call; an answer that is still above it (a low estimate) is paid for: kept."""
     llm_settings.llm.max_cost_usd = 0.50
-    assert _run(FakeAsk(cost=0.40), settings=llm_settings).ok
+    assert _run(FakeAsk(cost=0.40), settings=llm_settings).warnings == []
     run = _run(FakeAsk(cost=0.60), settings=llm_settings)
-    assert not run.ok and "above llm.max_cost_usd" in run.error and run.cost_usd == 0.60
-    english = _english()
-    expensive = FakeAsk(CZECH, cost=0.60)
-    run = generate.translate_report(english, _input(), language="cs", ask=expensive, settings=llm_settings)
-    assert not run.ok and "above llm.max_cost_usd" in run.error
+    assert run.ok and run.cost_usd == 0.60 and any("above llm.max_cost_usd" in w for w in run.warnings)
 
 
 def test_the_rating_is_the_rules_not_the_models():
@@ -649,6 +670,41 @@ def test_a_rule_can_be_switched_off():
     decision = rate(_case("safe", "safe", equity=-5.0), RatingConfig(disabled_rules=["R1"]))
     assert (decision.value, decision.rules) == ("low", ["R5"])
     assert decision.rules_version == "proposal-2+custom"
+
+
+def test_r9_raises_a_partial_rating_but_never_creates_a_rating():
+    from src.report.rating import RatingConfig
+
+    case = _case(None, None, reds=2)  # no score, red lights, no current ratio: still no rating
+    assert rate(case, RatingConfig(partial=True)).rules == ["R4"] and rate(case).value is None
+    case["ratios"].append({"key": "current_ratio", "light": "green", "current": {"value": 1.4}})
+    assert rate(case).value is None  # partial rating off: R9 does not rate a company without a score
+    decision = rate(case, RatingConfig(partial=True))  # R8 gives medium, two red ratios raise it to high
+    assert (decision.value, decision.rules) == ("high", ["R9"])
+
+
+def test_an_input_of_another_version_is_refused_with_a_clear_message():
+    old = {**_case("safe", "safe"), "version": 1}
+    with pytest.raises(ValueError, match="version 1"):
+        rate(old)
+    del old["version"]
+    with pytest.raises(ValueError, match="version None"):
+        rate(old)
+
+
+def test_a_czech_report_gets_czech_reasoning_when_the_rating_is_replaced():
+    answer = {**ANSWER, "rating": {"value": "medium", "reasoning": "x"}}
+    run = generate.generate_report(_input(), file="x", language="cs", ask=FakeAsk(answer), settings=None)
+    assert run.rating.reasoning.startswith("Všechny modely bankrotu se skóre jsou v zóně ohrožení")
+    assert run.report.rating.reasoning == run.rating.reasoning
+
+
+def test_the_scores_are_a_sentence_of_their_own_not_nested_parentheses():
+    reasoning = rate(_case("distress", "distress")).reasoning
+    assert reasoning == (
+        "All bankruptcy models with a score are in the distress zone. "
+        "Scores: IN05 1.00 (distress), Altman Z′ 1.00 (distress)."
+    )
 
 
 def test_r4_and_r6_cannot_be_switched_off():

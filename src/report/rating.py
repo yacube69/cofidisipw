@@ -22,7 +22,8 @@ replaced there (e.g. Cofidis' 12-month default model) takes part without a chang
 | R9 | red ratios (traffic lights of CIPW-14): 2 or more red, or 1 red or 3 or more amber, see below | high / medium |
 
 R1 to R8: the first rule that applies decides. R9 is checked afterwards and can only make the rating worse: 2 or
-more ratios with a red traffic light give high risk, 1 red ratio or 3 or more amber ratios give at least medium risk.
+more ratios with a red traffic light give high risk, 1 red ratio or 3 or more amber ratios give at least medium risk,
+but only on a rating that exists: a company without any score stays unrated (R4) unless the partial rating is on.
 That is the rule `fallback.py` applied before this module decided, so the app keeps its signal. A model that cannot
 be computed never makes the rating better: R5 needs a score from every model.
 
@@ -142,6 +143,13 @@ def _lights(data: dict[str, Any]) -> tuple[int, int]:
 
 def rate(data: dict[str, Any], config: RatingConfig | None = None, language: str = "en") -> RatingDecision:
     """Rating for the current year from an assessment input, with its reasoning in `language` ('en' or 'cs')."""
+    from src.report.inputs import INPUT_VERSION  # here: inputs -> settings -> this module's RatingConfig
+
+    if data.get("version") != INPUT_VERSION:
+        raise ValueError(
+            f"the assessment input has version {data.get('version')!r}, the rules read version {INPUT_VERSION}: "
+            "build it again (src.report.inputs)"
+        )
     config = config or RatingConfig()
     t = texts(language)
     why = t["reasoning"]
@@ -175,10 +183,9 @@ def rate(data: dict[str, Any], config: RatingConfig | None = None, language: str
         if on("R1") and equity is not None and equity < 0:
             return "high", "R1", why["R1"].format(value=money(equity))
         if on("R2") and len(zones) >= 2 and all(z == "distress" for z in zones):
-            return "high", "R2", why["R2"].format(models=", ".join(name for name, _ in scored))
+            return "high", "R2", why["R2"]
         if on("R3") and "distress" in zones and profit is not None and profit < 0:
-            distressed = ", ".join(name for name, s in scored if s["zone"] == "distress")
-            return "high", "R3", why["R3"].format(models=distressed, value=money(profit))
+            return "high", "R3", why["R3"].format(value=money(profit))
         if not scored:
             ratio = _current_ratio(data) if config.partial else None
             if ratio is None:
@@ -204,7 +211,7 @@ def rate(data: dict[str, Any], config: RatingConfig | None = None, language: str
 
     value, rule, text = base()
     reds, ambers = _lights(data)
-    if on("R9") and (reds or ambers >= 3):  # never makes the rating better
+    if on("R9") and value is not None and (reds or ambers >= 3):  # never makes it better; no rating stays none (R4)
         floor, floor_text = (
             ("high", why["R9_red2"].format(n=reds)) if reds >= 2
             else ("medium", why["R9_red1"]) if reds == 1
@@ -215,7 +222,7 @@ def rate(data: dict[str, Any], config: RatingConfig | None = None, language: str
     return RatingDecision(
         value=value,
         rules=[rule],
-        reasoning=f"{text} ({scores_text}).{caveat}",
+        reasoning=f"{text}. {why['scores']}: {scores_text}.{caveat}",
         rules_version=version,
         partial=config.partial,
         disabled_rules=list(config.disabled_rules),

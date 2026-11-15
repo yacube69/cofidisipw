@@ -22,6 +22,7 @@ from src.report.inputs import assessment_input_from_result
 from src.report.pdf import LABELS, number, ratio_value
 from src.report.rating import RatingConfig, rate
 from src.result import Result
+from src.settings import get_settings
 
 TEXT = {
     "cs": {
@@ -60,7 +61,9 @@ def _short(name: str) -> str:
 
 
 def rule_based_report(result: Result, lang: str = "cs", rating_config: RatingConfig | None = None) -> dict[str, Any]:
-    """The assessment by fixed rules; the rating and its reasoning come from `rate()` with `rating_config`."""
+    """The assessment by fixed rules; the rating and its reasoning come from `rate()` with `rating_config`, by
+    default the app's (`report.rating` of the settings), so every caller rates the same."""
+    rating_config = rating_config or get_settings().report.rating
     t, labels = TEXT[lang], LABELS[lang]
     fs = result.statements
     lights = {k: (v or {}).get("light") for k, v in ((result.benchmarks or {}).get("ratios") or {}).items()}

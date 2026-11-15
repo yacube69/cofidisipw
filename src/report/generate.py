@@ -23,7 +23,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from src.llm import Reply, ask_json
+from src.llm import LlmError, Reply, ask_json, cost_usd
 from src.report.models import AssessmentReport
 from src.report.rating import RatingConfig, RatingDecision, rate, rules_table
 from src.report.recommendation import RecommendationConfig, recommend
@@ -65,20 +65,49 @@ class ReportRun:
         return self.report is not None and self.error is None
 
 
+CHARS_PER_TOKEN = 2.5  # a cautious guess for Czech text and JSON: more tokens than characters / 4
+MIN_ANSWER_TOKENS = 1000  # below this the report cannot be written: refuse before paying for a cut-off answer
+
+
+def answer_limit(system: str, user: str, settings: Settings, max_tokens: int = MAX_TOKENS) -> int:
+    """The most tokens the answer may have so that the call stays within `llm.max_cost_usd` (the prices of
+    `settings.llm`; with the prices at 0 the cost is not counted and nothing limits). Raises `LlmError` before the
+    call when even a short answer would be above the cap: an answer that is paid for and then dropped is paid again
+    at every rerun."""
+    llm = settings.llm
+    if not llm.price_out_per_mtok:
+        return max_tokens
+    estimated_in = int((len(system) + len(user)) / CHARS_PER_TOKEN) + 1
+    spare = llm.max_cost_usd - cost_usd(estimated_in, 0, settings)
+    allowed = int(spare * 1e6 / llm.price_out_per_mtok)
+    if allowed < MIN_ANSWER_TOKENS:
+        raise LlmError(
+            f"a call would cost more than llm.max_cost_usd ({llm.max_cost_usd:.2f}): about {estimated_in} input "
+            f"tokens, room for {max(allowed, 0)} answer tokens; nothing was sent"
+        )
+    return min(max_tokens, allowed)
+
+
 def default_ask(settings: Settings | None = None) -> Ask:
-    """The model of `settings.llm` through `src.llm.ask_json`: Mistral, own server, offline mode refused."""
+    """The model of `settings.llm` through `src.llm.ask_json`: Mistral, own server, offline mode refused. The cost
+    cap is applied before the call (`answer_limit`)."""
     settings = settings or get_settings()
-    return lambda system, user: ask_json(system, user, settings, max_tokens=MAX_TOKENS)
+
+    def ask(system: str, user: str) -> Reply:
+        return ask_json(system, user, settings, max_tokens=answer_limit(system, user, settings))
+
+    return ask
 
 
 def _ask(run: ReportRun, ask: Ask, settings: Settings, system: str, user: str) -> dict[str, Any]:
-    """One call: the tokens and the cost go into the run; a call above the cost cap is an error, not a report."""
+    """One call: the tokens and the cost go into the run. The cap is applied before the call (`answer_limit`); an
+    answer that is still above it (the estimate was too low) is kept, with a warning: it is paid for."""
     reply = ask(system, user)
     run.model = reply.model
     run.input_tokens, run.output_tokens = reply.usage.input_tokens, reply.usage.output_tokens
     run.cost_usd = reply.usage.cost_usd
     if reply.usage.cost_usd > settings.llm.max_cost_usd:
-        raise ValueError(
+        run.warnings.append(
             f"the call cost USD {reply.usage.cost_usd:.2f}, above llm.max_cost_usd ({settings.llm.max_cost_usd:.2f})"
         )
     return reply.data
@@ -180,7 +209,7 @@ def generate_report(
     `ask` is `src.llm.ask_json` on `settings.llm` unless a script passes its own (the free-key flag of
     scripts/generate_reports.py, the fakes of the tests)."""
     settings = settings or get_settings()
-    decision = decision or rate(data, rating_config)
+    decision = decision or rate(data, rating_config, language)
     run = ReportRun(
         file=file,
         model=settings.llm.model,

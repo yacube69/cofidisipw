@@ -206,11 +206,13 @@ def get_report(
     (`english`), so that every language carries the same analysis.
     """
     out = settings.paths.outputs / report_dir(language)
+    # the same model name on another server (Mistral's API, a Mistral model of Cofidis') is another answer
+    where = model if args.gemini else f"{model} @ {settings.llm.url}"
     if language == "en":
-        key = cache_key(data, decision, model, "en", prompt, report_cfg.worsening_pct)
+        key = cache_key(data, decision, where, "en", prompt, report_cfg.worsening_pct)
     else:
         assert english is not None
-        key = translation_key(english, model, language, generate.TRANSLATION_PROMPT_PATH)
+        key = translation_key(english, where, language, generate.TRANSLATION_PROMPT_PATH)
     cache = out / "cache" / f"{stem}_{key}.json"
     run = None if args.force else load_cached(cache, decision, model, language)
     status = "cached"

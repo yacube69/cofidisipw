@@ -42,7 +42,8 @@ def test_a_model_in_distress_is_high_risk_and_a_red_flag(mondi):
     assert "IN05 v pásmu tísně (0,55; ověřit)" in report["red_flags"]  # a score from values to review says so
     assert any("účetních kontrol neprošlo" in f for f in report["red_flags"])
     reasoning = report["rating"]["reasoning"]  # the rating module's, in the language of the report (R2)
-    assert reasoning.startswith("Všechny modely bankrotu se skóre (IN05, Altman Z′) jsou v zóně ohrožení")
+    assert reasoning.startswith("Všechny modely bankrotu se skóre jsou v zóně ohrožení. ")
+    assert "Skóre: IN05 0,55 (zóna ohrožení), Altman Z′ 0,61 (zóna ohrožení)." in reasoning
     assert reasoning.endswith("Vypočteno z hodnot označených ke kontrole.")
     assert rule_based_report(mondi, "en")["rating"]["reasoning"].startswith("All bankruptcy models with a score")
     assert "Běžná likvidita 0,22× (ověřit)" in report["summary"]
@@ -129,6 +130,7 @@ def test_the_partial_rating_reaches_the_app_through_the_config():
     ratios = compute_ratios(fs, validation)
     result = Result(file="andel.pdf", statements=fs, validation=validation, ratios=ratios,
                     bankruptcy=compute_bankruptcy(fs, validation))  # fmt: skip
-    assert rule_based_report(result)["rating"]["value"] is None
+    assert rule_based_report(result, "en", RatingConfig())["rating"]["value"] is None  # partial rating switched off
+    assert rule_based_report(result)["rating"]["value"] == "medium"  # the default is the app's configuration
     partial = rule_based_report(result, "en", RatingConfig(partial=True))["rating"]
     assert partial["value"] == "medium" and partial["reasoning"].startswith("Partial rating from the balance sheet")
