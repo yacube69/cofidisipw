@@ -2,12 +2,36 @@
 
 Log of project decisions. Newest first. Format: date, decision, reason.
 
+## 2026-11-15 — Review of the lead on the rating and the LLM path (CIPW-16)
+
+- **R9 rates only what is rated.** A company without any bankruptcy score keeps "no rating" (R4) when the partial rating is off, however many red ratios it has; with the partial rating on, R7/R8 give the rating and R9 can raise it. Before, R9 also rated companies without a score, so switching the partial rating off did not switch it off. In the app (partial rating on) nothing changes.
+- **The rules' reasoning:** the scores are a sentence of their own ("Scores: IN05 0.55 (distress zone), …"); R2 and R3 no longer repeat the model names in parentheses. `rate()` refuses an assessment input of another version with a clear message (it used to fail on the old shape of `bankruptcy`). A Czech AI report gets the reasoning in Czech when its rating is replaced (`generate_report` passes the language to `rate()`).
+- **`fallback.rule_based_report` defaults to `report.rating` of the settings,** the configuration of the app, so every caller rates the same.
+- **Cost cap before the call:** `generate.answer_limit` limits the answer tokens so that the call stays within `llm.max_cost_usd` (the prices of `settings.llm`; prices at 0 = not counted, no limit) and refuses the call, sending nothing, when even a short answer would not fit. An answer that is still above the cap is kept with a warning instead of being dropped (it was paid for, and a rerun would pay again).
+- **Script cache:** the key of `scripts/generate_reports.py` holds the address of `llm.url`, so the same model name on two servers is not mixed up (the Gemini flag keeps its keys).
+- The reasoning of the two app samples (`data/fixtures`) is written again with the new wording.
+
+## 2026-11-14 — One module decides the rating, R9 for the red ratios, rules over all bankruptcy models (CIPW-16)
+
+- **Decision (after the review of PR #109):** `src/report/rating.py` is the only module that decides the risk rating. `fallback.py` (the pipeline, the app, the PDF) takes the value and the reasoning from `rate()` and keeps building its own summary, strengths, risks and red flags. The reasoning is written in Czech and English (`rate(data, config, language)`).
+- **R9 (new, on by default, can be switched off in `report.rating.disabled_rules`):** the red-ratios criterion of `fallback.py` as a rule over the traffic lights of CIPW-14: 2 or more red ratios give high risk; **1 red ratio or 3 or more amber ratios give at least medium risk**. The amber criterion of `fallback.py` is **kept inside R9** (it would otherwise disappear silently: both models safe, a profit and 3 amber ratios gave medium before). R9 is checked after R1 to R8 and only makes the rating worse, so it never lowers a rating and never overrides a partial rating of high (R7). The app keeps today's signal until Cofidis names its criteria. `rules_version` is `proposal-2`.
+- **Rules over `src.ratios.bankruptcy.MODELS` (finding 3):** the assessment input lists every model (`bankruptcy` is a list with `key`, `name`, `zones`, `horizon` and, per year, `score`, `probability`, `zone`, `flag`); no rule, text or table names IN05 or Altman Z′. R2: every model with a score is in distress and at least two have one. R3: a model is in distress and the period ends with a loss. R4: no model has a score. R5: every model of the list has a score and is safe (a model that cannot be computed never makes the rating better), no loss, checks passed, no doubtful score. A model added to `MODELS` (e.g. Cofidis' 12-month default model) takes part by itself.
+- **Behaviour that changes in the app:** (1) Andel Czech (no income statement) gets medium (R8) instead of no rating (partial rating, decision of 12 Nov). (2) **One model in distress without a loss is now medium (R6), as in `rating.py`; the old `fallback.py` gave high for any model in distress.** No company of the 15 ground truth files or of the two app samples is in this case; if Cofidis wants it as high, it is a new rule. The before/after table of the 15 companies and the 2 samples is in PR #109: with R9 on, only Andel Czech differs from today's app.
+- **LLM path (point 2 of the review):** `src/report/generate.py` asks the model through `src.llm.ask_json` (Mistral, an own server, offline mode refused, `llm.max_cost_usd` as a cap), the prompt asks for a JSON answer (`assessment_v8.md`, translation `translation_v4.md`), and `report.provider` and `report.model` are gone from the settings. Gemini stays only as the `--gemini` flag of `scripts/generate_reports.py`, to tune the prompt on the public ground truth with a free key; it is never in the settings or the pipeline, so statements cannot go to Google through the app. Real reports need a Mistral key (CIPW-61, question 3). `python-docx` stays in `requirements.txt` for now (one requirements file).
+- **Affected tasks:** CIPW-16, CIPW-52, CIPW-55, CIPW-58.
+
 ## 2026-11-12 — Local accounts and storage in SQLite, the backend stays in Python (CIPW-62, CIPW-60)
 
 - **Decision:** sign-in with local accounts (`auth.mode: local`) and one SQLite file (`outputs/fides.db`) for the results, their PDFs and corrections, the users and the sessions. One admin account is created at the first start; its password comes from `.env` or is generated into `outputs/admin-password.txt`, never from the code. Active Directory and SSO stay options for Cofidis (`docs/users.md`, CIPW-59).
 - **Why:** a shared Cofidis server needs to know who analyses and corrects, and must not lose work at a restart. SQLite needs no database server and only Python's standard library; a request costs one read of its session.
 - **Kotlin was considered for the backend and dropped:** the heavy work (OCR, reading the PDF) is Python and stays Python. A Kotlin API in front of it would add a JVM to the image (more memory), a call between two runtimes for every analysis, and a second language to maintain, which is heavier for the server, not lighter.
 - **Affected tasks:** CIPW-59, CIPW-60, CIPW-62.
+
+## 2026-11-12 — Partial rating on, rules table in every report, Czech review (CIPW-16)
+
+- **Decision:** companies without a bankruptcy score (usually no income statement) get a partial rating from the balance sheet alone (R7 high risk when the current ratio is below 1, R8 medium risk, never low risk) and therefore also a recommendation. `report.rating.partial` is `true` in `config/fides.yaml`; a rating with it carries `rules_version: proposal-1+partial`. Every report ends with the table of the rules (R1 to R8) in its own language. The Czech reviewers' corrections are in `prompts/translation_v2.md` (the English report and its prompt are unchanged) and "aktuální rok" in `src/report/texts.py`.
+- **Why:** Marek asked to give what can be calculated; the Czech reviewers found the wording "běžný rok", "za období končící" and "celkem aktiv" unnatural.
+- **Still open:** Cofidis' criteria for the rules (see below); Marek said to keep the current reports and give instructions later, the rules are settings and can change after the merge.
 
 ## 2026-11-11 — Mistral is the language model of the AI report (CIPW-58)
 
@@ -16,6 +40,25 @@ Log of project decisions. Newest first. Format: date, decision, reason.
 - **How:** `src/llm.py` (`ask_json`) on the HTTP client of the vision baseline, no SDK; settings `llm.url`, `llm.model`, `llm.timeout`, token prices (`docs/llm.md`). Without a model the rule-based assessment stays (CIPW-55).
 - **Open, for Cofidis (CIPW-61):** which model, Mistral's API or its own server, who provides the key.
 - **Affected tasks:** CIPW-16, CIPW-17, CIPW-58, CIPW-61.
+
+## 2026-11-04 — Rating by rules, the LLM only explains it (CIPW-16)
+
+- **Decision:** the overall risk rating (read as low risk / medium risk / high risk, or no rating; high risk is the worst) is calculated by fixed rules from the numbers (`src/report/rating.py`). The LLM writes the summary, strengths, risks, red flags and the reasoning; the rating in its answer is always replaced by the rules' value. A company whose bankruptcy scores cannot be computed gets no rating, with an explanation. The report is in English for now.
+- **Rules** (version `proposal-1`, the first one that applies decides):
+
+  | rule | condition | risk rating |
+  | --- | --- | --- |
+  | R1 | equity is negative | high risk |
+  | R2 | IN05 and Altman Z′ are both in the distress zone | high risk |
+  | R3 | one of the two models is in the distress zone and the period ends with a loss | high risk |
+  | R4 | no bankruptcy score could be computed (usually no income statement in the filing) | no rating |
+  | R5 | both models are in the safe zone, the period is not a loss, all accounting checks passed and no score is computed from values flagged for review | low risk |
+  | R6 | everything else | medium risk |
+
+- **Why:** same numbers give the same rating every time (the LLM text changes slightly from one generation to the next), every step can be explained and checked, and the rating cannot be argued away by a well-written paragraph.
+- **How:** the 15 ground truth reports (prompt v3, Gemini) were checked automatically against the input data: 380 numbers, none wrong. The rules are a proposal (`rules_version: proposal-1`). Everything still waiting for an answer is a setting in `report:` of `config/fides.yaml` (language, provider and model, risk threshold, rules left out, partial rating); see `docs/assessment.md`.
+- **Still open (questions to Marek and Marvin):** Cofidis' own criteria for assessing a company (the draft is too generous for DSC Art and perhaps too harsh for ZEVO, and debt is not part of the rules); a partial rating from the balance sheet for the 7 companies without an income statement (the team leaning towards yes if it is little work); the 20 % worsening threshold; the report language if other branches use the tool; LLM provider: Mistral since 11 Nov (CIPW-58); this report code still calls its own clients (Gemini free tier for the tests) and moves to `src/llm.py` when it is wired into the pipeline.
+- **Affected tasks:** CIPW-16, CIPW-17, CIPW-18.
 
 ## 2026-10-21 — Web app in React + TypeScript over a Python API, no desktop installer (CIPW-41)
 

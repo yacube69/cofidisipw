@@ -63,7 +63,8 @@ How the call works:
 
 ## For the AI report (CIPW-16)
 
-- **Prompt:** in `prompts/`. Tune and review it on the model Cofidis will use: the quality of Czech text varies between Mistral models.
+- **Code:** `src/report/generate.py` (`generate_report`, `translate_report`) asks through `ask_json` and nothing else; there is no provider setting. Offline mode calls no model; the answer length is limited before the call so that it stays within `llm.max_cost_usd`, and a call that cannot fit is refused unsent. `scripts/generate_reports.py --gemini` (a free key, the public ground truth only) is the one other way to a model, to tune the prompt: it is a flag of that script, never a setting, and the pipeline and the app do not use it.
+- **Prompt:** `prompts/assessment_v8.md` (it asks for a JSON answer) and `prompts/translation_v4.md`. Tune and review them on the model Cofidis will use: the quality of Czech text varies between Mistral models.
 - **Answer:** the same fields as the rule-based assessment, with `source: "llm"`. The app and the PDF then show it without changes.
 - **After the call:** the number check (CIPW-17) checks every number in the text against the data, whatever the model.
 

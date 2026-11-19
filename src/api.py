@@ -377,7 +377,8 @@ def report_pdf(result_id: str, user: Viewer) -> Response:
     skip_report) gets the rule-based one, so the PDF never lacks its text."""
     result = _get(result_id, user).result
     if result.report is None:
-        result = result.model_copy(update={"report": rule_based_report(result, SETTINGS.report.language)})
+        report = rule_based_report(result, SETTINGS.report.language, SETTINGS.report.rating)
+        result = result.model_copy(update={"report": report})
     return Response(
         render_report(result, SETTINGS),
         media_type="application/pdf",

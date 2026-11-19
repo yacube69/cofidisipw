@@ -64,7 +64,7 @@ NOT_READ = {
     "bank": "these look like bank statements (Vyhláška 501/2002 Sb.), which Fides does not read; values are "
     "missing or on other lines",
 }
-REPORT_PROMPT = "report.md"  # in settings.paths.prompts (CIPW-16)
+REPORT_PROMPT = "assessment_v8.md"  # in settings.paths.prompts (CIPW-16)
 
 
 class StageFailed(Exception):
@@ -273,7 +273,7 @@ def stage_report(result: Result, ctx: Context) -> StageStatus:
     a rule-based assessment from the same numbers (src/report/fallback.py), marked `source: "rules"`."""
     if ctx.options.skip_report:
         return "skipped"
-    result.report = rule_based_report(result, ctx.settings.report.language)
+    result.report = rule_based_report(result, ctx.settings.report.language, ctx.settings.report.rating)
     if ctx.settings.offline:
         ctx.notes["report"] = "offline mode: no LLM call, rule-based assessment"
     elif not ctx.settings.llm_enabled:
